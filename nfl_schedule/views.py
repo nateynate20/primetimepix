@@ -1,3 +1,5 @@
+# views.py
+
 from django.shortcuts import render
 import requests
 from bs4 import BeautifulSoup
@@ -5,36 +7,46 @@ from .models import NFLGame
 
 # Function to scrape NFL schedule data from pro-football-reference.com
 def scrape_nfl_schedule(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
+    }
 
-        nfl_schedule = {}
-        current_week = None
+    try:
+        response = requests.get(url, headers=headers)
 
-        # Find the elements containing schedule data
-        schedule_tables = soup.find_all('table', class_='suppress_glossary')
-        for table in schedule_tables:
-            week_header = table.find_previous('h2')
-            if week_header:
-                current_week = week_header.text.strip()
-                nfl_schedule[current_week] = []
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
 
-            rows = table.find_all('tr')
-            for row in rows[1:]:  # Skip the header row
-                columns = row.find_all(['th', 'td'])
-                if len(columns) >= 4:
-                    home_team = columns[1].text.strip()
-                    away_team = columns[2].text.strip()
-                    start_time = columns[3].text.strip()
-                    nfl_schedule[current_week].append({
-                        'home_team': home_team,
-                        'away_team': away_team,
-                        'start_time': start_time
-                    })
+            nfl_schedule = {}
+            current_week = None
 
-        return nfl_schedule
-    else:
+            # Find the elements containing schedule data
+            schedule_tables = soup.find_all('table', class_='suppress_glossary')
+            for table in schedule_tables:
+                week_header = table.find_previous('h2')
+                if week_header:
+                    current_week = week_header.text.strip()
+                    nfl_schedule[current_week] = []
+
+                rows = table.find_all('tr')
+                for row in rows[1:]:  # Skip the header row
+                    columns = row.find_all(['th', 'td'])
+                    if len(columns) >= 4:
+                        home_team = columns[1].text.strip()
+                        away_team = columns[2].text.strip()
+                        start_time = columns[3].text.strip()
+                        nfl_schedule[current_week].append({
+                            'home_team': home_team,
+                            'away_team': away_team,
+                            'start_time': start_time
+                        })
+
+            return nfl_schedule
+        else:
+            return None
+    except requests.exceptions.RequestException as e:
+        # Handle network or request-related errors
+        print("Error:", e)
         return None
 
 # Function to save scraped NFL schedule data to the database
@@ -56,8 +68,7 @@ def display_nfl_schedule(request):
 
     if nfl_schedule:
         save_nfl_schedule_to_db(nfl_schedule)
-        games = NFLGame.objects.filter(week="Week 7")
-        print("Number of games retrieved:", len(games))  # Change "Week 2" to the desired week
+        games = NFLGame.objects.filter(week="Week 7") # Change "Week 2" to the desired week
         return render(request, 'nfl_schedule/schedule.html', {'games': games})
     else:
         error_message = "Failed to fetch NFL schedule data. Please try again later."
