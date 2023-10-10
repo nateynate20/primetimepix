@@ -5,9 +5,8 @@ from .models import NFLGame
 
 # Function to scrape NFL schedule data from pro-football-reference.com
 def scrape_nfl_schedule(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
+    response = requests.get(url)
+    if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
 
         nfl_schedule = {}
@@ -35,8 +34,7 @@ def scrape_nfl_schedule(url):
                     })
 
         return nfl_schedule
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching NFL schedule data: {e}")
+    else:
         return None
 
 # Function to save scraped NFL schedule data to the database
@@ -58,13 +56,9 @@ def display_nfl_schedule(request):
 
     if nfl_schedule:
         save_nfl_schedule_to_db(nfl_schedule)
-        games = NFLGame.objects.filter(week="Week 5")  # Change "Week 2" to the desired week
+        games = NFLGame.objects.filter(week="Week 7")
+        print("Number of games retrieved:", len(games))  # Change "Week 2" to the desired week
         return render(request, 'nfl_schedule/schedule.html', {'games': games})
-        
     else:
-        error_message = "Failed to fetch NFL schedule data."
-        
-        return render(request, 'nfl_schedule/error.html', {'error_message': error_message})
-        
-
-# Create your views here.
+        error_message = "Failed to fetch NFL schedule data. Please try again later."
+        return render(request, 'nfl_schedule/schedule.html', {'error_message': error_message})
