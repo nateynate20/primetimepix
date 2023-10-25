@@ -1,3 +1,4 @@
+#nfl_schedule/models.py
 from django.db import models
 
 class NFLGame(models.Model):
