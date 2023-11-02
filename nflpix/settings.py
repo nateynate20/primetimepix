@@ -32,14 +32,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'nfl_schedule',
+    'nflpix',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'nfl_schedule',
-    'nflpix',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'nflpix.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'nfl_schedule/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'nflpix/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

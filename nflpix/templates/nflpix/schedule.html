@@ -12,17 +12,25 @@
                 <th>Home Team</th>
                 <th>Away Team</th>
                 <th>Start Time</th>
+                <th>Predict Winner</th>
             </tr>
         </thead>
         <tbody>
-            {% for game in games %}
-                <tr>
-                    <td>{{ game.week }}</td>
-                    <td>{{ game.home_team }}</td>
-                    <td>{{ game.away_team }}</td>
-                    <td>{{ game.start_time }}</td>
-                </tr>
-            {% endfor %}
+            <form method="post">
+                {% csrf_token %}
+                {% for game in games %}
+                    <tr>
+                        <td>{{ game.week }}</td>
+                        <td>{{ game.home_team }}</td>
+                        <td>{{ game.away_team }}</td>
+                        <td>{{ game.start_time }}</td>
+                        <td>
+                            <button type="submit" name="prediction" value="{{ game.home_team }}">Predict {{ game.home_team }}</button>
+                            <button type="submit" name="prediction" value="{{ game.away_team }}">Predict {{ game.away_team }}</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </form>
         </tbody>
     </table>
 </body>
