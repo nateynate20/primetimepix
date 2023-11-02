@@ -4,7 +4,7 @@ from nfl_schedule.models import NFLGame
 
 
 def display_nfl_schedule(request):
-    games = NFLGame.objects.all()  # Query all NFL games
+    games = NFLGame.objects.all() # Query all NFL games
 
     return render(request, 'nflpix/schedule.html', {'games': games})
 
