@@ -1,0 +1,17 @@
+
+{% block content %}
+
+{% if forms.errors %}
+<p>There is a error with your form</p>
+{% endif %}
+
+  <h1>Sign Up</h1>
+  <form action="{% url 'signup' %}" method=POST>
+    {% csrf_token %}
+
+    {{ form }}
+
+    <button type="submit">Sign Up</button>
+  </form>
+  <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+{% endblock %}

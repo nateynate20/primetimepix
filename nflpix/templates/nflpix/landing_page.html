@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>NFL Pick App - Welcome</title>
-</head>
-<body>
-    <header>
-        <h1>Welcome to NFL Pick App</h1>
-    </header>
+{% extends 'nflpix/base.html' %}
+
+{% block content %}
+
+        <h1>Welcome to NFL Primetime Pick'Em </h1>
 
     <main>
         <section>
@@ -21,12 +17,10 @@
 
         <section>
             <h2>Start Picking</h2>
-            <p>Ready to make your NFL picks? <a href="{% url 'login' %}">Login here.</a></p>
+            <p>Ready to make your NFL picks? <a href="{% url 'signup' %}">Sign Up Now</a> or <a href="{% url 'login' %}">Login here.</a></p>
 
     </main>
 
-    <footer>
-        <p>&copy; 2023 NFL Pick App</p>
-    </footer>
-</body>
-</html>
+
+{% endblock %}
+
