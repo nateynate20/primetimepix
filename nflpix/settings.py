@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'nfl_schedule',
     'players',
+    'game_picks',
    
 ]
 

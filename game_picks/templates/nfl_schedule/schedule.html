@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NFL Schedule</title>
+</head>
+<body>
+    <h1>NFL Schedule</h1>
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Home Team</th>
+                    <th>Away Team</th>
+                    <th>Start Time</th>
+                    <th>Predict Winner</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                    <tr>
+                        <td>{{ game.week }}</td>
+                        <td>{{ game.home_team }}</td>
+                        <td>{{ game.away_team }}</td>
+                        <td>{{ game.start_time }}</td>
+                        <td>
+                            <label for="{{ game.id }}_home">Predict {{ game.home_team }}</label>
+                            <input type="radio" id="{{ game.id }}_home" name="predicted_winner" value="{{ game.home_team }}" required>
+                            <label for="{{ game.id }}_away">Predict {{ game.away_team }}</label>
+                            <input type="radio" id="{{ game.id }}_away" name="predicted_winner" value="{{ game.away_team }}" required>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Submit Predictions</button>
+    </form>
+</body>
+</html>

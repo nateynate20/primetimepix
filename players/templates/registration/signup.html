@@ -1,4 +1,4 @@
-
+{% extends 'nflpix/base.html' %}
 {% block content %}
 
 {% if forms.errors %}
@@ -6,12 +6,16 @@
 {% endif %}
 
   <h1>Sign Up</h1>
-  <form action="{% url 'signup' %}" method=POST>
-    {% csrf_token %}
+<br/>
 
-    {{ form }}
+    <form action="{% url 'signup' %}" method=POST>
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+<br/><br/>
 
     <button type="submit">Sign Up</button>
+    <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
   </form>
-  <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+
 {% endblock %}

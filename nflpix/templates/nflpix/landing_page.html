@@ -1,26 +1,23 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-
+<center>
         <h1>Welcome to NFL Primetime Pick'Em </h1>
 
-    <main>
-        <section>
+    
             <h2>About Us</h2>
             <p>Get ready to pick your favorite NFL teams and follow their schedules. Make your game predictions and enjoy the football season.</p>
-        </section>
+        
 
-        <section>
+        
             <h2>How It Works</h2>
             <p>It's easy to get started. Simply browse the NFL schedule, make your picks, and track your progress throughout the season.</p>
-        </section>
+        
 
-        <section>
+        
             <h2>Start Picking</h2>
             <p>Ready to make your NFL picks? <a href="{% url 'signup' %}">Sign Up Now</a> or <a href="{% url 'login' %}">Login here.</a></p>
 
-    </main>
-
+</center>
 
 {% endblock %}
-
