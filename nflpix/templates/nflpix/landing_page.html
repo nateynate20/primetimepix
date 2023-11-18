@@ -1,23 +1,29 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-<center>
-        <h1>Welcome to NFL Primetime Pick'Em </h1>
+<div class="container mt-5">
+    <header class="text-center">
+        <h1>Welcome to NFL Primetime Pick'Em</h1>
+        <p class="lead">Make your NFL picks and follow the schedules with NFL Primetime Pick'Em. Enjoy the football season by predicting game outcomes.</p>
+    </header>
 
-    
+    <section class="row mt-5">
+        <article class="col-md-6">
             <h2>About Us</h2>
-            <p>Get ready to pick your favorite NFL teams and follow their schedules. Make your game predictions and enjoy the football season.</p>
-        
+            <p>Discover the excitement of picking your favorite NFL teams and staying updated on their schedules. Immerse yourself in the football season by making accurate game predictions and savoring every moment.</p>
+        </article>
 
-        
+        <article class="col-md-6">
             <h2>How It Works</h2>
-            <p>It's easy to get started. Simply browse the NFL schedule, make your picks, and track your progress throughout the season.</p>
-        
+            <p>Getting started is a breeze. Explore the NFL schedule, make your picks, and seamlessly track your progress throughout the season. Engage with the game and enjoy the thrill of accurate predictions.</p>
+        </article>
+    </section>
 
-        
+    <section class="row mt-5">
+        <div class="col-md-12">
             <h2>Start Picking</h2>
-            <p>Ready to make your NFL picks? <a href="{% url 'signup' %}">Sign Up Now</a> or <a href="{% url 'login' %}">Login here.</a></p>
-
-</center>
-
+            <p>Ready to make your NFL picks? <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up Now</a> or <a href="{% url 'login' %}" class="btn btn-secondary">Login here</a>.</p>
+        </div>
+    </section>
+</div>
 {% endblock %}

@@ -11,7 +11,7 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('landing_page')
         else:
             messages.success(request=("There was a Error logging in, Try again SMH"))
             return redirect('login')
@@ -21,8 +21,8 @@ def login_user(request):
 
 def logout_user(request):
     logout(request)
-    messages.success(request=("you have logged out"))
-    return redirect('home')
+    messages.success(request,"you have logged out")
+    return redirect('landing_page')
 
 def signup(request):
     if request.method == 'POST':
@@ -35,7 +35,7 @@ def signup(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request=("you have signed up.. good luck"))
+                messages.success(request,"you have signed up.. good luck")
                 return redirect('home')
     else:
         form = SignupUserForm()
@@ -44,4 +44,3 @@ def signup(request):
 
 
 
-# Create your views here.
