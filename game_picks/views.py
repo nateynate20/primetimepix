@@ -7,9 +7,12 @@ from django.contrib.auth.forms import AuthenticationForm
 from game_picks.models import GameSelection
 from .forms import GameSelectionForm  # Import the form
 from game_picks.models import UserRecord
+from django.utils import timezone
 
 @login_required(login_url='login')
 def display_nfl_schedule(request):
+    current_date = timezone.now().date()
+
     if request.method == 'POST':
         # Create a form instance and populate it with data from the request:
         form = GameSelectionForm(request.POST)
@@ -34,7 +37,7 @@ def display_nfl_schedule(request):
     else:
         form = GameSelectionForm()
 
-    games = NFLGame.objects.all()
+    games = NFLGame.objects.filter(date=current_date)
     predictions = GameSelection.objects.filter(user=request.user, game__in=games)
 
     context = {

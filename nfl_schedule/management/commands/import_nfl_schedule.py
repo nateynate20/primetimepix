@@ -22,9 +22,11 @@ class Command(BaseCommand):
             for game_data in nfl_schedule:
                 NFLGame.objects.create(
                     week=game_data['week'],
+                    date=game_data['date'],
                     home_team=game_data['home_team'],
                     away_team=game_data['away_team'],
                     start_time=game_data['start_time'],
+
                 )
 
             self.stdout.write(self.style.SUCCESS('Data imported successfully'))

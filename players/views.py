@@ -29,14 +29,23 @@ def signup(request):
         form = SignupUserForm(request.POST)
         if form.is_valid():
             form.save()
-            # Automatically log in the user after registration
+           
+            if user.created_by_admin:
+                # Set a temporary password for the user
+                temp_password = 'your_temp_password_here'
+                user.set_password(temp_password)
+                user.save()
+             # Automatically log in the user after registration
             username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(request, username=username, password=temp_password)
             if user is not None:
                 login(request, user)
-                messages.success(request,"you have signed up.. good luck")
-                return redirect('home')
+                messages.success(request,"you have been signed up, Change your password")
+                return redirect('password_change')
+            else:
+                login(request, user)
+                messages.success(request, "You have signed up. Welcome!")
+                return redirect('home') 
     else:
         form = SignupUserForm()
 
