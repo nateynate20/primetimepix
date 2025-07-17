@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('login_user/', views.login_user, name='login_user'),
     path('signup/', views.signup, name='signup'),
-    path('logout/', views.logout_user, name='logout'),
+    path('logout/', LogoutView.as_view(next_page='landing_page'), name='logout'),
 
     # Password Reset URLs
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='players/password_reset.html'), name='password_reset'),

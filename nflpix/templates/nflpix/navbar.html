@@ -8,7 +8,7 @@
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="nav nav-pills nav-fill">
         <li class="nav-item">
@@ -17,13 +17,16 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'standings' %}" title="Standings">Standings</a>
         </li>
-        
+
         {% if user.is_authenticated %}
           <li class="nav-item">
             <span class="nav-link disabled">Hello, {{ user.username }}</span>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}" title="Logout">Logout</a>
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="nav-link btn btn-link" style="padding: 0; margin: 0;">Logout</button>
+            </form>
           </li>
         {% else %}
           <li class="nav-item">
