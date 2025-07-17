@@ -20,7 +20,7 @@ def login_user(request):
         form = AuthenticationForm()
     return render(request, 'players/login.html', {'form': form})
 
-def signup_user(request):
+def signup(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
