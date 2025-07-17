@@ -18,7 +18,7 @@ def login_user(request):
             messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
-    return render(request, 'players/login.html', {'form': form})
+    return render(request, 'registration/login.html', {'form': form})
 
 def signup(request):
     if request.method == "POST":
@@ -32,7 +32,7 @@ def signup(request):
             messages.error(request, "Please correct the errors below.")
     else:
         form = UserCreationForm()
-    return render(request, 'players/signup.html', {'form': form})
+    return render(request, 'registration/signup.html', {'form': form})
 
 def logout_user(request):
     logout(request)
