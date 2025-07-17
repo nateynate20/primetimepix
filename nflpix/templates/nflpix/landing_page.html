@@ -23,10 +23,9 @@
         {% if user.is_authenticated %}
             <h2>Welcome back, {{ user.username }}!</h2>
             <p><a href="{% url 'standings' %}" class="btn btn-primary">View Standings</a></p>
-            <p><a href="{% url 'logout' %}" class="btn btn-danger">Logout</a></p>
         {% else %}
             <h2>Start Picking</h2>
-            <p><a href="{% url 'signup' %}" class="btn btn-primary">Sign Up Now</a> or <a href="{% url 'login_user' %}" class="btn btn-secondary">Login here</a>.</p>
+            <p><a href="{% url 'signup' %}" class="btn btn-primary">Sign Up Now</a> or <a href="{% url 'login_user' %}" class="btn btn-secondary">Login</a>.</p>
         {% endif %}
     </section>
 </div>
