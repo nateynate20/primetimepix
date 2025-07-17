@@ -13,11 +13,11 @@ def login_user(request):
             login(request, user)
             return redirect('landing_page')
         else:
-            messages.success(request=("There was a Error logging in, Try again SMH"))
+            messages.success(request, "There was an error logging in, try again SMH")
             return redirect('login')
-            pass
     else:
         return render(request, 'registration/login.html', {})
+
 
 def logout_user(request):
     logout(request)
