@@ -6,9 +6,9 @@
   <title>NFL Pix - Your Source for NFL Picks</title>
 
   <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
-  <!-- Bootstrap Icons CSS -->
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.20.0/font/bootstrap-icons.css">
 
   <!-- Google Fonts -->
@@ -39,62 +39,83 @@
       text-shadow: 0 0 8px var(--accent-neon);
     }
 
-    /* Navbar styling */
+    /* Frosted Glass Navbar */
     .navbar {
       position: sticky;
-      top: 48px; /* below ticker */
-      z-index: 1040; /* below ticker */
-      background-color: #111 !important;
-      padding: 0.5rem 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.7);
+      top: 48px;
+      z-index: 1040;
+      background-color: rgba(17, 17, 17, 0.8) !important;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--accent-neon);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      padding: 0.75rem 1rem;
+      transition: background-color 0.3s ease;
     }
 
-    /* Updated logo size */
     .navbar-brand img.navbar-logo {
-      height: 50px; /* Standard size for navbars */
-      width: auto;  /* Preserve aspect ratio */
-      display: block; /* Removes inline spacing */
+      height: 48px;
+      width: auto;
+      display: block;
+      filter: brightness(0) invert(1);
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-brand img.navbar-logo:hover {
+      transform: scale(1.05);
     }
 
     .navbar-nav .nav-link {
       color: var(--text-primary) !important;
-      font-weight: 600;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      transition: all 0.2s ease-in-out;
+      border-radius: 0.5rem;
     }
 
     .navbar-nav .nav-link:hover,
     .navbar-nav .nav-link:focus {
-      color: var(--accent-neon) !important;
-      text-shadow: 0 0 6px var(--accent-neon);
+      background-color: var(--accent-neon);
+      color: #000 !important;
+      box-shadow: 0 0 8px var(--accent-neon);
     }
 
     .navbar-toggler {
-      border-color: var(--accent-neon);
+      border: none;
     }
 
     .navbar-toggler-icon {
-      filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+      filter: invert(100%) brightness(150%);
+      transition: transform 0.3s ease;
     }
 
-    .btn-primary {
-      background: var(--accent-neon);
-      border: none;
-      color: #000;
+    .navbar-toggler:focus .navbar-toggler-icon {
+      transform: rotate(90deg);
     }
-    .btn-primary:hover {
-      background: var(--accent-blue);
-      color: #000;
+
+    .navbar-nav .nav-link.disabled {
+      opacity: 0.7;
+      font-style: italic;
+      padding-right: 0.5rem;
     }
-    .btn-secondary {
-      background: #222;
-      border: none;
+
+    .navbar-nav form .btn-link {
       color: var(--text-primary);
-    }
-    .btn-secondary:hover {
-      background: var(--accent-neon);
-      color: #000;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      transition: all 0.2s ease-in-out;
     }
 
-    /* Floating ticker styles */
+    .navbar-nav form .btn-link:hover {
+      color: #000;
+      background-color: var(--accent-neon);
+      box-shadow: 0 0 8px var(--accent-neon);
+    }
+
+    /* Ticker Styles */
     .ticker-wrap {
       position: fixed;
       top: 0;
@@ -102,7 +123,7 @@
       background: #111;
       border-bottom: 2px solid var(--accent-neon);
       overflow: hidden;
-      z-index: 1050; /* above navbar */
+      z-index: 1050;
       height: 48px;
       display: flex;
       align-items: center;
@@ -111,22 +132,26 @@
       font-weight: 600;
       color: var(--accent-neon);
     }
+
     .ticker {
       display: inline-block;
       white-space: nowrap;
       padding-left: 100%;
       animation: scroll-left 12s linear infinite;
     }
+
     @keyframes scroll-left {
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
     }
+
     .ticker-item {
       margin-right: 60px;
       display: inline-flex;
       align-items: center;
       gap: 8px;
     }
+
     .team-logo {
       width: 28px;
       height: 28px;
@@ -135,10 +160,12 @@
       object-fit: contain;
       background: #000;
     }
+
     .score {
       color: var(--accent-blue);
       font-weight: 700;
     }
+
     .status {
       font-size: 12px;
       color: var(--text-secondary);
@@ -146,7 +173,7 @@
       margin-left: 6px;
     }
 
-    /* Adjust container margin to avoid being behind ticker */
+    /* Adjust for Ticker */
     .container.mt-4 {
       margin-top: 100px !important;
     }
@@ -154,13 +181,36 @@
     footer p {
       color: var(--text-secondary);
     }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--accent-neon);
+      border: none;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-blue);
+      color: #000;
+    }
+
+    .btn-secondary {
+      background: #222;
+      border: none;
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent-neon);
+      color: #000;
+    }
   </style>
 </head>
 
 <body>
+
   {% include 'nflpix/navbar.html' %}
 
-  <!-- Floating scoreboard ticker -->
   <div class="ticker-wrap" aria-label="Live Scores Ticker">
     <div class="ticker">
       {% for game in scores_ticker %}
@@ -183,11 +233,12 @@
 
   <footer class="mt-5">
     <div class="container">
-      <p class="text-center">© 2023 NFL Pick App - Your go-to platform for NFL picks and predictions</p>
+      <p class="text-center">© 2025 NFL Pick App - Your go-to platform for NFL picks and predictions</p>
     </div>
   </footer>
 
   <!-- Bootstrap Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
