@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     path('login_user/', views.login_user, name='login_user'),
-    path('signup/', views.signup, name='signup'),
+    path('signup/', views.signup, name='signup_user'),
     path('logout/', views.logout_user, name='logout'),
 
     # Password Reset URLs
