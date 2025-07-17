@@ -1,32 +1,37 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <header class="text-center">
-        <h1>Welcome to NFL Primetime Pick'Em</h1>
-        <p class="lead">Make your NFL picks and follow the schedules with NFL Primetime Pick'Em.</p>
-    </header>
+  <header class="text-center mt-4">
+    <h1>Welcome to NFL Primetime Pick'Em</h1>
+    <p class="lead text-light">Make your NFL picks and follow the schedules with NFL Primetime Pick'Em.</p>
+  </header>
 
-    <section class="row mt-5">
-        <article class="col-md-6">
-            <h2>About Us</h2>
-            <p>Pick your favorite NFL teams, stay updated, and make accurate game predictions all season long.</p>
-        </article>
+  <section class="row mt-5">
+    <article class="col-md-6">
+      <h2>About Us</h2>
+      <p>Pick your favorite NFL teams, stay updated, and make accurate game predictions all season long.</p>
+    </article>
 
-        <article class="col-md-6">
-            <h2>How It Works</h2>
-            <p>Check the schedule, make your picks, and track your progress. It's simple and fun!</p>
-        </article>
-    </section>
+    <article class="col-md-6">
+      <h2>How It Works</h2>
+      <p>Check the schedule, make your picks, and track your progress. It's simple and fun!</p>
+    </article>
+  </section>
 
-    <section class="row mt-5 text-center">
-        {% if user.is_authenticated %}
-            <h2>Welcome back, {{ user.username }}!</h2>
-            <p><a href="{% url 'standings' %}" class="btn btn-primary">View Standings</a></p>
-        {% else %}
-            <h2>Start Picking</h2>
-            <p><a href="{% url 'signup' %}" class="btn btn-primary">Sign Up Now</a> or <a href="{% url 'login_user' %}" class="btn btn-secondary">Login</a>.</p>
-        {% endif %}
-    </section>
-</div>
+  <section class="row mt-5 text-center">
+    {% if user.is_authenticated %}
+      <h2>Welcome back, {{ user.username }}!</h2>
+      <p><a href="{% url 'standings' %}" class="btn btn-primary">View Standings</a></p>
+      <form method="post" action="{% url 'logout' %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link nav-link" style="padding: 0; margin: 0;">Logout</button>
+      </form>
+    {% else %}
+      <h2>Start Picking</h2>
+      <p>
+        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up Now</a> or
+        <a href="{% url 'login_user' %}" class="btn btn-secondary">Login here</a>.
+      </p>
+    {% endif %}
+  </section>
 {% endblock %}

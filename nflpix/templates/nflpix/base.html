@@ -1,39 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NFL Pix - Your Source for NFL Picks</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NFL Pix - Your Source for NFL Picks</title>
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
 
-    <!-- Bootstrap Icons CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.20.0/font/bootstrap-icons.css">
+  <!-- Bootstrap Icons CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.20.0/font/bootstrap-icons.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-color: #0d0d0d;
+      --accent-neon: #39ff14;
+      --accent-blue: #00ffff;
+      --text-primary: #eee;
+      --text-secondary: #999;
+      --card-bg: rgba(255, 255, 255, 0.05);
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-color);
+      color: var(--text-primary);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    h1, h2 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--accent-neon);
+      text-shadow: 0 0 8px var(--accent-neon);
+    }
+
+    .navbar, .navbar-nav .nav-link {
+      background: transparent;
+      color: var(--text-primary) !important;
+    }
+    .navbar-nav .nav-link:hover {
+      color: var(--accent-neon) !important;
+    }
+
+    .btn-primary {
+      background: var(--accent-neon);
+      border: none;
+      color: #000;
+    }
+    .btn-primary:hover {
+      background: var(--accent-blue);
+      color: #000;
+    }
+    .btn-secondary {
+      background: #222;
+      border: none;
+      color: var(--text-primary);
+    }
+    .btn-secondary:hover {
+      background: var(--accent-neon);
+      color: #000;
+    }
+
+    /* Floating ticker styles */
+    .ticker-wrap {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #111;
+      border-bottom: 2px solid var(--accent-neon);
+      overflow: hidden;
+      z-index: 1050; /* Bootstrap navbar default z-index is 1030 */
+      height: 48px;
+      display: flex;
+      align-items: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent-neon);
+    }
+    .ticker {
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 100%;
+      animation: scroll-left 12s linear infinite;
+    }
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    .ticker-item {
+      margin-right: 60px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .team-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--accent-neon);
+      object-fit: contain;
+      background: #000;
+    }
+    .score {
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+    .status {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-left: 6px;
+    }
+
+    /* Adjust container margin to avoid being behind ticker */
+    .container.mt-4 {
+      margin-top: 100px !important;
+    }
+
+    footer p {
+      color: var(--text-secondary);
+    }
+  </style>
 </head>
+
 <body>
-    {% include 'nflpix/navbar.html' %}
+  {% include 'nflpix/navbar.html' %}
 
-    <div class="container mt-4">
-        {% block content %}
-        {% endblock %}
+  <!-- Floating scoreboard ticker -->
+  <div class="ticker-wrap" aria-label="Live Scores Ticker">
+    <div class="ticker">
+      {% for game in scores_ticker %}
+        <span class="ticker-item" role="listitem">
+          <img src="{{ game.home_logo }}" alt="{{ game.home_team }} logo" class="team-logo" />
+          {{ game.home_team }} <span class="score">{{ game.home_score }}</span> vs <span class="score">{{ game.away_score }}</span> {{ game.away_team }}
+          <img src="{{ game.away_logo }}" alt="{{ game.away_team }} logo" class="team-logo" />
+          <span class="status">({{ game.status }})</span>
+        </span>
+      {% empty %}
+        <span class="ticker-item">No live games at the moment.</span>
+      {% endfor %}
     </div>
+  </div>
 
-    <footer class="mt-5">
-        <div class="container">
-            <p class="text-center">© 2023 NFL Pick App - Your go-to platform for NFL picks and predictions</p>
-        </div>
-    </footer>
+  <div class="container mt-4">
+    {% block content %}
+    {% endblock %}
+  </div>
 
-    <!-- Optional JavaScript; choose one of the two! -->
+  <footer class="mt-5">
+    <div class="container">
+      <p class="text-center">© 2023 NFL Pick App - Your go-to platform for NFL picks and predictions</p>
+    </div>
+  </footer>
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
-    -->
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 </html>

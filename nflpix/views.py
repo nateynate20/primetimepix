@@ -1,8 +1,5 @@
 # nflpix/views.py
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
-
+from django.shortcuts import render
 
 def landing_page(request):
-    return render(request, 'nflpix/landing_page.html', {})
+    return render(request, 'nflpix/landing_page.html')
