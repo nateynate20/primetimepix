@@ -4,26 +4,30 @@
 <div class="container mt-5">
     <header class="text-center">
         <h1>Welcome to NFL Primetime Pick'Em</h1>
-        <p class="lead">Make your NFL picks and follow the schedules with NFL Primetime Pick'Em. Enjoy the football season by predicting game outcomes.</p>
+        <p class="lead">Make your NFL picks and follow the schedules with NFL Primetime Pick'Em.</p>
     </header>
 
     <section class="row mt-5">
         <article class="col-md-6">
             <h2>About Us</h2>
-            <p>Discover the excitement of picking your favorite NFL teams and staying updated on their schedules. Immerse yourself in the football season by making accurate game predictions and savoring every moment.</p>
+            <p>Pick your favorite NFL teams, stay updated, and make accurate game predictions all season long.</p>
         </article>
 
         <article class="col-md-6">
             <h2>How It Works</h2>
-            <p>Getting started is a breeze. Explore the NFL schedule, make your picks, and seamlessly track your progress throughout the season. Engage with the game and enjoy the thrill of accurate predictions.</p>
+            <p>Check the schedule, make your picks, and track your progress. It's simple and fun!</p>
         </article>
     </section>
 
-    <section class="row mt-5">
-        <div class="col-md-12">
+    <section class="row mt-5 text-center">
+        {% if user.is_authenticated %}
+            <h2>Welcome back, {{ user.username }}!</h2>
+            <p><a href="{% url 'standings' %}" class="btn btn-primary">View Standings</a></p>
+            <p><a href="{% url 'logout' %}" class="btn btn-danger">Logout</a></p>
+        {% else %}
             <h2>Start Picking</h2>
-            <p>Ready to make your NFL picks? <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up Now</a> or <a href="{% url 'login' %}" class="btn btn-secondary">Login here</a>.</p>
-        </div>
+            <p><a href="{% url 'signup' %}" class="btn btn-primary">Sign Up Now</a> or <a href="{% url 'login_user' %}" class="btn btn-secondary">Login here</a>.</p>
+        {% endif %}
     </section>
 </div>
 {% endblock %}

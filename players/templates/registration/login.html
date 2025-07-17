@@ -1,29 +1,11 @@
 {% extends 'nflpix/base.html' %}
-
-
 {% block content %}
-<center>
-
-    <h1> Login </h1>
-<br/><br/>
-
-
-  {% if form.errors %}
-    <p class="error">Please correct the error{{ form.errors|pluralize }} below.</p>
-  {% endif %}
-
-  <form action="" method=POST>
+<h2>Login</h2>
+<form method="POST">
     {% csrf_token %}
-    <form>
-      <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Username</label>
-        <input type="text" class="form-control" name="username" aria-describedby="emailHelp">
-      <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Password</label>
-        <input type="password" class="form-control" name="password">
-      </div>
-
+    {{ form.as_p }}
     <button type="submit">Log In</button>
-  </form>
-</center>
+</form>
+<p><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
+<p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
 {% endblock %}

@@ -1,55 +1,40 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
-from .forms import SignupUserForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
+def landing_page(request):
+    return render(request, 'nflpix/landing.html')
 
 def login_user(request):
-    if request.method == 'POST':
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
+            messages.success(request, f"Welcome back, {user.username}!")
             return redirect('landing_page')
         else:
-            messages.success(request, "There was an error logging in, try again SMH")
-            return redirect('login')
+            messages.error(request, "Invalid username or password.")
     else:
-        return render(request, 'registration/login.html', {})
+        form = AuthenticationForm()
+    return render(request, 'players/login.html', {'form': form})
 
+def signup_user(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Account created successfully.")
+            return redirect('landing_page')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = UserCreationForm()
+    return render(request, 'players/signup.html', {'form': form})
 
 def logout_user(request):
     logout(request)
-    messages.success(request,"you have logged out")
+    messages.success(request, "You have successfully logged out.")
     return redirect('landing_page')
-
-def signup(request):
-    if request.method == 'POST':
-        form = SignupUserForm(request.POST)
-        if form.is_valid():
-            form.save()
-           
-            if user.created_by_admin:
-                # Set a temporary password for the user
-                temp_password = 'your_temp_password_here'
-                user.set_password(temp_password)
-                user.save()
-             # Automatically log in the user after registration
-            username = form.cleaned_data.get('username')
-            user = authenticate(request, username=username, password=temp_password)
-            if user is not None:
-                login(request, user)
-                messages.success(request,"you have been signed up, Change your password")
-                return redirect('password_change')
-            else:
-                login(request, user)
-                messages.success(request, "You have signed up. Welcome!")
-                return redirect('home') 
-    else:
-        form = SignupUserForm()
-
-    return render(request, 'registration/signup.html', {'form': form,})
-
-
-
