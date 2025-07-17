@@ -34,30 +34,23 @@
 
     h1, h2 {
       font-weight: 600;
-      margin-bottom: 1rem;
       color: var(--accent-neon);
       text-shadow: 0 0 8px var(--accent-neon);
     }
 
-    /* Frosted Glass Navbar */
     .navbar {
       position: sticky;
       top: 48px;
       z-index: 1040;
-      background-color: rgba(17, 17, 17, 0.8) !important;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--accent-neon);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-      padding: 0.75rem 1rem;
-      transition: background-color 0.3s ease;
+      background-color: #111 !important;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.7);
     }
 
     .navbar-brand img.navbar-logo {
       height: 48px;
       width: auto;
       display: block;
-      filter: brightness(0) invert(1);
       transition: transform 0.3s ease;
     }
 
@@ -67,52 +60,42 @@
 
     .navbar-nav .nav-link {
       color: var(--text-primary) !important;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
-      transition: all 0.2s ease-in-out;
-      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: all 0.2s;
     }
 
     .navbar-nav .nav-link:hover,
     .navbar-nav .nav-link:focus {
-      background-color: var(--accent-neon);
-      color: #000 !important;
-      box-shadow: 0 0 8px var(--accent-neon);
+      color: var(--accent-neon) !important;
+      text-shadow: 0 0 6px var(--accent-neon);
     }
 
     .navbar-toggler {
-      border: none;
+      border-color: var(--accent-neon);
     }
 
     .navbar-toggler-icon {
-      filter: invert(100%) brightness(150%);
-      transition: transform 0.3s ease;
+      filter: invert(100%);
     }
 
-    .navbar-toggler:focus .navbar-toggler-icon {
-      transform: rotate(90deg);
-    }
-
-    .navbar-nav .nav-link.disabled {
-      opacity: 0.7;
-      font-style: italic;
-      padding-right: 0.5rem;
-    }
-
-    .navbar-nav form .btn-link {
-      color: var(--text-primary);
-      font-weight: 500;
-      border-radius: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: transparent;
+    .btn-primary {
+      background: var(--accent-neon);
       border: none;
-      transition: all 0.2s ease-in-out;
+      color: #000;
+    }
+    .btn-primary:hover {
+      background: var(--accent-blue);
+      color: #000;
     }
 
-    .navbar-nav form .btn-link:hover {
+    .btn-secondary {
+      background: #222;
+      border: none;
+      color: var(--text-primary);
+    }
+    .btn-secondary:hover {
+      background: var(--accent-neon);
       color: #000;
-      background-color: var(--accent-neon);
-      box-shadow: 0 0 8px var(--accent-neon);
     }
 
     /* Ticker Styles */
@@ -173,7 +156,6 @@
       margin-left: 6px;
     }
 
-    /* Adjust for Ticker */
     .container.mt-4 {
       margin-top: 100px !important;
     }
@@ -181,34 +163,10 @@
     footer p {
       color: var(--text-secondary);
     }
-
-    /* Buttons */
-    .btn-primary {
-      background: var(--accent-neon);
-      border: none;
-      color: #000;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-blue);
-      color: #000;
-    }
-
-    .btn-secondary {
-      background: #222;
-      border: none;
-      color: var(--text-primary);
-    }
-
-    .btn-secondary:hover {
-      background: var(--accent-neon);
-      color: #000;
-    }
   </style>
 </head>
 
 <body>
-
   {% include 'nflpix/navbar.html' %}
 
   <div class="ticker-wrap" aria-label="Live Scores Ticker">
@@ -233,12 +191,10 @@
 
   <footer class="mt-5">
     <div class="container">
-      <p class="text-center">© 2025 NFL Pick App - Your go-to platform for NFL picks and predictions</p>
+      <p class="text-center">© 2025 NFL Pix App - Your go-to platform for NFL picks and predictions</p>
     </div>
   </footer>
 
-  <!-- Bootstrap Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
