@@ -39,12 +39,37 @@
       text-shadow: 0 0 8px var(--accent-neon);
     }
 
-    .navbar, .navbar-nav .nav-link {
-      background: transparent;
-      color: var(--text-primary) !important;
+    /* Navbar styling */
+    .navbar {
+      position: sticky;
+      top: 48px; /* below ticker */
+      z-index: 1040; /* below ticker */
+      background-color: #111 !important;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.7);
     }
-    .navbar-nav .nav-link:hover {
+
+    .navbar-brand img.navbar-logo {
+      height: 40px;
+    }
+
+    .navbar-nav .nav-link {
+      color: var(--text-primary) !important;
+      font-weight: 600;
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link:focus {
       color: var(--accent-neon) !important;
+      text-shadow: 0 0 6px var(--accent-neon);
+    }
+
+    .navbar-toggler {
+      border-color: var(--accent-neon);
+    }
+
+    .navbar-toggler-icon {
+      filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
     }
 
     .btn-primary {
@@ -74,7 +99,7 @@
       background: #111;
       border-bottom: 2px solid var(--accent-neon);
       overflow: hidden;
-      z-index: 1050; /* Bootstrap navbar default z-index is 1030 */
+      z-index: 1050; /* above navbar */
       height: 48px;
       display: flex;
       align-items: center;
