@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Pending League Join Requests</h2>
+{% if pending_join_requests %}
+  <table class="table">
+    <thead>
+      <tr><th>User</th><th>League</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for req in pending_join_requests %}
+      <tr>
+        <td>{{ req.user.username }}</td>
+        <td>{{ req.league.name }}</td>
+        <td>
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="request_id" value="{{ req.id }}">
+            <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+          </form>
+          <form method="post" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="request_id" value="{{ req.id }}">
+            <button name="action" value="deny" class="btn btn-danger btn-sm">Deny</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No pending league join requests.</p>
+{% endif %}
+{% endblock %}
