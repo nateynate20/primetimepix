@@ -76,7 +76,7 @@ def request_join_league(request):
     return render(request, 'league_join_request.html', {'form': form})
 
 @staff_member_required
-def admin_league_requests(request):
+def admin_league_creation_requests(request):
     pending_requests = LeagueCreationRequest.objects.filter(is_approved=False)
     if request.method == 'POST':
         req_id = request.POST.get('request_id')
