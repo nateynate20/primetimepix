@@ -33,11 +33,12 @@
               Leagues
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{% url 'request_league_creation' %}">Request League Creation</a></li>
+              <li><a class="dropdown-item" href="{% url 'request_create_league' %}">Request League Creation</a></li>
               <li><a class="dropdown-item" href="{% url 'request_join_league' %}">Request to Join League</a></li>
               {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{% url 'admin_league_requests' %}">Admin League Requests</a></li>
+                <li><a class="dropdown-item" href="{% url 'admin_league_creation_requests' %}">Admin League Creation Requests</a></li>
+                <li><a class="dropdown-item" href="{% url 'admin_league_join_requests' %}">Admin League Join Requests</a></li>
               {% endif %}
             </ul>
           </li>
