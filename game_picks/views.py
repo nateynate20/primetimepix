@@ -1,8 +1,53 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from .forms import LeagueCreationRequestForm, LeagueJoinRequestForm
-from .models import LeagueCreationRequest, LeagueJoinRequest, League
+from django.utils import timezone
+
+from nfl_schedule.models import NFLGame
+from .models import GameSelection, UserRecord, League, LeagueCreationRequest, LeagueJoinRequest
+from .forms import GameSelectionForm, LeagueCreationRequestForm, LeagueJoinRequestForm
+
+
+@login_required(login_url='login')
+def display_nfl_schedule(request):
+    current_date = timezone.now().date()
+
+    if request.method == 'POST':
+        form = GameSelectionForm(request.POST)
+
+        if form.is_valid():
+            game = form.cleaned_data['game']
+            existing_prediction = GameSelection.objects.filter(user=request.user, game=game).first()
+
+            if existing_prediction:
+                existing_prediction.predicted_winner = form.cleaned_data['predicted_winner']
+                existing_prediction.save()
+            else:
+                prediction = form.save(commit=False)
+                prediction.user = request.user
+                prediction.save()
+
+            return redirect('schedule')
+
+    else:
+        form = GameSelectionForm()
+
+    games = NFLGame.objects.filter(date=current_date)
+    predictions = GameSelection.objects.filter(user=request.user, game__in=games)
+
+    context = {
+        'games': games,
+        'predictions': predictions,
+        'form': form,
+    }
+
+    return render(request, 'nfl_schedule/schedule.html', context)
+
+
+def standings(request):
+    user_records = UserRecord.objects.order_by('-correct_predictions')
+    return render(request, 'nfl_schedule/standings.html', {'user_records': user_records})
 
 @login_required
 def request_league_creation(request):
