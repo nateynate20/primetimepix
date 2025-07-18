@@ -50,7 +50,7 @@ def standings(request):
     return render(request, 'nfl_schedule/standings.html', {'user_records': user_records})
 
 @login_required
-def request_league_creation(request):
+def request_create_league(request):
     if request.method == 'POST':
         form = LeagueCreationRequestForm(request.POST)
         if form.is_valid():
