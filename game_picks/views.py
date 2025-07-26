@@ -57,6 +57,7 @@ def request_create_league(request):
             league_request = form.save(commit=False)
             league_request.user = request.user
             league_request.save()
+            messages.success(request, "Your league creation request has been submitted. An admin will review it shortly.")
             return redirect('landing_page')
     else:
         form = LeagueCreationRequestForm()
@@ -70,6 +71,7 @@ def request_join_league(request):
             join_request = form.save(commit=False)
             join_request.user = request.user
             join_request.save()
+            messages.success(request, "Your request to join the league has been submitted. An admin will review it shortly.")
             return redirect('landing_page')
     else:
         form = LeagueJoinRequestForm(user=request.user)
