@@ -1,38 +1,56 @@
 from django.contrib import admin
-from .models import Player, Profile, LeagueCreationRequest
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 
-# Inline Profile in Player admin
+from .models import Profile, Player, LeagueCreationRequest
+
+
+# Inline Profile for User
 class ProfileInline(admin.StackedInline):
     model = Profile
-    extra = 0
+    can_delete = False
+    verbose_name_plural = 'Profile'
 
+
+# Inline Player for User
+class PlayerInline(admin.StackedInline):
+    model = Player
+    can_delete = False
+    verbose_name_plural = 'Player Info'
+
+
+# Extend the default UserAdmin to include Profile and Player
+class UserAdmin(DefaultUserAdmin):
+    inlines = [ProfileInline, PlayerInline]
+    list_display = ('username', 'email', 'is_staff', 'is_active')
+    search_fields = ('username', 'email')
+    list_filter = ('is_staff', 'is_active', 'date_joined')
+
+
+# Customize Profile admin
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'team_name')
+    search_fields = ('user__username', 'team_name')
+
+
+# Customize Player admin
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
-    inlines = [ProfileInline]
     list_display = ('username', 'email', 'team_name')
-    search_fields = ('username', 'team_name', 'email')
-    list_filter = ('team_name',)
-    ordering = ('username',)
+    search_fields = ('username', 'email', 'team_name')
 
+
+# Customize LeagueCreationRequest admin
 @admin.register(LeagueCreationRequest)
 class LeagueCreationRequestAdmin(admin.ModelAdmin):
-    list_display = ('league_name', 'user', 'created_at', 'approved')
+    list_display = ('league_name', 'user', 'approved', 'created_at')
     list_filter = ('approved', 'created_at')
     search_fields = ('league_name', 'user__username')
+    readonly_fields = ('created_at',)
     ordering = ('-created_at',)
-    actions = ['approve_leagues', 'unapprove_leagues']
 
-    def approve_leagues(self, request, queryset):
-        updated = queryset.update(approved=True)
-        self.message_user(request, f"{updated} league(s) approved.")
-    approve_leagues.short_description = "Mark selected leagues as approved"
 
-    def unapprove_leagues(self, request, queryset):
-        updated = queryset.update(approved=False)
-        self.message_user(request, f"{updated} league(s) unapproved.")
-    unapprove_leagues.short_description = "Mark selected leagues as unapproved"
-
-# Customize the admin site headers (you already did this in your other file)
-admin.site.site_header = "NFLPIX Admin"
-admin.site.site_title = "NFLPIX Admin Portal"
-admin.site.index_title = "Welcome to NFLPIX Admin"
+# Unregister the original User admin and register the customized one
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
