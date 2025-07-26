@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
+from players.forms import SignupUserForm  # import your custom form
 from django.views.decorators.http import require_POST
-from players.forms import SignupUserForm
 
 def landing_page(request):
     return render(request, 'nflpix/landing.html')
