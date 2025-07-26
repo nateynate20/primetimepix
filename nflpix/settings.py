@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['121.0.0.1',
 
 INSTALLED_APPS = [
     'nflpix.apps.nflpixConfig',
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

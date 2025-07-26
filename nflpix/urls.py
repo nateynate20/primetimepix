@@ -4,6 +4,7 @@ from django.urls import path, include
 from game_picks.views import display_nfl_schedule  # Import the view from nfl_schedule app
 from nflpix.views import landing_page
 urlpatterns = [
+    path('grappelli/', include('grappelli.urls')),
     path('admin/', admin.site.urls),
     path('', landing_page, name='landing_page'),  # Use display_nfl_schedule from nfl_schedule app
     path('players/', include('django.contrib.auth.urls')),
