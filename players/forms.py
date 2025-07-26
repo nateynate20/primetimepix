@@ -38,5 +38,5 @@ class SignupUserForm(UserCreationForm):
         user.last_name = self.cleaned_data['last_name']
         if commit:
             user.save()
-            profile = Profile.objects.create(user=user, team_name=self.cleaned_data['team_name'])
+            Profile.objects.create(user=user, team_name=self.cleaned_data['team_name'])
         return user

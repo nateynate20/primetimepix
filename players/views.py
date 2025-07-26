@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.http import require_POST
+from players.forms import SignupUserForm
 
 def landing_page(request):
     return render(request, 'nflpix/landing.html')
@@ -23,7 +24,7 @@ def login_user(request):
 
 def signup(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = SignupUserForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -32,10 +33,8 @@ def signup(request):
         else:
             messages.error(request, "Please correct the errors below.")
     else:
-        form = UserCreationForm()
+        form = SignupUserForm()
     return render(request, 'registration/signup.html', {'form': form})
-
-
 
 @require_POST
 def logout_user(request):
