@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ['121.0.0.1',
 
 INSTALLED_APPS = [
     'nflpix.apps.nflpixConfig',
+    'modeladmin_reorder',
     'import_export',
     'grappelli',
     'django.contrib.admin',
@@ -49,6 +50,21 @@ INSTALLED_APPS = [
     'game_picks',
    
 ]
+MODELADMIN_REORDER = (
+    {
+        'app': 'nflpix',
+        'label': 'NFLPix Suite',
+        'models': (
+            'game_picks.gameselection',
+            'game_picks.league',
+            'game_picks.userrecord',
+            'nfl_schedule.nflgame',
+            'nflpix.player',
+            'nflpix.leaguecreationrequest',
+        ),
+    },
+)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
