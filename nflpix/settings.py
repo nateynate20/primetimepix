@@ -20,7 +20,6 @@ INSTALLED_APPS = [
     # Grappelli must come before 'django.contrib.admin'
     'grappelli',
     # Correct name: django_modeladmin_reorder (underscore, not hyphen)
-    'django_modeladmin_reorder',
     
     'import_export',
 
@@ -38,21 +37,7 @@ INSTALLED_APPS = [
     'game_picks',
 ]
 
-# This setting is for django-modeladmin-reorder — customize the admin menu order here:
-MODELADMIN_REORDER = (
-    {
-        'app': 'nflpix',
-        'label': 'NFLPix Suite',
-        'models': (
-            'game_picks.gameselection',
-            'game_picks.league',
-            'game_picks.userrecord',
-            'nfl_schedule.nflgame',
-            'players.player',
-            'nflpix.leaguecreationrequest',
-        ),
-    },
-)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
