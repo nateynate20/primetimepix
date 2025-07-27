@@ -1,0 +1,43 @@
+{% extends 'nflpix/base.html' %}
+
+{% block title %}{{ league.name }} Standings{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h1 class="mb-3">{{ league.name }} - Standings</h1>
+    <p>{{ league.description }}</p>
+
+    {% if user_records %}
+      <table class="table table-striped mt-4">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Correct Picks</th>
+            <th>Total Picks</th>
+            <th>Accuracy (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in user_records %}
+            <tr>
+              <td>{{ record.user.username }}</td>
+              <td>{{ record.correct_predictions }}</td>
+              <td>{{ record.total_predictions }}</td>
+              <td>
+                {% if record.accuracy != None %}
+                  {{ record.accuracy }}%
+                {% else %}
+                  N/A
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No standings data available yet.</p>
+    {% endif %}
+
+    <a href="{% url 'standings' %}" class="btn btn-secondary mt-3">View Overall Standings</a>
+  </div>
+{% endblock %}

@@ -64,6 +64,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'nfl_schedule.context_processors.scores_ticker',
+                'game_picks.context_processors.user_leagues',
             ],
         },
     },

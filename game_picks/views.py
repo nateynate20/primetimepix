@@ -47,7 +47,6 @@ def standings(request):
     return render(request, 'nfl_schedule/standings.html', {'user_records': user_records})
 
 
-# ✅ Auto-create and approve League directly via user form
 @login_required
 def request_create_league(request):
     if request.method == 'POST':
@@ -57,10 +56,9 @@ def request_create_league(request):
             league_request.user = request.user
             league_request.is_approved = True
             league_request.reviewed_at = timezone.now()
-            league_request.reviewed_by = request.user  # or None if you prefer
+            league_request.reviewed_by = request.user
             league_request.save()
 
-            # Create and approve the league immediately
             league = League.objects.create(
                 name=league_request.name,
                 description=league_request.description,
@@ -77,7 +75,6 @@ def request_create_league(request):
     return render(request, 'league_create_request.html', {'form': form})
 
 
-# ✅ Auto-approve join request and add user to league
 @login_required
 def request_join_league(request):
     if request.method == 'POST':
@@ -87,7 +84,7 @@ def request_join_league(request):
             join_request.user = request.user
             join_request.is_approved = True
             join_request.reviewed_at = timezone.now()
-            join_request.reviewed_by = request.user  # or None if not applicable
+            join_request.reviewed_by = request.user
             join_request.save()
 
             join_request.league.members.add(request.user)
@@ -99,14 +96,12 @@ def request_join_league(request):
     return render(request, 'league_join_request.html', {'form': form})
 
 
-# ✅ Optional: list of approved leagues user can join
 @login_required
 def join_league_view(request):
     leagues = League.objects.filter(is_approved=True).exclude(members=request.user)
     return render(request, 'game_picks/join_league.html', {'leagues': leagues})
 
 
-# ✅ Admin view: only used if you want to manually moderate (still supported)
 @staff_member_required
 def admin_league_creation_requests(request):
     pending_requests = LeagueCreationRequest.objects.filter(is_approved=False)
@@ -128,7 +123,7 @@ def admin_league_creation_requests(request):
             req.save()
         elif action == 'deny':
             req.delete()
-        return redirect('admin_league_requests')
+        return redirect('admin_league_creation_requests')
 
     return render(request, 'admins/league_creation_requests.html', {'pending_requests': pending_requests})
 
@@ -151,3 +146,28 @@ def admin_league_join_requests(request):
         return redirect('admin_league_join_requests')
 
     return render(request, 'admins/league_join_requests.html', {'pending_requests': pending_requests})
+
+
+# New view: Show league details and standings, only if user is a member
+@login_required
+def league_detail(request, league_id):
+    league = get_object_or_404(League, id=league_id, is_approved=True)
+
+    if request.user not in league.members.all():
+        messages.error(request, "You are not a member of this league.")
+        return redirect('landing_page')
+
+    user_records = UserRecord.objects.filter(league=league).order_by('-correct_predictions')
+    
+    # Calculate accuracy for each record
+    for record in user_records:
+        if record.total_predictions > 0:
+            record.accuracy = round((record.correct_predictions / record.total_predictions) * 100, 2)
+        else:
+            record.accuracy = None
+
+    context = {
+        'league': league,
+        'user_records': user_records,
+    }
+    return render(request, 'game_picks/league_detail.html', context)

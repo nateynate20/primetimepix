@@ -35,6 +35,18 @@
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="{% url 'request_create_league' %}">Request League Creation</a></li>
               <li><a class="dropdown-item" href="{% url 'request_join_league' %}">Request to Join League</a></li>
+
+              <li><hr class="dropdown-divider"></li>
+
+              <li class="dropdown-header">Your Leagues</li>
+              {% if user_leagues %}
+                {% for league in user_leagues %}
+                  <li><a class="dropdown-item" href="{% url 'league_detail' league.id %}">{{ league.name }}</a></li>
+                {% endfor %}
+              {% else %}
+                <li><span class="dropdown-item-text text-muted">You are not part of any leagues</span></li>
+              {% endif %}
+
               {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{% url 'admin_league_creation_requests' %}">Admin League Creation Requests</a></li>

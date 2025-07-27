@@ -7,6 +7,7 @@ from .views import (
     join_league_view,                 # new view for listing leagues to join
     admin_league_creation_requests,
     admin_league_join_requests,
+    league_detail,                   # add this import
 )
 
 urlpatterns = [
@@ -18,6 +19,8 @@ urlpatterns = [
     path('league/request-join/', request_join_league, name='request_join_league'),
 
     path('league/join-leagues/', join_league_view, name='join_league_view'),  # new listing page
+
+    path('league/<int:league_id>/', league_detail, name='league_detail'),  # view league details / standings
 
     # Admin views for moderation
     path('admin/league-creation-requests/', admin_league_creation_requests, name='admin_league_creation_requests'),
