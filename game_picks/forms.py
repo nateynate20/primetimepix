@@ -29,6 +29,12 @@ class LeagueJoinRequestForm(forms.ModelForm):
             # Exclude leagues the user is already a member of
             self.fields['league'].queryset = League.objects.filter(is_approved=True).exclude(members=self.user)
 
+    def clean_league(self):
+        league = self.cleaned_data.get('league')
+        if self.user and league and self.user in league.members.all():
+            raise forms.ValidationError("You are already a member of this league.")
+        return league
+
     class Meta:
         model = LeagueJoinRequest
         fields = ['league']

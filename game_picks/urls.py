@@ -4,6 +4,7 @@ from .views import (
     standings,
     request_create_league,
     request_join_league,
+    join_league_view,                 # new view for listing leagues to join
     admin_league_creation_requests,
     admin_league_join_requests,
 )
@@ -12,10 +13,13 @@ urlpatterns = [
     path('schedule/', display_nfl_schedule, name='schedule'),
     path('standings/', standings, name='standings'),
 
+    # League user actions
     path('league/request-create/', request_create_league, name='request_create_league'),
     path('league/request-join/', request_join_league, name='request_join_league'),
 
-    # Admin URLs
+    path('league/join-leagues/', join_league_view, name='join_league_view'),  # new listing page
+
+    # Admin views for moderation
     path('admin/league-creation-requests/', admin_league_creation_requests, name='admin_league_creation_requests'),
     path('admin/league-join-requests/', admin_league_join_requests, name='admin_league_join_requests'),
 ]
