@@ -170,4 +170,5 @@ def league_detail(request, league_id):
         'league': league,
         'user_records': user_records,
     }
-    return render(request, 'game_picks/league_detail.html', context)
+    return render(request, 'league_detail.html', context)
+
