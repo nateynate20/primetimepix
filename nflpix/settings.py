@@ -67,7 +67,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 
-                'nfl_schedule.context_processors.scores_ticker',
+                'nfl_schedule.context_processors.live_scores_ticker',
                 'game_picks.context_processors.user_leagues',
             ],
         },
