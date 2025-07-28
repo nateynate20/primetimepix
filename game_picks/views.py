@@ -28,7 +28,7 @@ def display_nfl_schedule(request):
     teams = NFLGame.objects.values_list('home_team', flat=True).distinct().order_by('home_team')
 
     context = {
-        'games': games.order_by('date', 'time'),
+        'games': games.order_by('date', 'start_time'),
         'teams': teams,
         'selected_team': selected_team,
     }
