@@ -1,58 +1,81 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-  <h1>NFL Schedule - This Week</h1>
+<h2 class="mb-4">Make Your Picks</h2>
 
-  <form method="POST" action="{% url 'schedule' %}">
-    {% csrf_token %}
-    <table border="1" cellpadding="10" cellspacing="0">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Matchup</th>
-          <th>Start Time</th>
-          <th>Your Pick</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in games_with_info %}
-          <tr>
-            <td>{{ item.game.date|date:"D, M d, Y" }}</td>
-            <td>{{ item.game.away_team }} @ {{ item.game.home_team }}</td>
-            <td>{{ item.game.start_time }}</td>
-            <td>
+<form method="POST" action="{% url 'schedule' %}">
+  {% csrf_token %}
+
+  <div class="row gy-4">
+    {% for item in games_with_info %}
+      {% with game=item.game %}
+      <div class="col-12 col-md-6">
+        <div class="card bg-dark border border-neon text-white shadow-sm">
+          <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <img src="{{ game.away_team_logo }}" alt="{{ game.away_team }}" class="team-logo" />
+                <strong>{{ game.away_team }}</strong>
+              </div>
+              <span class="text-muted">at</span>
+              <div class="d-flex align-items-center gap-2">
+                <img src="{{ game.home_team_logo }}" alt="{{ game.home_team }}" class="team-logo" />
+                <strong>{{ game.home_team }}</strong>
+              </div>
+            </div>
+
+            <p class="text-secondary small mb-2">
+              {{ game.date }} @ {{ game.start_time|time:"g:i A" }}
               {% if item.started %}
-                <em>Picks closed</em><br />
-                <strong>Your pick:</strong> {{ item.user_pick|default:"None" }}
-              {% else %}
-                <label>
-                  <input type="radio" name="pick_{{ item.game.id }}" value="away"
-                         {% if item.user_pick == "away" %}checked{% endif %} />
-                  {{ item.game.away_team }}
-                </label><br />
-                <label>
-                  <input type="radio" name="pick_{{ item.game.id }}" value="home"
-                         {% if item.user_pick == "home" %}checked{% endif %} />
-                  {{ item.game.home_team }}
-                </label>
+                <span class="badge bg-danger ms-2">Started</span>
               {% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="4">No games available for this week.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+            </p>
 
-    <br />
-    <button type="submit">Save Picks</button>
-  </form>
+            {% if not item.started %}
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="pick_{{ game.id }}" id="pick_{{ game.id }}_away" value="{{ game.away_team }}"
+                  {% if item.user_pick == game.away_team %}checked{% endif %}>
+                <label class="form-check-label" for="pick_{{ game.id }}_away">{{ game.away_team }}</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="pick_{{ game.id }}" id="pick_{{ game.id }}_home" value="{{ game.home_team }}"
+                  {% if item.user_pick == game.home_team %}checked{% endif %}>
+                <label class="form-check-label" for="pick_{{ game.id }}_home">{{ game.home_team }}</label>
+              </div>
+            {% else %}
+              <p class="text-muted small">You can't pick this game — it's already started.</p>
+              {% if item.user_pick %}
+                <p class="text-info">Your pick was: <strong>{{ item.user_pick }}</strong></p>
+              {% else %}
+                <p class="text-warning">No pick submitted.</p>
+              {% endif %}
+            {% endif %}
 
-  {% if messages %}
-    <ul class="messages">
-      {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+    {% empty %}
+      <div class="col-12">
+        <p class="alert alert-warning">No games scheduled for this week.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if games_with_info %}
+    <div class="mt-4 text-center">
+      <button type="submit" class="btn btn-neon px-5">Submit Picks</button>
+    </div>
   {% endif %}
+</form>
+
+<style>
+  .team-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+</style>
 {% endblock %}
