@@ -1,8 +1,6 @@
 <!-- templates/league_details.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
+ {% extends 'nflpix/base.html' %}
+{% block content %}
   <title>{{ league.name }} - Standings</title>
 </head>
 <body>
@@ -47,3 +45,4 @@
   <a href="{% url 'join_league_view' %}">Back to My Leagues</a>
 </body>
 </html>
+{% endblock %}
