@@ -32,7 +32,7 @@ def display_nfl_schedule(request):
         'teams': teams,
         'selected_team': selected_team,
     }
-    return render(request, 'nfl_schedule/schedule.html', context)
+    return render(request, 'schedule.html', context)
 
 
 @login_required
