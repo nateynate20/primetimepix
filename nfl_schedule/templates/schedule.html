@@ -1,60 +1,58 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-<h1>NFL Schedule - This Week</h1>
+  <h1>NFL Schedule - This Week</h1>
 
-<form method="POST" action="{% url 'display_nfl_schedule' %}">
-  {% csrf_token %}
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Matchup</th>
-        <th>Start Time</th>
-        <th>Your Pick</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in games_with_info %}
-        {% with game=item.game %}
+  <form method="POST" action="{% url 'schedule' %}">
+    {% csrf_token %}
+    <table border="1" cellpadding="10" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Matchup</th>
+          <th>Start Time</th>
+          <th>Your Pick</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in games_with_info %}
           <tr>
-            <td>{{ game.date }}</td>
-            <td>{{ game.away_team }} @ {{ game.home_team }}</td>
-            <td>{{ game.start_time }}</td>
+            <td>{{ item.game.date|date:"D, M d, Y" }}</td>
+            <td>{{ item.game.away_team }} @ {{ item.game.home_team }}</td>
+            <td>{{ item.game.start_time }}</td>
             <td>
               {% if item.started %}
                 <em>Picks closed</em><br />
-                Your pick: <strong>{{ item.user_pick|default:"None" }}</strong>
+                <strong>Your pick:</strong> {{ item.user_pick|default:"None" }}
               {% else %}
                 <label>
-                  <input type="radio" name="pick_{{ game.id }}" value="away"
-                    {% if item.user_pick == 'away' %}checked{% endif %} />
-                  {{ game.away_team }}
-                </label>
+                  <input type="radio" name="pick_{{ item.game.id }}" value="away"
+                         {% if item.user_pick == "away" %}checked{% endif %} />
+                  {{ item.game.away_team }}
+                </label><br />
                 <label>
-                  <input type="radio" name="pick_{{ game.id }}" value="home"
-                    {% if item.user_pick == 'home' %}checked{% endif %} />
-                  {{ game.home_team }}
+                  <input type="radio" name="pick_{{ item.game.id }}" value="home"
+                         {% if item.user_pick == "home" %}checked{% endif %} />
+                  {{ item.game.home_team }}
                 </label>
               {% endif %}
             </td>
           </tr>
-        {% endwith %}
-      {% empty %}
-        <tr><td colspan="4">No games found for this week.</td></tr>
+        {% empty %}
+          <tr><td colspan="4">No games available for this week.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <br />
+    <button type="submit">Save Picks</button>
+  </form>
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
       {% endfor %}
-    </tbody>
-  </table>
-
-  <button type="submit">Save Picks</button>
-</form>
-
-{% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li class="{{ message.tags }}">{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
+    </ul>
+  {% endif %}
 {% endblock %}
