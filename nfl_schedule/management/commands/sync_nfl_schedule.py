@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         league_id = '4391'  # NFL league ID on TheSportsDB
-        season = '2024'     # Update season as needed
+        season = '2025'     # Update season as needed
         api_key = settings.THESPORTSDB_API_KEY
 
         url = f'https://www.thesportsdb.com/api/v1/json/{api_key}/eventsseason.php?id={league_id}&s={season}'
