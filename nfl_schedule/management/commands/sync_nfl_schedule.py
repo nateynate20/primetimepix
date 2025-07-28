@@ -7,6 +7,12 @@ from nfl_schedule.models import NFLGame
 class Command(BaseCommand):
     help = 'Sync NFL schedule and scores from TheSportsDB API'
 
+    def safe_int(self, value):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
     def handle(self, *args, **kwargs):
         league_id = '4391'  # NFL league ID on TheSportsDB
         season = '2024'     # Update season as needed
@@ -28,14 +34,15 @@ class Command(BaseCommand):
             for event in events:
                 event_id = event.get('idEvent')
                 if not event_id:
-                    continue  # skip invalid data
+                    self.stdout.write(self.style.WARNING("Skipping event without event_id"))
+                    continue
 
                 # Parse date
                 event_date = event.get('dateEvent')
                 try:
                     date_obj = datetime.strptime(event_date, '%Y-%m-%d').date() if event_date else None
                 except ValueError:
-                    self.stdout.write(f"Skipping event with invalid date format: {event_id}")
+                    self.stdout.write(self.style.WARNING(f"Skipping event with invalid date format: {event_id}"))
                     continue
 
                 # Parse time (some times may be null or empty)
@@ -55,10 +62,8 @@ class Command(BaseCommand):
                 away_logo = event.get('strAwayTeamBadge') or ''
 
                 # Extract scores, convert to int or None if not present
-                home_score = event.get('intHomeScore')
-                home_score = int(home_score) if home_score and home_score.isdigit() else None
-                away_score = event.get('intAwayScore')
-                away_score = int(away_score) if away_score and away_score.isdigit() else None
+                home_score = self.safe_int(event.get('intHomeScore'))
+                away_score = self.safe_int(event.get('intAwayScore'))
 
                 status = event.get('strStatus') or 'Scheduled'
 
