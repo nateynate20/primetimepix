@@ -42,7 +42,7 @@
     <p>No records found.</p>
   {% endif %}
 
-  <a href="{% url 'select_league' %}">Back to My Leagues</a>
+  <a href="{% url 'league_detail' league.id %}">Back to My Leagues</a>
 </body>
 </html>
 {% endblock %}
