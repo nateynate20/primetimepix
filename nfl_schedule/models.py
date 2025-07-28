@@ -1,7 +1,7 @@
 from django.db import models
 
 class NFLGame(models.Model):
-    event_id = models.CharField(max_length=50, unique=True)  # API unique event id
+    event_id = models.CharField(max_length=50, unique=False, null=True, blank=True)  # temporarily nullable & not unique
     week = models.CharField(max_length=10, null=True, blank=True)  # e.g., '1', '2', 'Wild Card'
     date = models.DateField()
     start_time = models.TimeField(null=True, blank=True)
