@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.db.models import Q
 from datetime import timedelta, datetime
 
 from nfl_schedule.models import NFLGame
@@ -19,15 +18,30 @@ from .forms import LeagueCreationRequestForm, LeagueJoinRequestForm
 def display_nfl_schedule(request):
     now = timezone.now()
 
-    # Calculate current week start (Monday) and end (Sunday)
+    # Calculate current week Monday start and Sunday end (exclusive)
     week_start = now - timedelta(days=now.weekday())
     week_end = week_start + timedelta(days=7)
 
-    # Filter games for current week
+    # Filter NFL games within the current week
     games = NFLGame.objects.filter(date__gte=week_start.date(), date__lt=week_end.date()).order_by('date', 'start_time')
 
-    # Get user's picks for these games
+    # Optional: get league_id from GET or POST to filter picks by league (or None)
+    league_id = request.GET.get('league') or request.POST.get('league')
+    league = None
+    if league_id:
+        league = League.objects.filter(id=league_id, is_approved=True, members=request.user).first()
+        if not league:
+            messages.error(request, "Invalid or unauthorized league selected.")
+            return redirect('schedule')
+
+    # Get user's picks for these games filtered by league if applicable
     user_picks = GameSelection.objects.filter(user=request.user, game__in=games)
+    if league:
+        user_picks = user_picks.filter(league=league)
+    else:
+        # Picks without league (general)
+        user_picks = user_picks.filter(league__isnull=True)
+
     picks_dict = {pick.game_id: pick.predicted_winner for pick in user_picks}
 
     if request.method == 'POST':
@@ -36,7 +50,7 @@ def display_nfl_schedule(request):
             pick_key = f'pick_{game.id}'
             user_pick = request.POST.get(pick_key)
             if user_pick:
-                # Check if game has started
+                # Combine date and time to get aware datetime
                 game_datetime = datetime.combine(game.date, game.start_time)
                 game_datetime = timezone.make_aware(game_datetime, timezone.get_current_timezone())
 
@@ -44,14 +58,19 @@ def display_nfl_schedule(request):
                     messages.warning(request, f"Picks for {game.away_team} @ {game.home_team} are closed because the game started.")
                     continue
 
-                # Save or update pick
+                # Save or update pick with league awareness
                 GameSelection.objects.update_or_create(
                     user=request.user,
                     game=game,
+                    league=league,  # can be None
                     defaults={'predicted_winner': user_pick}
                 )
         messages.success(request, "Your picks have been saved.")
-        return redirect('schedule')
+        # Redirect to GET after POST
+        if league:
+            return redirect('schedule')  # optionally add league param in URL if you want
+        else:
+            return redirect('schedule')
 
     # Prepare games with user's picks and if game started flag
     games_with_info = []
@@ -68,6 +87,7 @@ def display_nfl_schedule(request):
 
     context = {
         'games_with_info': games_with_info,
+        'league': league,
     }
     return render(request, 'schedule.html', context)
 
@@ -227,23 +247,35 @@ def general_standings(request):
     return render(request, 'general_standings.html', {'page_obj': page_obj})
 
 
-# 🔁 Shared logic to update user records (for general + league)
 def _update_league_user_records(league=None):
+    """
+    Updates UserRecord objects with correct and total prediction counts,
+    optionally filtered by league. Also calculates accuracy if field exists.
+    """
     selections = GameSelection.objects.select_related('game', 'user')
 
     if league:
         selections = selections.filter(league=league)
+    else:
+        # Include all leagues, including null
+        pass
 
     user_stats = {}
 
     for selection in selections:
         game = selection.game
+        # Skip games without final scores
         if game.home_score is None or game.away_score is None:
             continue
 
-        actual_winner = 'home' if game.home_score > game.away_score else (
-            'away' if game.away_score > game.home_score else None
-        )
+        # Determine actual winner string 'home', 'away', or None if tie
+        if game.home_score > game.away_score:
+            actual_winner = 'home'
+        elif game.away_score > game.home_score:
+            actual_winner = 'away'
+        else:
+            actual_winner = None
+
         if not actual_winner:
             continue
 
@@ -266,5 +298,9 @@ def _update_league_user_records(league=None):
         record, _ = UserRecord.objects.get_or_create(user=user, league=league_obj)
         record.correct_predictions = correct
         record.total_predictions = total
-        record.accuracy = accuracy
+
+        # Optional: Only set accuracy if model has accuracy field
+        if hasattr(record, 'accuracy'):
+            record.accuracy = accuracy
+
         record.save()
