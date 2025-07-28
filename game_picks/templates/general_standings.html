@@ -1,13 +1,12 @@
-<!-- templates/league_details.html -->
+<!-- templates/general_standings.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>{{ league.name }} - Standings</title>
+  <title>General Leaderboard</title>
 </head>
 <body>
-  <h1>{{ league.name }} - Standings</h1>
-  <p>{{ league.description }}</p>
+  <h1>General Leaderboard</h1>
 
   {% if page_obj %}
     <table border="1">
@@ -44,6 +43,6 @@
     <p>No records found.</p>
   {% endif %}
 
-  <a href="{% url 'join_league_view' %}">Back to My Leagues</a>
+  <a href="{% url 'join_league_view' %}">View My Leagues</a>
 </body>
 </html>

@@ -8,11 +8,11 @@
   <select class="form-select w-auto bg-dark text-white border-neon" name="team" id="team" onchange="this.form.submit()">
     <option value="">All Teams</option>
     {% for team in teams %}
-      <option value="{{ team }}" {% if team == team_query %}selected{% endif %}>{{ team }}</option>
+      <option value="{{ team }}" {% if team == selected_team %}selected{% endif %}>{{ team }}</option>
     {% endfor %}
   </select>
-  {% if team_query %}
-    <a href="{% url 'view_scores_page' %}" class="btn btn-secondary btn-sm">Clear Filter</a>
+  {% if selected_team %}
+    <a href="{% url 'nfl_schedule:view_schedule_page' %}" class="btn btn-secondary btn-sm">Clear Filter</a>
   {% endif %}
 </form>
 
@@ -53,7 +53,7 @@
     <ul class="pagination justify-content-center">
       {% if games.has_previous %}
         <li class="page-item">
-          <a class="page-link bg-dark text-neon border-neon" href="?page={{ games.previous_page_number }}{% if team_query %}&team={{ team_query }}{% endif %}">Previous</a>
+          <a class="page-link bg-dark text-neon border-neon" href="?page={{ games.previous_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">Previous</a>
         </li>
       {% else %}
         <li class="page-item disabled"><span class="page-link bg-dark text-secondary">Previous</span></li>
@@ -65,7 +65,7 @@
 
       {% if games.has_next %}
         <li class="page-item">
-          <a class="page-link bg-dark text-neon border-neon" href="?page={{ games.next_page_number }}{% if team_query %}&team={{ team_query }}{% endif %}">Next</a>
+          <a class="page-link bg-dark text-neon border-neon" href="?page={{ games.next_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">Next</a>
         </li>
       {% else %}
         <li class="page-item disabled"><span class="page-link bg-dark text-secondary">Next</span></li>

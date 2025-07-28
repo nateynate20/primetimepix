@@ -1,0 +1,16 @@
+<!-- templates/select_league.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Select a League</title>
+</head>
+<body>
+  <h1>Select a League to View Standings</h1>
+  <ul>
+    {% for league in leagues %}
+      <li><a href="{% url 'league_detail' league.id %}">{{ league.name }}</a></li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

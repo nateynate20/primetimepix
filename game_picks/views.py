@@ -3,48 +3,36 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 from nfl_schedule.models import NFLGame
-from .models import GameSelection, UserRecord, League, LeagueCreationRequest, LeagueJoinRequest
-from .forms import GameSelectionForm, LeagueCreationRequestForm, LeagueJoinRequestForm
+from .models import (
+    GameSelection, UserRecord, League,
+    LeagueCreationRequest, LeagueJoinRequest
+)
+from .forms import LeagueCreationRequestForm, LeagueJoinRequestForm
 
 
 @login_required(login_url='login')
 def display_nfl_schedule(request):
-    current_date = timezone.now().date()
+    selected_team = request.GET.get('team', '').strip().lower()
 
-    if request.method == 'POST':
-        form = GameSelectionForm(request.POST)
-        if form.is_valid():
-            game = form.cleaned_data['game']
-            existing_prediction = GameSelection.objects.filter(user=request.user, game=game).first()
+    games = NFLGame.objects.all()
+    if selected_team:
+        games = games.filter(
+            Q(home_team__icontains=selected_team) |
+            Q(away_team__icontains=selected_team)
+        )
 
-            if existing_prediction:
-                existing_prediction.predicted_winner = form.cleaned_data['predicted_winner']
-                existing_prediction.save()
-            else:
-                prediction = form.save(commit=False)
-                prediction.user = request.user
-                prediction.save()
-
-            return redirect('schedule')
-    else:
-        form = GameSelectionForm()
-
-    games = NFLGame.objects.filter(date=current_date)
-    predictions = GameSelection.objects.filter(user=request.user, game__in=games)
+    teams = NFLGame.objects.values_list('home_team', flat=True).distinct().order_by('home_team')
 
     context = {
-        'games': games,
-        'predictions': predictions,
-        'form': form,
+        'games': games.order_by('date', 'time'),
+        'teams': teams,
+        'selected_team': selected_team,
     }
     return render(request, 'nfl_schedule/schedule.html', context)
-
-
-def standings(request):
-    user_records = UserRecord.objects.order_by('-correct_predictions')
-    return render(request, 'nfl_schedule/standings.html', {'user_records': user_records})
 
 
 @login_required
@@ -98,8 +86,9 @@ def request_join_league(request):
 
 @login_required
 def join_league_view(request):
+    # Leagues user is NOT part of, to join
     leagues = League.objects.filter(is_approved=True).exclude(members=request.user)
-    return render(request, 'game_picks/join_league.html', {'leagues': leagues})
+    return render(request, 'select_league.html', {'leagues': leagues})
 
 
 @staff_member_required
@@ -108,7 +97,7 @@ def admin_league_creation_requests(request):
     if request.method == 'POST':
         req_id = request.POST.get('request_id')
         action = request.POST.get('action')
-        req = LeagueCreationRequest.objects.get(id=req_id)
+        req = get_object_or_404(LeagueCreationRequest, id=req_id)
         if action == 'approve':
             league = League.objects.create(
                 name=req.name,
@@ -134,7 +123,7 @@ def admin_league_join_requests(request):
     if request.method == 'POST':
         req_id = request.POST.get('request_id')
         action = request.POST.get('action')
-        req = LeagueJoinRequest.objects.get(id=req_id)
+        req = get_object_or_404(LeagueJoinRequest, id=req_id)
         if action == 'approve':
             req.league.members.add(req.user)
             req.is_approved = True
@@ -148,27 +137,97 @@ def admin_league_join_requests(request):
     return render(request, 'admins/league_join_requests.html', {'pending_requests': pending_requests})
 
 
-# New view: Show league details and standings, only if user is a member
 @login_required
-def league_detail(request, league_id):
+def league_detail(request, league_id=None):
+    """
+    If league_id is None, and user belongs to multiple leagues,
+    redirect to a page for user to select which league's standings to view.
+    If league_id is provided, show that league's standings.
+    """
+    user_leagues = League.objects.filter(members=request.user, is_approved=True)
+
+    if league_id is None:
+        if user_leagues.count() == 0:
+            messages.error(request, "You are not a member of any league.")
+            return redirect('landing_page')
+        elif user_leagues.count() == 1:
+            # Only one league, redirect directly
+            return redirect('league_detail', league_id=user_leagues.first().id)
+        else:
+            # Multiple leagues, ask user to select
+            return render(request, 'select_league.html', {'leagues': user_leagues})
+
     league = get_object_or_404(League, id=league_id, is_approved=True)
 
     if request.user not in league.members.all():
         messages.error(request, "You are not a member of this league.")
         return redirect('landing_page')
 
-    user_records = UserRecord.objects.filter(league=league).order_by('-correct_predictions')
-    
-    # Calculate accuracy for each record
-    for record in user_records:
-        if record.total_predictions > 0:
-            record.accuracy = round((record.correct_predictions / record.total_predictions) * 100, 2)
-        else:
-            record.accuracy = None
+    _update_league_user_records(league)
+
+    standings = UserRecord.objects.filter(league=league).order_by('-correct_predictions')
+
+    paginator = Paginator(standings, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     context = {
         'league': league,
-        'user_records': user_records,
+        'page_obj': page_obj,
     }
     return render(request, 'league_detail.html', context)
 
+
+@login_required
+def general_standings(request):
+    _update_league_user_records()  # Update all records globally
+    standings = UserRecord.objects.order_by('-correct_predictions')
+
+    paginator = Paginator(standings, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'general_standings.html', {'page_obj': page_obj})
+
+
+# 🔁 Shared logic to update user records (for general + league)
+def _update_league_user_records(league=None):
+    selections = GameSelection.objects.select_related('game', 'user')
+
+    if league:
+        selections = selections.filter(league=league)
+
+    user_stats = {}
+
+    for selection in selections:
+        game = selection.game
+        if game.home_score is None or game.away_score is None:
+            continue
+
+        actual_winner = 'home' if game.home_score > game.away_score else (
+            'away' if game.away_score > game.home_score else None
+        )
+        if not actual_winner:
+            continue
+
+        user = selection.user
+        user_pick = selection.pick
+
+        key = (user, selection.league)
+        if key not in user_stats:
+            user_stats[key] = {'correct': 0, 'total': 0}
+
+        user_stats[key]['total'] += 1
+        if user_pick == actual_winner:
+            user_stats[key]['correct'] += 1
+
+    for (user, league_obj), stats in user_stats.items():
+        correct = stats['correct']
+        total = stats['total']
+        accuracy = round((correct / total) * 100, 2) if total else 0
+
+        record, _ = UserRecord.objects.get_or_create(user=user, league=league_obj)
+        record.correct_predictions = correct
+        record.total_predictions = total
+        record.accuracy = accuracy
+        record.save()

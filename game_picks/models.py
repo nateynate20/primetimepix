@@ -20,6 +20,9 @@ class League(models.Model):
         help_text='Users who are members of this league'
     )
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -36,10 +39,11 @@ class GameSelection(models.Model):
         help_text='The league this prediction belongs to'
     )
 
+    def __str__(self):
+        return f"{self.user.username} pick for {self.game} in {self.league}"
+
 class UserRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    correct_predictions = models.IntegerField(default=0)
-    total_predictions = models.IntegerField(default=0)
     league = models.ForeignKey(
         League,
         on_delete=models.SET_NULL,
@@ -47,9 +51,15 @@ class UserRecord(models.Model):
         blank=True,
         help_text='The league this record belongs to'
     )
+    correct_predictions = models.IntegerField(default=0)
+    total_predictions = models.IntegerField(default=0)
+
+    class Meta:
+        unique_together = ('user', 'league')
 
     def __str__(self):
-        return f"{self.user.username}'s Record"
+        league_name = self.league.name if self.league else "General"
+        return f"{self.user.username}'s Record in {league_name}"
 
 class LeagueCreationRequest(models.Model):
     user = models.ForeignKey(
