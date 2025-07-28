@@ -22,15 +22,21 @@
       --text-primary: #eee;
       --text-secondary: #999;
       --card-bg: rgba(255, 255, 255, 0.05);
+      --flash-success: #1abc9c;
+      --flash-warning: #f39c12;
+      --flash-error: #e74c3c;
     }
 
     body {
       margin: 0;
       padding-top: 96px; /* 48px ticker + 48px navbar */
-      background: var(--bg-color);
+      background: linear-gradient(135deg, #0b0b0b 0%, #1a1a1a 100%);
       color: var(--text-primary);
       font-family: 'Poppins', sans-serif;
       overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     h1, h2 {
@@ -39,6 +45,7 @@
       text-shadow: 0 0 8px var(--accent-neon);
     }
 
+    /* === Ticker === */
     .ticker-wrap {
       position: fixed;
       top: 0;
@@ -54,13 +61,20 @@
       font-size: 18px;
       font-weight: 600;
       color: var(--accent-neon);
+      user-select: none;
     }
 
     .ticker {
       display: inline-block;
       white-space: nowrap;
       padding-left: 100%;
-      animation: scroll-left 12s linear infinite;
+      animation: scroll-left 15s linear infinite;
+      /* Pause scrolling on hover */
+      transition: transform 0.3s ease;
+    }
+    .ticker-wrap:hover .ticker {
+      animation-play-state: paused;
+      cursor: pointer;
     }
 
     @keyframes scroll-left {
@@ -72,21 +86,34 @@
       margin-right: 60px;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      white-space: nowrap;
+      font-size: 1rem;
     }
 
     .team-logo {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1px solid var(--accent-neon);
-      object-fit: contain;
-      background: #000;
-    }
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--accent-neon);
+    object-fit: contain;
+    background: #000;
+  }
+
+  /* Picks page overrides for team-logo */
+  .picks-page .team-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px; /* rounded rectangle */
+    border: none;       /* no border */
+    background: transparent;
+  }
 
     .score {
       color: var(--accent-blue);
       font-weight: 700;
+      min-width: 20px;
+      text-align: center;
     }
 
     .status {
@@ -94,17 +121,22 @@
       color: var(--text-secondary);
       font-style: italic;
       margin-left: 6px;
+      user-select: none;
     }
 
+    /* === Navbar === */
     .navbar {
       position: fixed;
-      top: 48px; /* right below the ticker */
+      top: 48px; /* below ticker */
       width: 100%;
-      height: 48px;
+      height: 56px;
       background-color: #111 !important;
-      padding: 0.5rem 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.7);
+      padding: 0.5rem 1.5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.8);
       z-index: 1040;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .navbar-brand img.navbar-logo {
@@ -112,22 +144,34 @@
       width: auto;
       display: block;
       transition: transform 0.3s ease;
+      filter: drop-shadow(0 0 6px var(--accent-neon));
     }
 
     .navbar-brand img.navbar-logo:hover {
       transform: scale(1.05);
     }
 
+    .navbar-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
     .navbar-nav .nav-link {
       color: var(--text-primary) !important;
       font-weight: 600;
-      transition: all 0.2s;
+      font-size: 1rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.2s ease-in-out;
     }
 
     .navbar-nav .nav-link:hover,
     .navbar-nav .nav-link:focus {
       color: var(--accent-neon) !important;
-      text-shadow: 0 0 6px var(--accent-neon);
+      text-shadow: 0 0 8px var(--accent-neon);
+      background-color: rgba(57, 255, 20, 0.15);
+      outline: none;
     }
 
     .navbar-toggler {
@@ -138,39 +182,133 @@
       filter: invert(100%);
     }
 
+    /* === Buttons === */
     .btn-primary {
       background: var(--accent-neon);
       border: none;
       color: #000;
+      font-weight: 700;
+      transition: background 0.3s ease;
+      box-shadow: 0 0 10px var(--accent-neon);
     }
-    .btn-primary:hover {
+    .btn-primary:hover,
+    .btn-primary:focus {
       background: var(--accent-blue);
       color: #000;
+      box-shadow: 0 0 15px var(--accent-blue);
+      outline: none;
     }
 
     .btn-secondary {
       background: #222;
       border: none;
       color: var(--text-primary);
+      transition: background 0.3s ease;
     }
-    .btn-secondary:hover {
+    .btn-secondary:hover,
+    .btn-secondary:focus {
       background: var(--accent-neon);
       color: #000;
+      outline: none;
     }
 
-    /* Flash messages container spacing */
+    /* === Flash Messages === */
     .container.mt-3 {
-      margin-top: 1rem; /* normal spacing */
+      margin-top: 1rem;
       z-index: 1030;
       position: relative;
     }
 
+    .alert {
+      border-radius: 6px;
+      font-weight: 600;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
+      user-select: text;
+      position: relative;
+    }
+
+    .alert-success {
+      background-color: var(--flash-success);
+      color: #000;
+      border: none;
+      box-shadow: 0 0 15px var(--flash-success);
+    }
+
+    .alert-warning {
+      background-color: var(--flash-warning);
+      color: #000;
+      border: none;
+      box-shadow: 0 0 15px var(--flash-warning);
+    }
+
+    .alert-danger, .alert-error {
+      background-color: var(--flash-error);
+      color: #000;
+      border: none;
+      box-shadow: 0 0 15px var(--flash-error);
+    }
+
+    .alert .btn-close {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.6rem;
+      filter: invert(1);
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+    .alert .btn-close:hover {
+      opacity: 1;
+    }
+
+    /* === Main Content Container === */
     .container.mt-4 {
       margin-top: 1.5rem;
+      max-width: 960px;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      flex-grow: 1;
+    }
+
+    /* === Footer === */
+    footer {
+      padding: 1rem 0;
+      background: #111;
+      box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);
+      user-select: none;
+      margin-top: auto;
     }
 
     footer p {
       color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin: 0;
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+      .ticker-wrap {
+        font-size: 14px;
+        height: 40px;
+      }
+      .team-logo {
+        width: 22px;
+        height: 22px;
+      }
+      .navbar {
+        height: 52px;
+        padding: 0.3rem 1rem;
+      }
+      .navbar-nav .nav-link {
+        font-size: 0.9rem;
+        padding: 0.2rem 0.4rem;
+      }
+      .container.mt-4 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
     }
   </style>
 </head>
@@ -178,8 +316,8 @@
 <body>
   {% include 'nflpix/navbar.html' %}
 
-  <div class="ticker-wrap" aria-label="Live Scores Ticker">
-    <div class="ticker">
+  <div class="ticker-wrap" aria-label="Live Scores Ticker" role="region" aria-live="polite" aria-atomic="true">
+    <div class="ticker" tabindex="0">
       {% for game in scores_ticker %}
         <span class="ticker-item" role="listitem">
           <img src="{{ game.home_logo }}" alt="{{ game.home_team }} logo" class="team-logo" />
@@ -195,23 +333,24 @@
 
   <!-- Flash Messages -->
   {% if messages %}
-    <div class="container mt-3">
+    <div class="container mt-3" role="alert" aria-live="assertive" aria-atomic="true">
       {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
           {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       {% endfor %}
     </div>
   {% endif %}
 
-  <div class="container mt-4">
+  <main class="container mt-4" role="main">
     {% block content %}
     {% endblock %}
-  </div>
+  </main>
 
-  <footer class="mt-5">
+  <footer>
     <div class="container">
-      <p class="text-center">© 2025 NFL Pix App - Your go-to platform for NFL picks and predictions</p>
+      <p>© 2025 NFL Pix App - Your go-to platform for NFL picks and predictions</p>
     </div>
   </footer>
 
