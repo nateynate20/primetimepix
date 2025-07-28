@@ -51,7 +51,7 @@ def display_nfl_schedule(request):
                     defaults={'predicted_winner': user_pick}
                 )
         messages.success(request, "Your picks have been saved.")
-        return redirect('display_nfl_schedule')
+        return redirect('schedule')
 
     # Prepare games with user's picks and if game started flag
     games_with_info = []
