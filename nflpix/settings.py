@@ -7,7 +7,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 SECRET_KEY = 'django-insecure-nhaj0-1q8@y5q&5k(@%n3&5aw@ijoheu#k-3fv8xo!x368sube'
-THESPORTSDB_API_KEY = config('123')
+THESPORTSDB_API_KEY = config('THESPORTSDB_API_KEY', default='123')
 
 
 DEBUG = True
