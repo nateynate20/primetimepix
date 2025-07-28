@@ -356,18 +356,19 @@
 
 <!-- ✅ Disable submit buttons on form submission -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('form').forEach(function (form) {
-        form.addEventListener('submit', function (e) {
-          const submitBtn = form.querySelector('button[type="submit"]');
-          if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Submitting...';
-          }
-        });
+  document.addEventListener('DOMContentLoaded', function () {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(function (form) {
+      form.addEventListener('submit', function (e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn && !submitBtn.disabled) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Submitting...`;
+        }
       });
     });
-  </script>
+  });
+</script>
 
 
 

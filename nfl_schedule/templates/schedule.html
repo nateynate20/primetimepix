@@ -7,7 +7,6 @@
   <form method="POST" action="{% url 'schedule' %}">
     {% csrf_token %}
 
-    {# If league context variable exists, pass it back so picks get saved for the right league #}
     {% if league %}
       <input type="hidden" name="league" value="{{ league.id }}">
     {% endif %}
@@ -40,15 +39,43 @@
 
               {% if not item.started %}
                 <div class="form-check">
-                  <input type="radio" class="form-check-input" name="pick_{{ game.id }}" id="pick_{{ game.id }}_away" value="away"
-                    {% if item.user_pick == 'away' %}checked{% endif %}>
+                  <input 
+                    type="radio" 
+                    class="form-check-input" 
+                    name="pick_{{ game.id }}" 
+                    id="pick_{{ game.id }}_away" 
+                    value="away"
+                    {% if item.user_pick == 'away' %}checked{% endif %}
+                    {% if item.user_pick %}disabled{% endif %}>
                   <label class="form-check-label" for="pick_{{ game.id }}_away">{{ game.away_team }}</label>
                 </div>
+
                 <div class="form-check">
-                  <input type="radio" class="form-check-input" name="pick_{{ game.id }}" id="pick_{{ game.id }}_home" value="home"
-                    {% if item.user_pick == 'home' %}checked{% endif %}>
+                  <input 
+                    type="radio" 
+                    class="form-check-input" 
+                    name="pick_{{ game.id }}" 
+                    id="pick_{{ game.id }}_home" 
+                    value="home"
+                    {% if item.user_pick == 'home' %}checked{% endif %}
+                    {% if item.user_pick %}disabled{% endif %}>
                   <label class="form-check-label" for="pick_{{ game.id }}_home">{{ game.home_team }}</label>
                 </div>
+
+                {% if item.user_pick %}
+                  <p class="text-info mt-2">✅ You picked: 
+                    <strong>
+                      {% if item.user_pick == 'home' %}
+                        {{ game.home_team }}
+                      {% elif item.user_pick == 'away' %}
+                        {{ game.away_team }}
+                      {% else %}
+                        {{ item.user_pick }}
+                      {% endif %}
+                    </strong>
+                  </p>
+                {% endif %}
+
               {% else %}
                 <p class="text-muted small">You can't pick this game — it's already started.</p>
                 {% if item.user_pick %}
