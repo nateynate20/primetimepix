@@ -1,77 +1,60 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2 class="mb-3">NFL Schedule - 2025</h2>
+<h1>NFL Schedule - This Week</h1>
 
-  <form method="get" class="mb-3">
-    <label for="team">Filter by Team:</label>
-    <select name="team" id="team" class="form-select" onchange="this.form.submit()">
-      <option value="">All Teams</option>
-      {% for team in teams %}
-        <option value="{{ team }}" {% if team == selected_team %}selected{% endif %}>{{ team }}</option>
-      {% endfor %}
-    </select>
-  </form>
-
-  <table class="table table-striped">
+<form method="POST" action="{% url 'display_nfl_schedule' %}">
+  {% csrf_token %}
+  <table>
     <thead>
       <tr>
         <th>Date</th>
-        <th>Start Time</th>
         <th>Matchup</th>
-        <th>Status</th>
+        <th>Start Time</th>
+        <th>Your Pick</th>
       </tr>
     </thead>
     <tbody>
-      {% for game in games %}
-        <tr>
-          <td>{{ game.date }}</td>
-          <td>{{ game.start_time|default:"TBD" }}</td>
-          <td>
-            <img src="{{ game.away_logo }}" alt="{{ game.away_team }}" width="24" height="24" class="me-1">
-            {{ game.away_team }} @
-            <img src="{{ game.home_logo }}" alt="{{ game.home_team }}" width="24" height="24" class="mx-1">
-            {{ game.home_team }}
-          </td>
-          <td>
-            {% if game.home_score is not None and game.away_score is not None %}
-              {{ game.away_score }} - {{ game.home_score }}
-            {% else %}
-              {{ game.status }}
-            {% endif %}
-          </td>
-        </tr>
+      {% for item in games_with_info %}
+        {% with game=item.game %}
+          <tr>
+            <td>{{ game.date }}</td>
+            <td>{{ game.away_team }} @ {{ game.home_team }}</td>
+            <td>{{ game.start_time }}</td>
+            <td>
+              {% if item.started %}
+                <em>Picks closed</em><br />
+                Your pick: <strong>{{ item.user_pick|default:"None" }}</strong>
+              {% else %}
+                <label>
+                  <input type="radio" name="pick_{{ game.id }}" value="away"
+                    {% if item.user_pick == 'away' %}checked{% endif %} />
+                  {{ game.away_team }}
+                </label>
+                <label>
+                  <input type="radio" name="pick_{{ game.id }}" value="home"
+                    {% if item.user_pick == 'home' %}checked{% endif %} />
+                  {{ game.home_team }}
+                </label>
+              {% endif %}
+            </td>
+          </tr>
+        {% endwith %}
       {% empty %}
-        <tr>
-          <td colspan="4" class="text-center">No games found.</td>
-        </tr>
+        <tr><td colspan="4">No games found for this week.</td></tr>
       {% endfor %}
     </tbody>
   </table>
 
-  <nav>
-    <ul class="pagination justify-content-center">
-      {% if games.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ games.previous_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">Previous</a>
-        </li>
-      {% else %}
-        <li class="page-item disabled"><span class="page-link">Previous</span></li>
-      {% endif %}
+  <button type="submit">Save Picks</button>
+</form>
 
-      <li class="page-item disabled">
-        <span class="page-link">Page {{ games.number }} of {{ games.paginator.num_pages }}</span>
-      </li>
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
 
-      {% if games.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ games.next_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">Next</a>
-        </li>
-      {% else %}
-        <li class="page-item disabled"><span class="page-link">Next</span></li>
-      {% endif %}
-    </ul>
-  </nav>
-</div>
 {% endblock %}

@@ -5,6 +5,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.db.models import Q
+from datetime import timedelta, datetime
 
 from nfl_schedule.models import NFLGame
 from .models import (
@@ -16,21 +17,57 @@ from .forms import LeagueCreationRequestForm, LeagueJoinRequestForm
 
 @login_required(login_url='login')
 def display_nfl_schedule(request):
-    selected_team = request.GET.get('team', '').strip().lower()
+    now = timezone.now()
 
-    games = NFLGame.objects.all()
-    if selected_team:
-        games = games.filter(
-            Q(home_team__icontains=selected_team) |
-            Q(away_team__icontains=selected_team)
-        )
+    # Calculate current week start (Monday) and end (Sunday)
+    week_start = now - timedelta(days=now.weekday())
+    week_end = week_start + timedelta(days=7)
 
-    teams = NFLGame.objects.values_list('home_team', flat=True).distinct().order_by('home_team')
+    # Filter games for current week
+    games = NFLGame.objects.filter(date__gte=week_start.date(), date__lt=week_end.date()).order_by('date', 'start_time')
+
+    # Get user's picks for these games
+    user_picks = GameSelection.objects.filter(user=request.user, game__in=games)
+    picks_dict = {pick.game_id: pick.predicted_winner for pick in user_picks}
+
+    if request.method == 'POST':
+        # Save submitted picks
+        for game in games:
+            pick_key = f'pick_{game.id}'
+            user_pick = request.POST.get(pick_key)
+            if user_pick:
+                # Check if game has started
+                game_datetime = datetime.combine(game.date, game.start_time)
+                game_datetime = timezone.make_aware(game_datetime, timezone.get_current_timezone())
+
+                if now >= game_datetime:
+                    messages.warning(request, f"Picks for {game.away_team} @ {game.home_team} are closed because the game started.")
+                    continue
+
+                # Save or update pick
+                GameSelection.objects.update_or_create(
+                    user=request.user,
+                    game=game,
+                    defaults={'predicted_winner': user_pick}
+                )
+        messages.success(request, "Your picks have been saved.")
+        return redirect('display_nfl_schedule')
+
+    # Prepare games with user's picks and if game started flag
+    games_with_info = []
+    for game in games:
+        game_datetime = datetime.combine(game.date, game.start_time)
+        game_datetime = timezone.make_aware(game_datetime, timezone.get_current_timezone())
+        started = now >= game_datetime
+
+        games_with_info.append({
+            'game': game,
+            'user_pick': picks_dict.get(game.id),
+            'started': started,
+        })
 
     context = {
-        'games': games.order_by('date', 'start_time'),
-        'teams': teams,
-        'selected_team': selected_team,
+        'games_with_info': games_with_info,
     }
     return render(request, 'schedule.html', context)
 
@@ -211,7 +248,7 @@ def _update_league_user_records(league=None):
             continue
 
         user = selection.user
-        user_pick = selection.pick
+        user_pick = selection.predicted_winner
 
         key = (user, selection.league)
         if key not in user_stats:
