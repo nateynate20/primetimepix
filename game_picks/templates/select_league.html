@@ -1,8 +1,6 @@
 <!-- templates/select_league.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
+<{% extends 'nflpix/base.html' %}
+{% block content %}
   <title>Select a League</title>
 </head>
 <body>
@@ -13,4 +11,4 @@
     {% endfor %}
   </ul>
 </body>
-</html>
+{% endblock %}

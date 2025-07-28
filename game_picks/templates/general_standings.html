@@ -1,8 +1,6 @@
 <!-- templates/general_standings.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
+{% extends 'nflpix/base.html' %}
+{% block content %}
   <title>General Leaderboard</title>
 </head>
 <body>
@@ -45,4 +43,4 @@
 
   <a href="{% url 'join_league_view' %}">View My Leagues</a>
 </body>
-</html>
+{% endblock %}
