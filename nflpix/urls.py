@@ -9,6 +9,7 @@ urlpatterns = [
     path('', landing_page, name='landing_page'),  # Use display_nfl_schedule from nfl_schedule app
     path('players/', include('django.contrib.auth.urls')),
     path('players/', include('players.urls')),
+    path('dashboard/', player_views.dashboard, name='dashboard'),
     path('game_picks/', include('game_picks.urls')),
     path('schedule/', include('nfl_schedule.urls')),  # Use urls from nfl_schedule app
 ]

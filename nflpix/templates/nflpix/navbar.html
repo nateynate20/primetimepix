@@ -1,93 +1,86 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="{% url 'landing_page' %}" title="Home">
-      <img src="{% static 'img/pickemlogo.png' %}" alt="NFLPIX Logo" class="navbar-logo me-2" />
+
+    <!-- Brand -->
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'landing_page' %}" title="Go to home">
+      <img src="{% static 'img/pickemlogo.png' %}" alt="NFL Pix Logo" class="navbar-logo me-2">
       <span class="text-uppercase fw-bold">NFLPIX</span>
     </a>
 
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
+    <!-- Toggler for mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+      aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <!-- Navbar content -->
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'schedule' %}" title="NFL Schedule">Schedule</a>
+          <a class="nav-link" href="{% url 'schedule' %}">Schedule</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'standings' %}" title="Standings">Standings</a>
+          <a class="nav-link" href="{% url 'standings' %}">Standings</a>
         </li>
 
         {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+          </li>
+
+          <!-- Leagues Dropdown -->
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" id="leaguesDropdown" role="button"
+               data-bs-toggle="dropdown" aria-expanded="false">
               Leagues
             </a>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="leaguesDropdown">
               <li><a class="dropdown-item" href="{% url 'request_create_league' %}">Request League Creation</a></li>
               <li><a class="dropdown-item" href="{% url 'request_join_league' %}">Request to Join League</a></li>
-
               <li><hr class="dropdown-divider"></li>
-
-              <li class="dropdown-header">Your Leagues</li>
+              <li class="dropdown-header text-muted">Your Leagues</li>
               {% if user_leagues %}
                 {% for league in user_leagues %}
                   <li><a class="dropdown-item" href="{% url 'league_detail' league.id %}">{{ league.name }}</a></li>
                 {% endfor %}
               {% else %}
-                <li><span class="dropdown-item-text text-muted">You are not part of any leagues</span></li>
+                <li><span class="dropdown-item-text text-muted">No active leagues</span></li>
               {% endif %}
-
               {% if user.is_staff %}
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{% url 'admin_league_creation_requests' %}">Admin League Creation Requests</a></li>
-                <li><a class="dropdown-item" href="{% url 'admin_league_join_requests' %}">Admin League Join Requests</a></li>
+                <li class="dropdown-header text-muted">Admin</li>
+                <li><a class="dropdown-item" href="{% url 'admin_league_creation_requests' %}">Creation Requests</a></li>
+                <li><a class="dropdown-item" href="{% url 'admin_league_join_requests' %}">Join Requests</a></li>
               {% endif %}
             </ul>
           </li>
         {% endif %}
       </ul>
 
+      <!-- Right-aligned auth links -->
       <ul class="navbar-nav mb-2 mb-lg-0">
         {% if user.is_authenticated %}
           <li class="nav-item d-flex align-items-center">
-            <span class="nav-link disabled me-2">Hello, {{ user.username }}</span>
+            <span class="nav-link disabled">Hi, {{ user.username }}</span>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
               Logout
             </a>
+            <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
+              {% csrf_token %}
+            </form>
           </li>
-          <form id="logout-form" method="post" action="{% url 'logout' %}" style="display: none;">
-            {% csrf_token %}
-          </form>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'signup' %}" title="Sign Up">Sign Up</a>
+            <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'login_user' %}" title="Login">Login</a>
+            <a class="nav-link" href="{% url 'login_user' %}">Login</a>
           </li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
-
-<style>
-  /* Logo sizing and alignment */
-  .navbar-logo {
-    height: 40px;
-    width: auto;
-    background: transparent;
-  }
-</style>
