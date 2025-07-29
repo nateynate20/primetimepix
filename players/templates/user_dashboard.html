@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Welcome back, {{ user.username }}!</h2>
+  
+  {% if user.is_staff %}
+    <div class="alert alert-info">You are an admin. <a href="/admin/">Go to Admin Panel</a></div>
+  {% endif %}
+  
+  <p>This is your dashboard. From here you can:</p>
+  <ul>
+    <li>View or manage your picks (coming soon)</li>
+    <li>Check league statuses (coming soon)</li>
+    <li>Update your profile (coming soon)</li>
+  </ul>
+
+</div>
+{% endblock %}

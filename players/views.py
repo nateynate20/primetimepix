@@ -4,6 +4,19 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from players.forms import SignupUserForm  # import your custom form
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+
+
+
+@login_required
+def dashboard(request):
+    user = request.user
+    context = {
+        'user': user,
+        # Add any additional data you want to show on the dashboard
+    }
+    return render(request, 'user_dashboard.html', context)
+
 
 def landing_page(request):
     return render(request, 'nflpix/landing.html')
@@ -15,7 +28,8 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
-            return redirect('landing_page')
+            return redirect('dashboard')
+')
         else:
             messages.error(request, "Invalid username or password.")
     else:
@@ -29,7 +43,8 @@ def signup(request):
             user = form.save()
             login(request, user)
             messages.success(request, "Account created successfully.")
-            return redirect('landing_page')
+            return redirect('dashboard')
+')
         else:
             messages.error(request, "Please correct the errors below.")
     else:
