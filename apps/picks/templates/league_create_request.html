@@ -1,0 +1,9 @@
+{% extends 'nflpix/base.html' %}
+{% block content %}
+<h2>Request to Create a New League</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Submit Request</button>
+</form>
+{% endblock %}

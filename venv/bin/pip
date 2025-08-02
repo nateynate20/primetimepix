@@ -1,4 +1,4 @@
-#!/Users/nevans/Desktop/NFLpix/nflpix/venv/bin/python
+#!/home/nateynate/apps/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

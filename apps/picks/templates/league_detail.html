@@ -1,0 +1,48 @@
+<!-- templates/league_details.html -->
+ {% extends 'nflpix/base.html' %}
+{% block content %}
+  <title>{{ league.name }} - Standings</title>
+</head>
+<body>
+  <h1>{{ league.name }} - Standings</h1>
+  <p>{{ league.description }}</p>
+
+  {% if page_obj %}
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Total Picks</th>
+          <th>Correct Picks</th>
+          <th>Accuracy (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in page_obj %}
+          <tr>
+            <td>{{ record.user.username }}</td>
+            <td>{{ record.total_predictions }}</td>
+            <td>{{ record.correct_predictions }}</td>
+            <td>{{ record.accuracy }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div>
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <p>No records found.</p>
+  {% endif %}
+
+  <a href="{% url 'league_detail_no_id' %}">Back to My Leagues</a>
+</body>
+</html>
+{% endblock %}
