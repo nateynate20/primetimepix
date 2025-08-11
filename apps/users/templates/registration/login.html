@@ -1,11 +1,50 @@
 {% extends 'nflpix/base.html' %}
+
+{% block title %}Login - NFL Pick'em{% endblock %}
+
 {% block content %}
-<h2>Login</h2>
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Log In</button>
-</form>
-<p><a href="{% url 'password_reset' %}">Forgot Password?</a></p>
-<p>Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-football-ball fa-3x text-neon mb-3"></i>
+                    <h2 class="text-neon">Welcome Back</h2>
+                    <p class="text-muted-custom">Sign in to your account</p>
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.username.label_tag }}</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.password.label_tag }}</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}
+                            <div class="text-danger">{{ form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn-neon-fill w-100 mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>Log In
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <a href="{% url 'password_reset' %}" class="text-neon">Forgot Password?</a>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-top border-secondary text-center">
+                <p class="mb-0 text-muted-custom">
+                    Don't have an account? 
+                    <a href="{% url 'signup' %}" class="text-neon">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

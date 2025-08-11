@@ -1,121 +1,75 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-<div class="picks-page">
-  <h2 class="mb-4">Make Your Picks</h2>
+<h2 class="text-2xl font-bold text-neon mb-6">Make Your Picks</h2>
+<form method="POST" action="{% url 'schedule' %}">
+  {% csrf_token %}
+  {% if league %}
+    <input type="hidden" name="league" value="{{ league.id }}">
+  {% endif %}
 
-  <form method="POST" action="{% url 'schedule' %}">
-    {% csrf_token %}
-
-    {% if league %}
-      <input type="hidden" name="league" value="{{ league.id }}">
-    {% endif %}
-
-    <div class="row gy-4">
-      {% for item in games_with_info %}
-        {% with game=item.game %}
-        <div class="col-12 col-md-6">
-          <div class="card bg-dark border border-neon shadow-sm text-white h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-
-              <!-- Matchup row -->
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                  <img src="{{ game.away_logo }}" alt="{{ game.away_team }}" class="team-logo" />
-                  <strong>{{ game.away_team }}</strong>
-                </div>
-                <span class="text-muted">at</span>
-                <div class="d-flex align-items-center gap-2">
-                  <img src="{{ game.home_logo }}" alt="{{ game.home_team }}" class="team-logo" />
-                  <strong>{{ game.home_team }}</strong>
-                </div>
-              </div>
-
-              <!-- Game time -->
-              <p class="text-secondary small mb-2">
-                {{ game.date }} @ {{ game.start_time|time:"g:i A" }}
-                {% if item.started %}
-                  <span class="badge bg-danger ms-2">Started</span>
-                {% endif %}
-              </p>
-
-              <!-- Pick options -->
-              {% if not item.started %}
-                <div class="mb-3">
-                  <div class="form-check">
-                    <input 
-                      type="radio" 
-                      class="form-check-input" 
-                      name="pick_{{ game.id }}" 
-                      id="pick_{{ game.id }}_away" 
-                      value="away"
-                      {% if item.user_pick == 'away' %}checked{% endif %}
-                      {% if item.user_pick %}disabled{% endif %}>
-                    <label class="form-check-label" for="pick_{{ game.id }}_away">{{ game.away_team }}</label>
-                  </div>
-
-                  <div class="form-check">
-                    <input 
-                      type="radio" 
-                      class="form-check-input" 
-                      name="pick_{{ game.id }}" 
-                      id="pick_{{ game.id }}_home" 
-                      value="home"
-                      {% if item.user_pick == 'home' %}checked{% endif %}
-                      {% if item.user_pick %}disabled{% endif %}>
-                    <label class="form-check-label" for="pick_{{ game.id }}_home">{{ game.home_team }}</label>
-                  </div>
-                </div>
-
-                {% if item.user_pick %}
-                  <p class="text-info mt-2">✅ You picked: 
-                    <strong>
-                      {% if item.user_pick == 'home' %}
-                        {{ game.home_team }}
-                      {% elif item.user_pick == 'away' %}
-                        {{ game.away_team }}
-                      {% else %}
-                        {{ item.user_pick }}
-                      {% endif %}
-                    </strong>
-                  </p>
-                {% endif %}
-
-              {% else %}
-                <p class="text-muted small">You can't pick this game — it's already started.</p>
-                {% if item.user_pick %}
-                  <p class="text-info">Your pick was: 
-                    <strong>
-                      {% if item.user_pick == 'home' %}
-                        {{ game.home_team }}
-                      {% elif item.user_pick == 'away' %}
-                        {{ game.away_team }}
-                      {% else %}
-                        {{ item.user_pick }}
-                      {% endif %}
-                    </strong>
-                  </p>
-                {% else %}
-                  <p class="text-warning">No pick submitted.</p>
-                {% endif %}
-              {% endif %}
-
-            </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for item in games_with_info %}
+      {% with game=item.game %}
+      <div class="card p-4 flex flex-col justify-between">
+        <div class="flex justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <img src="{{ game.away_logo }}" class="team-logo" alt="{{ game.away_team }}">
+            <span>{{ game.away_team }}</span>
+          </div>
+          <span class="text-muted">vs</span>
+          <div class="flex items-center gap-2">
+            <img src="{{ game.home_logo }}" class="team-logo" alt="{{ game.home_team }}">
+            <span>{{ game.home_team }}</span>
           </div>
         </div>
-        {% endwith %}
-      {% empty %}
-        <div class="col-12">
-          <p class="alert alert-warning">No games scheduled for this week.</p>
-        </div>
-      {% endfor %}
-    </div>
 
-    {% if games_with_info %}
-      <div class="mt-4 text-center">
-        <button type="submit" class="btn btn-primary me-2" id="submitPicksBtn">Submit Picks</button>
+        <p class="text-secondary text-sm mb-2">
+          {{ game.start_time|timezone:"g:i A, M d" }}
+          {% if item.started %}
+            <span class="text-danger font-bold ml-2">Started</span>
+          {% endif %}
+        </p>
+
+        {% if not item.started %}
+          <div class="space-y-2 mb-2">
+            <label class="inline-flex items-center">
+              <input type="radio" name="pick_{{ game.id }}" value="away"
+                     class="form-check-input" {% if item.user_pick == 'away' %}checked{% endif %}
+                     {% if item.user_pick %}disabled{% endif %}>
+              <span class="ml-2">{{ game.away_team }}</span>
+            </label>
+            <label class="inline-flex items-center">
+              <input type="radio" name="pick_{{ game.id }}" value="home"
+                     class="form-check-input" {% if item.user_pick == 'home' %}checked{% endif %}
+                     {% if item.user_pick %}disabled{% endif %}>
+              <span class="ml-2">{{ game.home_team }}</span>
+            </label>
+          </div>
+          {% if item.user_pick %}
+            <p class="text-neon bold">You picked:
+              <strong>{{ game.home_team if item.user_pick == 'home' else game.away_team }}</strong>
+            </p>
+          {% endif %}
+        {% else %}
+          <p class="text-muted">You can't pick this game — it's already started.</p>
+          {% if item.user_pick %}
+            <p class="text-neon">Your pick was:
+              <strong>{{ game.home_team if item.user_pick == 'home' else game.away_team }}</strong>
+            </p>
+          {% endif %}
+        {% endif %}
       </div>
-    {% endif %}
-  </form>
-</div>
+      {% endwith %}
+    {% empty %}
+      <div class="alert">No games scheduled for this week.</div>
+    {% endfor %}
+  </div>
+
+  {% if games_with_info %}
+    <div class="mt-6 text-center">
+      <button type="submit" class="btn-primary px-6 py-2">Submit Picks</button>
+    </div>
+  {% endif %}
+</form>
 {% endblock %}

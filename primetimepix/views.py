@@ -1,4 +1,4 @@
-# nflpix/views.py
+# primetimepix/views.py
 from django.shortcuts import render
 
 def landing_page(request):

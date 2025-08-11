@@ -1,80 +1,113 @@
 {% extends 'nflpix/base.html' %}
 
+{% block title %}League Standings - NFL Pick'em{% endblock %}
+
 {% block content %}
-  <h1>NFL Pick Standings</h1>
+<div class="text-center mb-5">
+    <h2 class="text-neon mb-3">
+        <i class="fas fa-trophy me-2"></i>League Standings
+    </h2>
+    {% if league %}
+        <p class="text-muted-custom">{{ league.name }} - {{ league.description }}</p>
+    {% endif %}
+</div>
 
-  {% if page_obj.object_list %}
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>User</th>
-          <th>Correct Predictions</th>
-          <th>Total Predictions</th>
-          <th>Accuracy (%)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user_record in page_obj.object_list %}
-          <tr>
-            <td>
-              <strong>{{ user_record.user.username }}</strong>
-            </td>
-            <td>{{ user_record.correct_predictions }}</td>
-            <td>{{ user_record.total_predictions }}</td>
-            <td>
-              {% if user_record.accuracy is not None %}
-                {{ user_record.accuracy }}%
-              {% else %}
-                N/A
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+{% if page_obj %}
+    <div class="card">
+        <div class="card-header bg-transparent border-bottom border-secondary">
+            <h5 class="mb-0 text-neon">
+                <i class="fas fa-ranking-star me-2"></i>Current Rankings
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Rank</th>
+                            <th>User</th>
+                            <th class="text-center">Correct</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Accuracy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in page_obj %}
+                            <tr {% if rec.user == user %}class="table-primary"{% elif forloop.counter <= 3 %}class="table-success"{% endif %}>
+                                <td class="text-center fw-bold">
+                                    {% if forloop.counter == 1 %}
+                                        <i class="fas fa-crown text-warning fs-4"></i>
+                                    {% elif forloop.counter == 2 %}
+                                        <i class="fas fa-medal text-secondary fs-5"></i>
+                                    {% elif forloop.counter == 3 %}
+                                        <i class="fas fa-award text-warning fs-5"></i>
+                                    {% else %}
+                                        {{ forloop.counter }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ rec.user.username }}</strong>
+                                    {% if rec.user == user %}
+                                        <span class="badge bg-primary ms-2">You</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center text-neon">{{ rec.correct_predictions }}</td>
+                                <td class="text-center">{{ rec.total_predictions }}</td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ rec.accuracy|default:"0" }}%</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <!-- Pagination Controls -->
-    <nav aria-label="Page navigation">
-      <ul class="pagination">
-        {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-              &laquo; Previous
-            </a>
-          </li>
-        {% else %}
-          <li class="page-item disabled">
-            <span class="page-link">&laquo; Previous</span>
-          </li>
-        {% endif %}
+    {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left me-1"></i>Previous
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
 
-        {% for num in page_obj.paginator.page_range %}
-          {% if page_obj.number == num %}
-            <li class="page-item active" aria-current="page">
-              <span class="page-link">{{ num }}</span>
-            </li>
-          {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-            </li>
-          {% endif %}
-        {% endfor %}
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
 
-        {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-              Next &raquo;
-            </a>
-          </li>
-        {% else %}
-          <li class="page-item disabled">
-            <span class="page-link">Next &raquo;</span>
-          </li>
-        {% endif %}
-      </ul>
-    </nav>
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            Next<i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="alert alert-custom text-center">
+        <i class="fas fa-users-slash fa-4x mb-3"></i>
+        <h4>No Standings Data</h4>
+        <p class="mb-0">Standings data will appear here soon once members start making picks.</p>
+    </div>
+{% endif %}
 
-  {% else %}
-    <p>No standings data available yet.</p>
-  {% endif %}
+<div class="text-center mt-4">
+    <a href="{% url 'user_dashboard' %}" class="btn-neon">
+        <i class="fas fa-home me-2"></i>Back to Dashboard
+    </a>
+</div>
 {% endblock %}

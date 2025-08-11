@@ -1,0 +1,64 @@
+{% extends 'nflpix/base.html' %}
+
+{% block title %}My Leagues - NFL Pick'em{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="text-neon mb-0">
+        <i class="fas fa-users me-2"></i>My Leagues
+    </h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'league_join_request' %}" class="btn-neon">
+            <i class="fas fa-user-plus me-1"></i>Join League
+        </a>
+        <a href="{% url 'league_create_request' %}" class="btn-neon-fill">
+            <i class="fas fa-plus me-1"></i>Create League
+        </a>
+    </div>
+</div>
+
+{% if leagues %}
+    <div class="row g-4">
+        {% for league in leagues %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-neon mb-3">
+                            <i class="fas fa-trophy me-2"></i>{{ league.name }}
+                        </h5>
+                        <p class="card-text text-muted-custom flex-grow-1">
+                            {{ league.description|default:"No description provided." }}
+                        </p>
+                        <div class="mt-auto">
+                            <a href="{% url 'league_detail' league.id %}" class="btn-neon w-100">
+                                <i class="fas fa-chart-line me-2"></i>View Standings
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top border-secondary text-center">
+                        <small class="text-muted-custom">
+                            <i class="fas fa-users me-1"></i>League ID: {{ league.id }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center">
+        <div class="alert alert-custom">
+            <i class="fas fa-users-slash fa-4x mb-4"></i>
+            <h3>No Leagues Yet</h3>
+            <p class="mb-4">You're not currently a member of any leagues. Join or create one to start competing with friends!</p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{% url 'league_join_request' %}" class="btn-neon">
+                    <i class="fas fa-user-plus me-2"></i>Join Existing League
+                </a>
+                <a href="{% url 'league_create_request' %}" class="btn-neon-fill">
+                    <i class="fas fa-plus me-2"></i>Create New League
+                </a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

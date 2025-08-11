@@ -1,4 +1,4 @@
-
+#apps/picks/models.py
 from django.db import models
 from django.contrib.auth import get_user_model
 from apps.games.models import Game

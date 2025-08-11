@@ -1,0 +1,134 @@
+{% extends 'nflpix/base.html' %}
+
+{% block title %}Make Your Picks - NFL Pick'em{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-neon mb-0">
+        <i class="fas fa-hand-pointer me-2"></i>Make Your Picks
+    </h2>
+    {% if league %}
+        <div class="badge bg-secondary fs-6">{{ league.name }}</div>
+    {% endif %}
+</div>
+
+<form method="POST" action="{% url 'schedule' %}">
+    {% csrf_token %}
+    {% if league %}
+        <input type="hidden" name="league" value="{{ league.id }}">
+    {% endif %}
+
+    <div class="row g-4">
+        {% for item in games_with_info %}
+            {% with game=item.game %}
+            <div class="col-12 col-lg-6">
+                <div class="game-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ game.away_logo }}" class="team-logo me-2" alt="{{ game.away_team }}">
+                            <span class="fw-bold">{{ game.away_team }}</span>
+                        </div>
+                        <span class="text-muted-custom fs-5">@</span>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ game.home_logo }}" class="team-logo me-2" alt="{{ game.home_team }}">
+                            <span class="fw-bold">{{ game.home_team }}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <small class="text-muted-custom">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ game.start_time|timezone:"g:i A, M d" }}
+                        </small>
+                        {% if item.started %}
+                            <span class="badge bg-danger ms-2">
+                                <i class="fas fa-play me-1"></i>Started
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if not item.started %}
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input type="radio" name="pick_{{ game.id }}" value="away"
+                                           class="form-check-input" id="away_{{ game.id }}"
+                                           {% if item.user_pick == 'away' %}checked{% endif %}
+                                           {% if item.user_pick %}disabled{% endif %}>
+                                    <label class="form-check-label w-100 text-center p-2 border rounded" 
+                                           for="away_{{ game.id }}" style="cursor: pointer;">
+                                        <img src="{{ game.away_logo }}" class="team-logo me-2" alt="{{ game.away_team }}">
+                                        {{ game.away_team }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input type="radio" name="pick_{{ game.id }}" value="home"
+                                           class="form-check-input" id="home_{{ game.id }}"
+                                           {% if item.user_pick == 'home' %}checked{% endif %}
+                                           {% if item.user_pick %}disabled{% endif %}>
+                                    <label class="form-check-label w-100 text-center p-2 border rounded" 
+                                           for="home_{{ game.id }}" style="cursor: pointer;">
+                                        <img src="{{ game.home_logo }}" class="team-logo me-2" alt="{{ game.home_team }}">
+                                        {{ game.home_team }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if item.user_pick %}
+                            <div class="alert alert-custom text-center">
+                                <i class="fas fa-check-circle me-2"></i>
+                                You picked: <strong>{{ game.home_team if item.user_pick == 'home' else game.away_team }}</strong>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-secondary text-center">
+                            <i class="fas fa-lock me-2"></i>
+                            Picks are locked - game has started
+                        </div>
+                        {% if item.user_pick %}
+                            <div class="text-center">
+                                <small class="text-neon">
+                                    Your pick: <strong>{{ game.home_team if item.user_pick == 'home' else game.away_team }}</strong>
+                                </small>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endwith %}
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-custom text-center">
+                    <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                    <h4>No Games This Week</h4>
+                    <p class="mb-0">Check back later for upcoming games!</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if games_with_info %}
+        <div class="text-center mt-4">
+            <button type="submit" class="btn-neon-fill">
+                <i class="fas fa-paper-plane me-2"></i>Submit Picks
+            </button>
+        </div>
+    {% endif %}
+</form>
+
+<style>
+    .form-check-input:checked + .form-check-label {
+        background: rgba(0, 255, 136, 0.1);
+        border-color: var(--neon-color) !important;
+        color: var(--neon-color);
+    }
+    
+    .form-check-label:hover {
+        background: rgba(0, 255, 136, 0.05);
+        border-color: rgba(0, 255, 136, 0.5) !important;
+    }
+</style>
+{% endblock %}

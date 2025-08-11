@@ -1,23 +1,27 @@
-# game_picks/forms.py
+# apps/picks/forms.py
 from django import forms
-from .models import GameSelection, LeagueCreationRequest, LeagueJoinRequest, League
+from .models import Pick
+from apps.leagues.models import LeagueCreationRequest, LeagueJoinRequest, League
 
-class GameSelectionForm(forms.ModelForm):
+
+class PickForm(forms.ModelForm):
     class Meta:
-        model = GameSelection
-        fields = ['predicted_winner']
+        model = Pick
+        fields = ['picked_team']  # user, league, game will be set in view
+
 
 class LeagueCreationRequestForm(forms.ModelForm):
     class Meta:
         model = LeagueCreationRequest
-        fields = ['name', 'description']
+        fields = ['league_name', 'description']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
 
+
 class LeagueJoinRequestForm(forms.ModelForm):
     league = forms.ModelChoiceField(
-        queryset=League.objects.filter(is_approved=True),
+        queryset=League.objects.none(),  # Start with empty queryset
         label="Select League",
         empty_label="Choose a league"
     )
@@ -26,8 +30,8 @@ class LeagueJoinRequestForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if self.user:
-            # Exclude leagues the user is already a member of
-            self.fields['league'].queryset = League.objects.filter(is_approved=True).exclude(members=self.user)
+            # Only show leagues that are public (not private) and where user is NOT a member
+            self.fields['league'].queryset = League.objects.filter(is_private=False).exclude(members=self.user)
 
     def clean_league(self):
         league = self.cleaned_data.get('league')

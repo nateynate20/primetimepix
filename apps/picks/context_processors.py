@@ -1,4 +1,5 @@
-from .models import League
+#apps/picks/context_processors.py
+from apps.leagues.models import League
 
 def user_leagues(request):
     if request.user.is_authenticated:

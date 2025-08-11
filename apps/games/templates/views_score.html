@@ -1,76 +1,110 @@
 {% extends 'nflpix/base.html' %}
 
+{% block title %}NFL Scores - NFL Pick'em{% endblock %}
+
 {% block content %}
-<h2 class="mb-4">NFL Scores</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-neon mb-0">
+        <i class="fas fa-trophy me-2"></i>NFL Scores
+    </h2>
+</div>
 
-<form method="get" class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-  <label for="team" class="form-label m-0">Filter by Team:</label>
-  <select class="form-select w-auto bg-dark text-white border-neon" name="team" id="team" onchange="this.form.submit()">
-    <option value="">All Teams</option>
-    {% for team in teams %}
-      <option value="{{ team }}" {% if team == selected_team %}selected{% endif %}>{{ team }}</option>
-    {% endfor %}
-  </select>
-  {% if selected_team %}
-    <a href="{% url 'view_score' %}" class="btn btn-secondary btn-sm">Clear Filter</a>
-  {% endif %}
-</form>
-
-<div class="row gy-4">
-  {% for game in games %}
-    <div class="col-12 col-md-6">
-      <div class="card bg-dark border border-neon shadow-sm text-white h-100">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="d-flex align-items-center gap-2">
-              <img src="{{ game.home_logo }}" class="team-logo" alt="{{ game.home_team }}">
-              <strong>{{ game.home_team }}</strong>
-            </div>
-            <span class="score">{{ game.home_score }}</span>
-          </div>
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="d-flex align-items-center gap-2">
-              <img src="{{ game.away_logo }}" class="team-logo" alt="{{ game.away_team }}">
-              <strong>{{ game.away_team }}</strong>
-            </div>
-            <span class="score">{{ game.away_score }}</span>
-          </div>
-          <p class="text-secondary small mb-0">
-            {{ game.date }} • <em>{{ game.status }}</em>
-          </p>
-        </div>
-      </div>
-    </div>
-  {% empty %}
+<div class="row mb-4">
     <div class="col-12">
-      <div class="alert alert-warning">No games found for this filter.</div>
+        <form method="get" class="d-flex align-items-center gap-3 flex-wrap">
+            <label for="team" class="form-label mb-0 text-neon">
+                <i class="fas fa-filter me-1"></i>Filter by Team:
+            </label>
+            <select class="form-select w-auto" name="team" id="team" onchange="this.form.submit()">
+                <option value="">All Teams</option>
+                {% for team in teams %}
+                    <option value="{{ team }}" {% if team == selected_team %}selected{% endif %}>{{ team }}</option>
+                {% endfor %}
+            </select>
+            {% if selected_team %}
+                <a href="{% url 'view_score' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-times me-1"></i>Clear Filter
+                </a>
+            {% endif %}
+        </form>
     </div>
-  {% endfor %}
+</div>
+
+<div class="row g-4">
+    {% for game in games %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <!-- Home Team -->
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ game.home_logo }}" class="team-logo me-2" alt="{{ game.home_team }}">
+                            <strong>{{ game.home_team }}</strong>
+                        </div>
+                        <span class="fs-4 fw-bold text-neon">{{ game.home_score }}</span>
+                    </div>
+                    
+                    <!-- Away Team -->
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ game.away_logo }}" class="team-logo me-2" alt="{{ game.away_team }}">
+                            <strong>{{ game.away_team }}</strong>
+                        </div>
+                        <span class="fs-4 fw-bold text-neon">{{ game.away_score }}</span>
+                    </div>
+                    
+                    <!-- Game Info -->
+                    <div class="mt-auto">
+                        <small class="text-muted-custom">
+                            <i class="fas fa-calendar me-1"></i>{{ game.date }} • 
+                            <em>{{ game.status }}</em>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-custom text-center">
+                <i class="fas fa-search fa-3x mb-3"></i>
+                <h4>No Games Found</h4>
+                <p class="mb-0">No games found for the current filter.</p>
+            </div>
+        </div>
+    {% endfor %}
 </div>
 
 {% if games.paginator.num_pages > 1 %}
-  <nav class="mt-4">
-    <ul class="pagination justify-content-center">
-      {% if games.has_previous %}
-        <li class="page-item">
-          <a class="page-link bg-dark text-neon border-neon" href="?page={{ games.previous_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">Previous</a>
-        </li>
-      {% else %}
-        <li class="page-item disabled"><span class="page-link bg-dark text-secondary">Previous</span></li>
-      {% endif %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if games.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ games.previous_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">
+                        <i class="fas fa-chevron-left me-1"></i>Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Previous</span>
+                </li>
+            {% endif %}
 
-      <li class="page-item disabled">
-        <span class="page-link bg-dark text-white">Page {{ games.number }} of {{ games.paginator.num_pages }}</span>
-      </li>
+            <li class="page-item active">
+                <span class="page-link">Page {{ games.number }} of {{ games.paginator.num_pages }}</span>
+            </li>
 
-      {% if games.has_next %}
-        <li class="page-item">
-          <a class="page-link bg-dark text-neon border-neon" href="?page={{ games.next_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">Next</a>
-        </li>
-      {% else %}
-        <li class="page-item disabled"><span class="page-link bg-dark text-secondary">Next</span></li>
-      {% endif %}
-    </ul>
-  </nav>
+            {% if games.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ games.next_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">
+                        Next<i class="fas fa-chevron-right ms-1"></i>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Next</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 {% endif %}
 {% endblock %}

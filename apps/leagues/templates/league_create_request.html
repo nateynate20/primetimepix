@@ -1,0 +1,43 @@
+{% extends 'nflpix/base.html' %}
+
+{% block title %}Create League Request - NFL Pick'em{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header bg-transparent border-bottom border-secondary">
+                <h3 class="text-neon mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>Request New League
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted-custom mb-4">
+                    Submit a request to create a new league. An admin will review and approve it.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label_tag }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn-neon-fill">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Request
+                    </button>
+                    <a href="{% url 'user_dashboard' %}" class="btn-neon ms-2">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

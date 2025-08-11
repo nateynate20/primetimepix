@@ -1,4 +1,4 @@
-
+#apps/games/models.py
 from django.db import models
 
 class Game(models.Model):
@@ -14,6 +14,11 @@ class Game(models.Model):
     start_time = models.DateTimeField()
     status = models.CharField(max_length=20, default='scheduled')  # scheduled, in_progress, final
     winner = models.CharField(max_length=100, blank=True, null=True)
+    home_logo = models.URLField(blank=True, null=True)
+    away_logo = models.URLField(blank=True, null=True)
+    home_score = models.IntegerField(blank=True, null=True)
+    away_score = models.IntegerField(blank=True, null=True)
+
 
     # Optional metadata
     game_week = models.IntegerField(blank=True, null=True)

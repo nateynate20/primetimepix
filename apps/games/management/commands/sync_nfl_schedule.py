@@ -1,92 +1,74 @@
 import requests
-from datetime import datetime
 from django.core.management.base import BaseCommand
-from django.conf import settings
-from nfl_schedule.models import NFLGame
+from apps.games.models import Game
+from datetime import datetime
+from dateutil import parser
+
+API_URL = "https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4391&s=2025"
 
 class Command(BaseCommand):
-    help = 'Sync NFL schedule and scores from TheSportsDB API'
+    help = "Fetch and sync NFL schedule from TheSportsDB API"
 
-    def safe_int(self, value):
-        try:
-            return int(value)
-        except (TypeError, ValueError):
-            return None
+    def handle(self, *args, **options):
+        self.stdout.write(f"Fetching NFL schedule from {API_URL}...")
 
-    def handle(self, *args, **kwargs):
-        league_id = '4391'  # NFL league ID on TheSportsDB
-        season = '2025'     # Update season as needed
-        api_key = settings.THESPORTSDB_API_KEY
+        response = requests.get(API_URL)
+        if response.status_code != 200:
+            self.stderr.write(f"Failed to fetch data. Status code: {response.status_code}")
+            return
 
-        url = f'https://www.thesportsdb.com/api/v1/json/{api_key}/eventsseason.php?id={league_id}&s={season}'
-        self.stdout.write(f"Fetching NFL schedule from {url}...")
+        data = response.json()
+        events = data.get("events", [])
 
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-            events = data.get('events', [])
+        if not events:
+            self.stderr.write("No events found in API response.")
+            return
 
-            if not events:
-                self.stdout.write(self.style.WARNING("No events found from API."))
-                return
+        created_count = 0
+        updated_count = 0
 
-            for event in events:
-                event_id = event.get('idEvent')
-                if not event_id:
-                    self.stdout.write(self.style.WARNING("Skipping event without event_id"))
-                    continue
+        for event in events:
+            try:
+                home_team = event.get("strHomeTeam")
+                away_team = event.get("strAwayTeam")
+                start_time_str = event.get("dateEvent") + " " + (event.get("strTime") or "00:00:00")
 
-                # Parse date
-                event_date = event.get('dateEvent')
-                try:
-                    date_obj = datetime.strptime(event_date, '%Y-%m-%d').date() if event_date else None
-                except ValueError:
-                    self.stdout.write(self.style.WARNING(f"Skipping event with invalid date format: {event_id}"))
-                    continue
+                # Parse datetime from string
+                start_time = parser.parse(start_time_str)
 
-                # Parse time (some times may be null or empty)
-                event_time = event.get('strTime')
-                try:
-                    time_obj = datetime.strptime(event_time, '%H:%M:%S').time() if event_time else None
-                except ValueError:
-                    time_obj = None
+                # Optional fields
+                game_week = int(event.get("intRound") or 0)
+                location = event.get("strVenue")
+                external_id = event.get("idEvent")
 
-                # Extract week (sometimes available as 'intRound' or 'strRound')
-                week = event.get('intRound') or event.get('strRound') or None
-                if week is not None:
-                    week = str(week)
+                # Logos may be missing
+                home_logo = event.get("strHomeTeamBadge")
+                away_logo = event.get("strAwayTeamBadge")
 
-                # Extract logos for home and away teams if available
-                home_logo = event.get('strHomeTeamBadge') or ''
-                away_logo = event.get('strAwayTeamBadge') or ''
-
-                # Extract scores, convert to int or None if not present
-                home_score = self.safe_int(event.get('intHomeScore'))
-                away_score = self.safe_int(event.get('intAwayScore'))
-
-                status = event.get('strStatus') or 'Scheduled'
-
-                # Update or create the game in the DB
-                game, created = NFLGame.objects.update_or_create(
-                    event_id=event_id,
+                game, created = Game.objects.update_or_create(
+                    home_team=home_team,
+                    away_team=away_team,
+                    start_time=start_time,
                     defaults={
-                        'week': week,
-                        'date': date_obj,
-                        'start_time': time_obj,
-                        'home_team': event.get('strHomeTeam', ''),
-                        'away_team': event.get('strAwayTeam', ''),
-                        'home_logo': home_logo,
-                        'away_logo': away_logo,
-                        'home_score': home_score,
-                        'away_score': away_score,
-                        'status': status,
+                        "sport": "NFL",
+                        "game_week": game_week,
+                        "location": location,
+                        "external_id": external_id,
+                        "home_logo": home_logo,
+                        "away_logo": away_logo,
+                        "status": "scheduled",
                     }
                 )
-                action = "Created" if created else "Updated"
-                self.stdout.write(f"{action} game: {game}")
 
-            self.stdout.write(self.style.SUCCESS("NFL schedule sync completed successfully."))
+                if created:
+                    created_count += 1
+                    self.stdout.write(self.style.SUCCESS(f"Created: {game}"))
+                else:
+                    updated_count += 1
+                    self.stdout.write(self.style.WARNING(f"Updated: {game}"))
 
-        except requests.RequestException as e:
-            self.stderr.write(self.style.ERROR(f"Error fetching NFL schedule: {e}"))
+            except Exception as e:
+                self.stderr.write(self.style.ERROR(f"Failed to process event: {event.get('strEvent')}"))
+                self.stderr.write(self.style.ERROR(str(e)))
+
+        self.stdout.write(self.style.SUCCESS(f"✅ Done. Created: {created_count}, Updated: {updated_count}"))

@@ -1,0 +1,252 @@
+<!-- Base Template (base.html) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NFL Pick'em{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --neon-color: #00ff88;
+            --neon-glow: 0 0 10px #00ff88, 0 0 20px #00ff88, 0 0 30px #00ff88;
+            --dark-bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-muted: #888;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--neon-color) !important;
+            text-shadow: var(--neon-glow);
+        }
+        
+        .navbar-dark .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-dark .navbar-nav .nav-link:hover {
+            color: var(--neon-color);
+            text-shadow: 0 0 5px var(--neon-color);
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--neon-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn-neon {
+            background: transparent;
+            border: 2px solid var(--neon-color);
+            color: var(--neon-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-neon:hover {
+            background: var(--neon-color);
+            color: #000;
+            box-shadow: var(--neon-glow);
+            text-decoration: none;
+        }
+        
+        .btn-neon-fill {
+            background: var(--neon-color);
+            border: 2px solid var(--neon-color);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .btn-neon-fill:hover {
+            background: transparent;
+            color: var(--neon-color);
+            box-shadow: var(--neon-glow);
+        }
+        
+        .text-neon {
+            color: var(--neon-color);
+            text-shadow: 0 0 5px var(--neon-color);
+        }
+        
+        .text-muted-custom {
+            color: var(--text-muted);
+        }
+        
+        .team-logo {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+        
+        .game-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .game-card:hover {
+            border-color: var(--neon-color);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--neon-color);
+            border-color: var(--neon-color);
+        }
+        
+        .table-dark {
+            background: var(--card-bg);
+        }
+        
+        .table-dark th {
+            border-color: var(--neon-color);
+            color: var(--neon-color);
+        }
+        
+        .alert-custom {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: white;
+            border-radius: 8px;
+        }
+        
+        .pagination .page-link {
+            background: var(--card-bg);
+            border-color: var(--neon-color);
+            color: var(--neon-color);
+        }
+        
+        .pagination .page-link:hover {
+            background: var(--neon-color);
+            color: #000;
+        }
+        
+        .form-control, .form-select {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: white;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background: var(--card-bg);
+            border-color: var(--neon-color);
+            color: white;
+            box-shadow: 0 0 5px rgba(0, 255, 136, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'user_dashboard' %}">
+                <i class="fas fa-football-ball me-2"></i>NFL Pick'em
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_dashboard' %}">
+                            <i class="fas fa-home me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'schedule' %}">
+                            <i class="fas fa-calendar me-1"></i>Make Picks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_score' %}">
+                            <i class="fas fa-trophy me-1"></i>Scores
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-users me-1"></i>Leagues
+                        </a>
+                        <ul class="dropdown-menu bg-dark">
+                            <li><a class="dropdown-item text-white" href="{% url 'league_detail_no_id' %}">My Leagues</a></li>
+                            <li><a class="dropdown-item text-white" href="{% url 'general_standings' %}">Overall Standings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-white" href="{% url 'league_join_request' %}">Join League</a></li>
+                            <li><a class="dropdown-item text-white" href="{% url 'league_create_request' %}">Create League</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1"></i>{{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu bg-dark">
+                                {% if user.is_staff %}
+                                    <li><a class="dropdown-item text-white" href="{% url 'admin:index' %}">Admin Panel</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <li><a class="dropdown-item text-white" href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="mt-5 py-4 bg-dark text-center text-muted-custom">
+        <div class="container">
+            <p>&copy; 2024 NFL Pick'em. Made for friends who love football.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

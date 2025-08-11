@@ -1,0 +1,38 @@
+{% extends 'nflpix/base.html' %}
+{% block content %}
+<h2 class="text-2xl font-bold text-neon mb-6">League Standings</h2>
+{% if page_obj %}
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Correct</th>
+        <th>Total</th>
+        <th>Accuracy</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rec in page_obj %}
+        <tr>
+          <td class="font-semibold">{{ rec.user.username }}</td>
+          <td>{{ rec.correct_predictions }}</td>
+          <td>{{ rec.total_predictions }}</td>
+          <td>{{ rec.accuracy|default:"0" }}%</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="mt-4 flex justify-center space-x-3">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}" class="btn-outline-primary px-4 py-1">Previous</a>
+    {% endif %}
+    <span class="px-4 py-1">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" class="btn-outline-primary px-4 py-1">Next</a>
+    {% endif %}
+  </div>
+{% else %}
+  <div class="alert">Standings data will appear here soon.</div>
+{% endif %}
+{% endblock %}

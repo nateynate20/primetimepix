@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from players.forms import SignupUserForm  # import your custom form
+from apps.users.forms import SignupUserForm  # fix import path
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
@@ -10,9 +10,11 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def dashboard(request):
     user = request.user
+    leagues = user.leagues.all()
+    league = leagues.first() if leagues.exists() else None
     context = {
         'user': user,
-        # Add any additional data you want to show on the dashboard
+        'league': league,
     }
     return render(request, 'user_dashboard.html', context)
 

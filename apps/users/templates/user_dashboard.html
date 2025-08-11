@@ -1,19 +1,133 @@
 {% extends 'nflpix/base.html' %}
 
-{% block content %}
-<div class="container mt-4">
-  <h2>Welcome back, {{ user.username }}!</h2>
-  
-  {% if user.is_staff %}
-    <div class="alert alert-info">You are an admin. <a href="/admin/">Go to Admin Panel</a></div>
-  {% endif %}
-  
-  <p>This is your dashboard. From here you can:</p>
-  <ul>
-    <li>View or manage your picks (coming soon)</li>
-    <li>Check league statuses (coming soon)</li>
-    <li>Update your profile (coming soon)</li>
-  </ul>
+{% block title %}Dashboard - NFL Pick'em{% endblock %}
 
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-neon mb-3">
+                Welcome back, {{ user.username }}!
+            </h1>
+            <p class="lead text-muted-custom">Ready to make some winning picks?</p>
+        </div>
+    </div>
+</div>
+
+{% if user.is_staff %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-crown me-2"></i>
+                <strong>Admin Access:</strong> You have administrative privileges. 
+                <a href="{% url 'admin:index' %}" class="alert-link">Go to Admin Panel</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    <!-- Quick Actions -->
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-hand-pointer fa-3x text-neon mb-3"></i>
+                <h5 class="card-title text-neon">Make Picks</h5>
+                <p class="card-text text-muted-custom">
+                    Select your winners for upcoming games and compete with your friends.
+                </p>
+                <a href="{% url 'schedule' %}" class="btn-neon-fill">
+                    <i class="fas fa-calendar me-2"></i>View Games
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-trophy fa-3x text-neon mb-3"></i>
+                <h5 class="card-title text-neon">Scores & Results</h5>
+                <p class="card-text text-muted-custom">
+                    Check game results and see how your picks performed.
+                </p>
+                <a href="{% url 'view_score' %}" class="btn-neon">
+                    <i class="fas fa-chart-line me-2"></i>View Scores
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- League Management -->
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-neon mb-3"></i>
+                <h5 class="card-title text-neon">My Leagues</h5>
+                <p class="card-text text-muted-custom">
+                    View standings and compete with your friends in private leagues.
+                </p>
+                {% if league %}
+                    <a href="{% url 'league_detail_no_id' %}" class="btn-neon">
+                        <i class="fas fa-list me-2"></i>View Leagues
+                    </a>
+                {% else %}
+                    <a href="{% url 'league_join_request' %}" class="btn-neon">
+                        <i class="fas fa-plus me-2"></i>Join a League
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-medal fa-3x text-neon mb-3"></i>
+                <h5 class="card-title text-neon">Overall Standings</h5>
+                <p class="card-text text-muted-custom">
+                    See how you rank against all players on the platform.
+                </p>
+                <a href="{% url 'general_standings' %}" class="btn-neon">
+                    <i class="fas fa-ranking-star me-2"></i>View Leaderboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3 class="text-neon mb-4">
+            <i class="fas fa-chart-bar me-2"></i>Quick Actions
+        </h3>
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <a href="{% url 'league_create_request' %}" class="btn-neon w-100">
+                    <i class="fas fa-plus-circle d-block mb-2"></i>
+                    Create League
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'league_join_request' %}" class="btn-neon w-100">
+                    <i class="fas fa-user-plus d-block mb-2"></i>
+                    Join League
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'schedule' %}" class="btn-neon w-100">
+                    <i class="fas fa-calendar-check d-block mb-2"></i>
+                    This Week
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'general_standings' %}" class="btn-neon w-100">
+                    <i class="fas fa-crown d-block mb-2"></i>
+                    Leaderboard
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
