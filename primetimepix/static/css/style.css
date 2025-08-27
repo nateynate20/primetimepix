@@ -30,3 +30,10 @@ body {
 .group:hover .dropdown-menu {
   display: block;
 }
+
+.team-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: inline-block;
+}

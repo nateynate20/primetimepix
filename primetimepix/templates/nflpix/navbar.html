@@ -1,56 +1,69 @@
-<nav class="bg-black border-b border-gray-700">
+{% load static %}
+<nav class="bg-black border-b border-gray-800">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16 items-center">
-      <a href="{% url 'landing_page' %}" class="text-neon font-bold text-2xl font-orbitron">PrimetimePix</a>
+    <div class="flex justify-between items-center h-16">
+    <a href="{% url 'landing_page' %}" class="flex items-center space-x-2">
+  <img src="{% static 'img/pickemlogo.png' %}" alt="PrimetimePix Logo" class="h-8 w-auto">
+  <span class="text-neon font-bold text-2xl font-orbitron">PrimetimePix</span>
+</a>
 
-      <div class="hidden md:flex space-x-6">
+
+      <div class="hidden md:flex items-center space-x-6">
         <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
         {% if league %}
-      <a href="{% url 'league_detail' league.id %}" class="ml-4 inline-block border border-indigo-600 text-indigo-600 px-6 py-3 rounded-md hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
-        Your Leagues
-      </a>
-    {% else %}
-      <span class="ml-4 inline-block border border-gray-300 text-gray-400 px-6 py-3 rounded-md cursor-not-allowed">
-        Your Leagues (Unavailable)
-      </span>
-    {% endif %}
-  </div>
-</div>
+          <a href="{% url 'league_detail' league.id %}" class="nav-link border border-indigo-600 text-indigo-400 px-4 py-2 rounded hover:bg-indigo-900 transition">Your Leagues</a>
+        {% else %}
+          <span class="nav-link border border-gray-700 text-gray-500 px-4 py-2 rounded cursor-not-allowed">Your Leagues (Unavailable)</span>
+        {% endif %}
         <a href="{% url 'standings' %}" class="nav-link">Standings</a>
         <a href="{% url 'schedule' %}" class="nav-link">Picks</a>
       </div>
-
-      <div class="relative group md:hidden">
-        <button class="text-neon">☰</button>
-        <div class="dropdown-menu absolute hidden right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-lg z-50 group-hover:block">
-          <a href="{% url 'dashboard' %}" class="block px-4 py-2 hover:bg-gray-800">Dashboard</a>
-          {% if league %}
-      <a href="{% url 'league_detail' league.id %}" class="ml-4 inline-block border border-indigo-600 text-indigo-600 px-6 py-3 rounded-md hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
-        Your Leagues
-      </a>
-    {% else %}
-      <span class="ml-4 inline-block border border-gray-300 text-gray-400 px-6 py-3 rounded-md cursor-not-allowed">
-        Your Leagues (Unavailable)
-      </span>
-    {% endif %}
-  </div>
-</div>
-          <a href="{% url 'standings' %}" class="block px-4 py-2 hover:bg-gray-800">Standings</a>
-          <a href="{% url 'schedule' %}" class="block px-4 py-2 hover:bg-gray-800">Picks</a>
-        </div>
+      <!-- Mobile Hamburger -->
+      <div class="md:hidden flex items-center">
+        <button id="mobile-menu-btn" aria-label="Open menu" class="text-neon focus:outline-none focus:ring-2 focus:ring-neon">
+          <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+          </svg>
+        </button>
       </div>
-
-      {% if user.is_authenticated %}
-        <div class="ml-4">
+      <!-- Auth Links -->
+      <div class="hidden md:flex items-center ml-4">
+        {% if user.is_authenticated %}
           <span class="text-gray-300 text-sm">Hi, {{ user.username }}</span>
-          <a href="{% url 'logout' %}" class="ml-2 text-neon hover:underline">Logout</a>
-        </div>
-      {% else %}
-        <div class="space-x-4">
+          <a href="{% url 'logout' %}" class="ml-2 nav-link">Logout</a>
+        {% else %}
           <a href="{% url 'login' %}" class="nav-link">Login</a>
           <a href="{% url 'signup' %}" class="nav-link">Sign Up</a>
-        </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- Mobile Dropdown -->
+    <div id="mobile-menu" class="md:hidden hidden flex-col bg-gray-900 border border-gray-700 rounded-lg mt-2 p-4 z-50">
+      <a href="{% url 'dashboard' %}" class="nav-link block py-2">Dashboard</a>
+      {% if league %}
+        <a href="{% url 'league_detail' league.id %}" class="nav-link block py-2 border border-indigo-600 text-indigo-400 rounded hover:bg-indigo-900 transition">Your Leagues</a>
+      {% else %}
+        <span class="nav-link block py-2 border border-gray-700 text-gray-500 rounded cursor-not-allowed">Your Leagues (Unavailable)</span>
+      {% endif %}
+      <a href="{% url 'standings' %}" class="nav-link block py-2">Standings</a>
+      <a href="{% url 'schedule' %}" class="nav-link block py-2">Picks</a>
+      {% if user.is_authenticated %}
+        <span class="text-gray-300 text-sm block py-2">Hi, {{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="nav-link block py-2">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="nav-link block py-2">Login</a>
+        <a href="{% url 'signup' %}" class="nav-link block py-2">Sign Up</a>
       {% endif %}
     </div>
   </div>
+  <script>
+    // filepath: /Users/nathan.evans/Downloads/primetimepix/primetimepix/templates/nflpix/navbar.html
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('mobile-menu-btn');
+      const menu = document.getElementById('mobile-menu');
+      btn.addEventListener('click', function() {
+        menu.classList.toggle('hidden');
+      });
+    });
+  </script>
 </nav>

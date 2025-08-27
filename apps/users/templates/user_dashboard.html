@@ -3,131 +3,94 @@
 {% block title %}Dashboard - NFL Pick'em{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <div class="text-center mb-5">
-            <h1 class="display-4 text-neon mb-3">
-                Welcome back, {{ user.username }}!
-            </h1>
-            <p class="lead text-muted-custom">Ready to make some winning picks?</p>
-        </div>
-    </div>
-</div>
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-extrabold text-neon mb-3 font-orbitron">
+      Welcome back, {{ user.username }}!
+    </h1>
+    <p class="text-lg text-gray-400">Ready to make some winning picks?</p>
+  </div>
 
-{% if user.is_staff %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fas fa-crown me-2"></i>
-                <strong>Admin Access:</strong> You have administrative privileges. 
-                <a href="{% url 'admin:index' %}" class="alert-link">Go to Admin Panel</a>
-            </div>
-        </div>
+  {% if user.is_staff %}
+    <div class="mb-6">
+      <div class="bg-blue-900 border-l-4 border-neon p-4 rounded flex items-center">
+        <i class="fas fa-crown text-neon mr-3"></i>
+        <span class="font-semibold">Admin Access:</span>
+        <span class="ml-2">You have administrative privileges.</span>
+        <a href="{% url 'admin:index' %}" class="ml-auto text-neon underline hover:text-green-400">Go to Admin Panel</a>
+      </div>
     </div>
-{% endif %}
+  {% endif %}
 
-<div class="row g-4">
-    <!-- Quick Actions -->
-    <div class="col-12 col-md-6">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-hand-pointer fa-3x text-neon mb-3"></i>
-                <h5 class="card-title text-neon">Make Picks</h5>
-                <p class="card-text text-muted-custom">
-                    Select your winners for upcoming games and compete with your friends.
-                </p>
-                <a href="{% url 'schedule' %}" class="btn-neon-fill">
-                    <i class="fas fa-calendar me-2"></i>View Games
-                </a>
-            </div>
-        </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    <!-- Make Picks -->
+    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
+      <i class="fas fa-hand-pointer fa-3x text-neon mb-3"></i>
+      <h5 class="text-xl font-bold text-neon mb-2">Make Picks</h5>
+      <p class="text-gray-400 mb-4">Select your winners for upcoming games and compete with your friends.</p>
+      <a href="{% url 'schedule' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
+        <i class="fas fa-calendar mr-2"></i>View Games
+      </a>
     </div>
+    <!-- Scores & Results -->
+    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
+      <i class="fas fa-trophy fa-3x text-neon mb-3"></i>
+      <h5 class="text-xl font-bold text-neon mb-2">Scores & Results</h5>
+      <p class="text-gray-400 mb-4">Check game results and see how your picks performed.</p>
+      <a href="{% url 'view_score' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
+        <i class="fas fa-chart-line mr-2"></i>View Scores
+      </a>
+    </div>
+    <!-- My Leagues -->
+    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
+      <i class="fas fa-users fa-3x text-neon mb-3"></i>
+      <h5 class="text-xl font-bold text-neon mb-2">My Leagues</h5>
+      <p class="text-gray-400 mb-4">View standings and compete with your friends in private leagues.</p>
+      {% if league %}
+        <a href="{% url 'league_detail_no_id' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
+          <i class="fas fa-list mr-2"></i>View Leagues
+        </a>
+      {% else %}
+        <a href="{% url 'league_detail_no_id' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+          <i class="fas fa-user-plus fa-2x text-neon mb-2"></i>
+          <span class="text-neon font-semibold">Join League</span>
+        </a>
+      {% endif %}
+    </div>
+    <!-- Overall Standings -->
+    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
+      <i class="fas fa-medal fa-3x text-neon mb-3"></i>
+      <h5 class="text-xl font-bold text-neon mb-2">Overall Standings</h5>
+      <p class="text-gray-400 mb-4">See how you rank against all players on the platform.</p>
+      <a href="{% url 'general_standings' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
+        <i class="fas fa-ranking-star mr-2"></i>View Leaderboard
+      </a>
+    </div>
+  </div>
 
-    <div class="col-12 col-md-6">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-trophy fa-3x text-neon mb-3"></i>
-                <h5 class="card-title text-neon">Scores & Results</h5>
-                <p class="card-text text-muted-custom">
-                    Check game results and see how your picks performed.
-                </p>
-                <a href="{% url 'view_score' %}" class="btn-neon">
-                    <i class="fas fa-chart-line me-2"></i>View Scores
-                </a>
-            </div>
-        </div>
+  <!-- Quick Actions -->
+  <div class="mb-8">
+    <h3 class="text-neon text-2xl font-bold mb-4 flex items-center">
+      <i class="fas fa-chart-bar mr-2"></i>Quick Actions
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a href="{% url 'league_create_request' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+        <i class="fas fa-plus-circle fa-2x text-neon mb-2"></i>
+        <span class="text-neon font-semibold">Create League</span>
+      </a>
+      <a href="{% url 'league_detail_no_id' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+        <i class="fas fa-user-plus fa-2x text-neon mb-2"></i>
+        <span class="text-neon font-semibold">Join League</span>
+      </a>
+      <a href="{% url 'schedule' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+        <i class="fas fa-calendar-check fa-2x text-neon mb-2"></i>
+        <span class="text-neon font-semibold">This Week</span>
+      </a>
+      <a href="{% url 'general_standings' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+        <i class="fas fa-crown fa-2x text-neon mb-2"></i>
+        <span class="text-neon font-semibold">Leaderboard</span>
+      </a>
     </div>
-
-    <!-- League Management -->
-    <div class="col-12 col-md-6">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-users fa-3x text-neon mb-3"></i>
-                <h5 class="card-title text-neon">My Leagues</h5>
-                <p class="card-text text-muted-custom">
-                    View standings and compete with your friends in private leagues.
-                </p>
-                {% if league %}
-                    <a href="{% url 'league_detail_no_id' %}" class="btn-neon">
-                        <i class="fas fa-list me-2"></i>View Leagues
-                    </a>
-                {% else %}
-                    <a href="{% url 'league_join_request' %}" class="btn-neon">
-                        <i class="fas fa-plus me-2"></i>Join a League
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-md-6">
-        <div class="card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-medal fa-3x text-neon mb-3"></i>
-                <h5 class="card-title text-neon">Overall Standings</h5>
-                <p class="card-text text-muted-custom">
-                    See how you rank against all players on the platform.
-                </p>
-                <a href="{% url 'general_standings' %}" class="btn-neon">
-                    <i class="fas fa-ranking-star me-2"></i>View Leaderboard
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Stats Section -->
-<div class="row mt-5">
-    <div class="col-12">
-        <h3 class="text-neon mb-4">
-            <i class="fas fa-chart-bar me-2"></i>Quick Actions
-        </h3>
-        <div class="row g-3">
-            <div class="col-6 col-md-3">
-                <a href="{% url 'league_create_request' %}" class="btn-neon w-100">
-                    <i class="fas fa-plus-circle d-block mb-2"></i>
-                    Create League
-                </a>
-            </div>
-            <div class="col-6 col-md-3">
-                <a href="{% url 'league_join_request' %}" class="btn-neon w-100">
-                    <i class="fas fa-user-plus d-block mb-2"></i>
-                    Join League
-                </a>
-            </div>
-            <div class="col-6 col-md-3">
-                <a href="{% url 'schedule' %}" class="btn-neon w-100">
-                    <i class="fas fa-calendar-check d-block mb-2"></i>
-                    This Week
-                </a>
-            </div>
-            <div class="col-6 col-md-3">
-                <a href="{% url 'general_standings' %}" class="btn-neon w-100">
-                    <i class="fas fa-crown d-block mb-2"></i>
-                    Leaderboard
-                </a>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 {% endblock %}

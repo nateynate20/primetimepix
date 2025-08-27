@@ -1,36 +1,49 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto text-center">
-    <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl lg:text-6xl">
-      Welcome to <span class="text-indigo-600">PrimetimePix</span>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-orbitron text-neon drop-shadow-lg">
+      Welcome to <span class="text-neon">PrimetimePix</span>
     </h1>
-    <p class="mt-6 max-w-3xl mx-auto text-lg leading-8 text-gray-600">
-      Make your picks for NFL and NBA primetime games. Compete with friends or the public, climb the leaderboard, and dominate your league!
+    <p class="mt-6 max-w-3xl mx-auto text-lg leading-8 text-gray-300">
+      Make your picks for NFL and NBA primetime games.<br>
+      Compete with friends or the public, climb the leaderboard, and dominate your league!
     </p>
-    <div class="mt-10 flex justify-center gap-6">
-      <a href="{% url 'signup' %}" class="inline-block bg-indigo-600 text-white text-lg px-8 py-3 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
-        Sign Up
-      </a>
-      <a href="{% url 'login' %}" class="inline-block border border-gray-300 text-gray-700 text-lg px-8 py-3 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
-        Log In
+    <div class="mt-10 flex flex-col sm:flex-row justify-center gap-6">
+      {% if not user.is_authenticated %}
+        <a href="{% url 'signup' %}" class="bg-neon text-black text-lg font-bold px-8 py-3 rounded-lg shadow-lg hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-neon focus:ring-offset-2 transition">
+          Sign Up
+        </a>
+        <a href="{% url 'login' %}" class="bg-gray-800 border border-neon text-neon text-lg font-bold px-8 py-3 rounded-lg shadow-lg hover:bg-neon hover:text-black focus:outline-none focus:ring-2 focus:ring-neon focus:ring-offset-2 transition">
+          Log In
+        </a>
+      {% else %}
+        <span class="text-neon text-lg font-bold px-8 py-3 rounded-lg shadow-lg bg-gray-900 border border-neon">
+          Welcome, {{ user.username }}!
+        </span>
+      {% endif %}
+      <a href="{% url 'league_detail_no_id' %}" class="bg-gray-900 border border-gray-700 text-gray-100 text-lg font-bold px-8 py-3 rounded-lg shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-neon focus:ring-offset-2 transition">
+        Explore Leagues
       </a>
     </div>
 
     <div class="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-5xl mx-auto">
-      <div class="bg-white shadow-lg rounded-lg p-8 hover:shadow-indigo-300 transition">
-        <h3 class="text-2xl font-semibold text-gray-900 mb-3">Create or Join Leagues</h3>
-        <p class="text-gray-600">Form private leagues with friends or join public ones to test your skills against others.</p>
-      </div>
-      <div class="bg-white shadow-lg rounded-lg p-8 hover:shadow-indigo-300 transition">
-        <h3 class="text-2xl font-semibold text-gray-900 mb-3">Track Standings</h3>
-        <p class="text-gray-600">Check live leaderboards for your leagues and the global rankings.</p>
-      </div>
-      <div class="bg-white shadow-lg rounded-lg p-8 hover:shadow-indigo-300 transition">
-        <h3 class="text-2xl font-semibold text-gray-900 mb-3">Weekly Picks</h3>
-        <p class="text-gray-600">Make picks for NFL and NBA primetime games before kickoff or tip-off.</p>
-      </div>
+      <section class="bg-gray-900 shadow-lg rounded-xl p-8 hover:shadow-neon hover:bg-gray-800 cursor-pointer transition duration-200">
+        <h3 class="text-2xl font-semibold text-neon mb-3">Create or Join Leagues</h3>
+        <p class="text-gray-300">Form private leagues with friends or join public ones to test your skills against others.</p>
+        <a href="{% url 'league_detail_no_id' %}" class="inline-block mt-4 text-neon font-bold underline hover:text-green-400 transition">Find a League</a>
+      </section>
+      <section class="bg-gray-900 shadow-lg rounded-xl p-8 hover:shadow-neon hover:bg-gray-800 cursor-pointer transition duration-200">
+        <h3 class="text-2xl font-semibold text-neon mb-3">Track Standings</h3>
+        <p class="text-gray-300">Check live leaderboards for your leagues and the global rankings.</p>
+        <a href="{% url 'dashboard' %}" class="inline-block mt-4 text-neon font-bold underline hover:text-green-400 transition">View Standings</a>
+      </section>
+      <section class="bg-gray-900 shadow-lg rounded-xl p-8 hover:shadow-neon hover:bg-gray-800 cursor-pointer transition duration-200">
+        <h3 class="text-2xl font-semibold text-neon mb-3">Weekly Picks</h3>
+        <p class="text-gray-300">Make picks for NFL and NBA primetime games before kickoff or tip-off.</p>
+        <a href="{% url 'schedule' %}" class="inline-block mt-4 text-neon font-bold underline hover:text-green-400 transition">Make Picks</a>
+      </section>
     </div>
   </div>
 </div>

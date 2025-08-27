@@ -7,6 +7,14 @@
     <h2 class="text-neon mb-0">
         <i class="fas fa-trophy me-2"></i>NFL Scores
     </h2>
+    
+    <!-- NEW: Quick Stats -->
+    <div class="d-flex gap-2 align-items-center">
+        <small class="badge bg-primary">{{ total_games }} Games</small>
+        {% if primetime_count %}
+            <small class="badge bg-warning text-dark">{{ primetime_count }} Primetime</small>
+        {% endif %}
+    </div>
 </div>
 
 <div class="row mb-4">
@@ -21,7 +29,17 @@
                     <option value="{{ team }}" {% if team == selected_team %}selected{% endif %}>{{ team }}</option>
                 {% endfor %}
             </select>
-            {% if selected_team %}
+            
+            <!-- NEW: Primetime Filter -->
+            <label for="primetime" class="form-label mb-0 text-neon">
+                <i class="fas fa-moon me-1"></i>Game Type:
+            </label>
+            <select class="form-select w-auto" name="primetime" id="primetime" onchange="this.form.submit()">
+                <option value="">All Games</option>
+                <option value="true" {% if show_primetime_only %}selected{% endif %}>Primetime Only</option>
+            </select>
+            
+            {% if selected_team or show_primetime_only %}
                 <a href="{% url 'view_score' %}" class="btn btn-secondary btn-sm">
                     <i class="fas fa-times me-1"></i>Clear Filter
                 </a>
@@ -33,32 +51,62 @@
 <div class="row g-4">
     {% for game in games %}
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="card h-100">
-                <div class="card-body">
+            <!-- NEW: Add special styling for primetime games -->
+            <div class="card h-100 {% if game.is_primetime %}border-warning primetime-card{% endif %}">
+                
+                <!-- NEW: Primetime header -->
+                {% if game.is_primetime %}
+                    <div class="card-header bg-warning text-dark text-center py-1">
+                        <small class="fw-bold">
+                            <i class="fas fa-moon me-1"></i>PRIMETIME GAME
+                        </small>
+                    </div>
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
                     <!-- Home Team -->
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center">
-                            <img src="{{ game.home_logo }}" class="team-logo me-2" alt="{{ game.home_team }}">
+                            {% if game.home_logo %}
+                                <img src="{{ game.home_logo }}" class="team-logo me-2" alt="{{ game.home_team }}">
+                            {% endif %}
                             <strong>{{ game.home_team }}</strong>
                         </div>
-                        <span class="fs-4 fw-bold text-neon">{{ game.home_score }}</span>
+                        <span class="fs-4 fw-bold text-neon">
+                            {{ game.home_score|default:"-" }}
+                        </span>
                     </div>
                     
                     <!-- Away Team -->
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center">
-                            <img src="{{ game.away_logo }}" class="team-logo me-2" alt="{{ game.away_team }}">
+                            {% if game.away_logo %}
+                                <img src="{{ game.away_logo }}" class="team-logo me-2" alt="{{ game.away_team }}">
+                            {% endif %}
                             <strong>{{ game.away_team }}</strong>
                         </div>
-                        <span class="fs-4 fw-bold text-neon">{{ game.away_score }}</span>
+                        <span class="fs-4 fw-bold text-neon">
+                            {{ game.away_score|default:"-" }}
+                        </span>
                     </div>
                     
                     <!-- Game Info -->
                     <div class="mt-auto">
                         <small class="text-muted-custom">
-                            <i class="fas fa-calendar me-1"></i>{{ game.date }} • 
-                            <em>{{ game.status }}</em>
+                            <i class="fas fa-calendar me-1"></i>
+                            <!-- NEW: Show Eastern Time if available -->
+                            {% if game.start_time_et %}
+                                {{ game.start_time_et|date:"M d, Y - g:i A" }} ET
+                            {% else %}
+                                {{ game.start_time|date:"M d, Y - g:i A" }}
+                            {% endif %}
+                            • <em>{{ game.status|title }}</em>
                         </small>
+                        
+                        <!-- NEW: Show week number if available -->
+                        {% if game.game_week %}
+                            <small class="badge bg-secondary ms-2">Week {{ game.game_week }}</small>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -68,7 +116,13 @@
             <div class="alert alert-custom text-center">
                 <i class="fas fa-search fa-3x mb-3"></i>
                 <h4>No Games Found</h4>
-                <p class="mb-0">No games found for the current filter.</p>
+                <p class="mb-0">
+                    {% if selected_team or show_primetime_only %}
+                        No games match your current filters.
+                    {% else %}
+                        No games found for the current filter.
+                    {% endif %}
+                </p>
             </div>
         </div>
     {% endfor %}
@@ -79,7 +133,7 @@
         <ul class="pagination justify-content-center">
             {% if games.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ games.previous_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">
+                    <a class="page-link" href="?page={{ games.previous_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}{% if show_primetime_only %}&primetime=true{% endif %}">
                         <i class="fas fa-chevron-left me-1"></i>Previous
                     </a>
                 </li>
@@ -95,7 +149,7 @@
 
             {% if games.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ games.next_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}">
+                    <a class="page-link" href="?page={{ games.next_page_number }}{% if selected_team %}&team={{ selected_team }}{% endif %}{% if show_primetime_only %}&primetime=true{% endif %}">
                         Next<i class="fas fa-chevron-right ms-1"></i>
                     </a>
                 </li>
@@ -107,4 +161,28 @@
         </ul>
     </nav>
 {% endif %}
+
+<style>
+.team-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+/* NEW: Primetime card styling */
+.primetime-card {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
+    transition: box-shadow 0.3s ease;
+}
+
+.primetime-card:hover {
+    box-shadow: 0 0 25px rgba(255, 193, 7, 0.6);
+}
+
+.alert-custom {
+    background: linear-gradient(135deg, var(--bs-dark) 0%, var(--bs-secondary) 100%);
+    border: 1px solid var(--bs-primary);
+    color: var(--bs-light);
+}
+</style>
 {% endblock %}
