@@ -1,159 +1,121 @@
+# apps/picks/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from django.core.paginator import Paginator
-from datetime import timedelta, datetime
 
 from apps.games.models import Game
 from apps.leagues.models import League
 from .models import Pick
+from .services import PickService, StatsService
+from apps.games.utils import filter_primetime_games, get_current_nfl_week
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 def display_nfl_schedule(request):
-    now = timezone.now()
+    """Display NFL schedule with primetime filtering, picks, and scores"""
+    current_week = get_current_nfl_week()
 
-    # Week boundaries (Monday to Sunday)
-    week_start = now - timedelta(days=now.weekday())
-    week_end = week_start + timedelta(days=7)
+    # --- Filters ---
+    selected_team = request.GET.get("team", "").strip()
+    show_primetime_only = request.GET.get("primetime") == "true"
 
-    # Optionally skip preseason games (before Sept 1)
-    season_start = timezone.datetime(now.year, 9, 1, tzinfo=timezone.utc)
+    games_qs = Game.objects.filter(sport="NFL").order_by("game_week", "start_time")
+    if selected_team:
+        games_qs = games_qs.filter(
+            home_team__icontains=selected_team
+        ) | games_qs.filter(away_team__icontains=selected_team)
 
-    all_week_games = Game.objects.filter(
-        start_time__gte=week_start,
-        start_time__lt=week_end,
-        start_time__gte=season_start
-    ).order_by('start_time')
+    # --- Primetime filtering ---
+    games = filter_primetime_games(games_qs) if show_primetime_only else list(games_qs)
 
-    # Show all games for the week (not just primetime)
-    games = list(all_week_games)
-
-    # League filtering
-    league_id = request.GET.get('league') or request.POST.get('league')
-    league = League.objects.filter(id=league_id, is_approved=True, members=request.user).first() if league_id else None
+    # --- League selection ---
+    league_id = request.GET.get("league") or request.POST.get("league")
+    league = (
+        League.objects.filter(id=league_id, is_approved=True, members=request.user).first()
+        if league_id
+        else None
+    )
     if league_id and not league:
         messages.error(request, "Invalid or unauthorized league selected.")
-        return redirect('schedule')
+        return redirect("schedule")
 
-    # User's existing picks
-    user_picks = Pick.objects.filter(user=request.user, game__in=games, league=league)
-    picks_dict = {
-        pick.game_id: 'home' if pick.picked_team == pick.game.home_team else 'away'
-        for pick in user_picks
-    }
+    user_leagues = League.objects.filter(members=request.user, is_approved=True)
 
-    # Handle form submission
-    if request.method == 'POST':
+    # --- Handle POST (save picks) ---
+    if request.method == "POST":
+        picks_data = {}
         for game in games:
-            pick_key = f'pick_{game.id}'
+            pick_key = f"pick_{game.id}"
             user_pick = request.POST.get(pick_key)
             if not user_pick:
                 continue
 
-            if now >= game.start_time:
-                messages.warning(request, f"Picks for {game.away_team} @ {game.home_team} are closed.")
-                continue
+            picked_team = game.home_team if user_pick == "home" else game.away_team
+            picks_data[game.id] = {"team": picked_team, "confidence": 1}
 
-            picked_team = game.home_team if user_pick == 'home' else game.away_team
+        saved, errors = PickService.save_user_picks(request.user, picks_data, league=league)
+        if saved:
+            messages.success(request, f"{len(saved)} pick(s) saved.")
+        if errors:
+            for e in errors:
+                messages.warning(request, e)
+        return redirect("schedule")
 
-            Pick.objects.update_or_create(
-                user=request.user,
-                game=game,
-                league=league,
-                defaults={'picked_team': picked_team}
-            )
-        messages.success(request, "Your picks have been saved.")
-        return redirect('schedule')
-
-    # Prep context for template
-    games_with_info = []
+    # --- Attach user pick status ---
+    picks_dict = PickService.get_user_pick_status(request.user, games, league=league)
     for game in games:
-        started = now >= game.start_time
-        games_with_info.append({
-            'game': game,
-            'user_pick': picks_dict.get(game.id),
-            'started': started,
-        })
+        game.user_pick = picks_dict.get(game.id, {}).get("picked_team")
+        game.locked = not game.can_make_picks()
+
+    # --- Pagination ---
+    paginator = Paginator(games, 12)
+    page_number = request.GET.get("page")
+    games_page = paginator.get_page(page_number)
 
     context = {
-        'games_with_info': games_with_info,
-        'league': league,
-        'primetime_count': len(games),  # Optional: rename to total_games if needed
+        "games": games_page,
+        "league": league,
+        "user_leagues": user_leagues,
+        "teams": Game.objects.values_list("home_team", flat=True).distinct().order_by("home_team"),
+        "selected_team": selected_team,
+        "show_primetime_only": show_primetime_only,
+        "current_week": current_week,
+        "total_games": Game.objects.count(),
+        "primetime_count": len(filter_primetime_games(Game.objects.all())),
     }
-    return render(request, 'picks/schedule.html', context)
+    return render(request, "picks/schedule.html", context)
 
 
-@login_required(login_url='login')
-def general_standings(request):
-    from django.db.models import Count
-    from django.contrib.auth import get_user_model
-
-    User = get_user_model()
-
-    user_stats = []
-    users_with_picks = User.objects.filter(pick__isnull=False).distinct()
-
-    for user in users_with_picks:
-        total_picks = Pick.objects.filter(user=user).count()
-        correct_picks = Pick.objects.filter(user=user, is_correct=True).count()
-        accuracy = round((correct_picks / total_picks) * 100, 2) if total_picks > 0 else 0
-
-        user_stats.append({
-            'user': user,
-            'total_predictions': total_picks,
-            'correct_predictions': correct_picks,
-            'accuracy': accuracy
-        })
-
-    user_stats.sort(key=lambda x: (x['correct_predictions'], x['accuracy']), reverse=True)
-
-    paginator = Paginator(user_stats, 25)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        'page_obj': page_obj,
-    }
-    return render(request, 'picks/general_standings.html', context)
-
-
-@login_required(login_url='login')
+@login_required(login_url="login")
 def standings(request):
-    league_id = request.GET.get('league')
+    """League-specific standings view"""
+    league_id = request.GET.get("league")
     if not league_id:
-        messages.error(request, "No league selected.")
-        return redirect('schedule')
+        messages.error(request, "Please select a league.")
+        return redirect("schedule")
 
-    league = League.objects.filter(id=league_id, members=request.user).first()
+    league = League.objects.filter(id=league_id, is_approved=True, members=request.user).first()
     if not league:
         messages.error(request, "Invalid or unauthorized league selected.")
-        return redirect('schedule')
+        return redirect("schedule")
 
-    league_stats = []
-    league_members = league.members.all()
-
-    for member in league_members:
-        total_picks = Pick.objects.filter(user=member, league=league).count()
-        correct_picks = Pick.objects.filter(user=member, league=league, is_correct=True).count()
-        accuracy = round((correct_picks / total_picks) * 100, 2) if total_picks > 0 else 0
-
-        league_stats.append({
-            'user': member,
-            'total_predictions': total_picks,
-            'correct_predictions': correct_picks,
-            'accuracy': accuracy
-        })
-
-    league_stats.sort(key=lambda x: (x['correct_predictions'], x['accuracy']), reverse=True)
-
-    paginator = Paginator(league_stats, 25)
-    page_number = request.GET.get('page')
+    leaderboard = PickService.calculate_leaderboard(league=league)
+    paginator = Paginator(leaderboard, 10)
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        'league': league,
-        'page_obj': page_obj,
-    }
-    return render(request, 'picks/standings.html', context)
+    context = {"league": league, "page_obj": page_obj}
+    return render(request, "picks/standings.html", context)
+
+
+@login_required(login_url="login")
+def general_standings(request):
+    """Overall leaderboard across all users"""
+    leaderboard = PickService.calculate_leaderboard(league=None)
+    paginator = Paginator(leaderboard, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {"page_obj": page_obj}
+    return render(request, "picks/general_standings.html", context)

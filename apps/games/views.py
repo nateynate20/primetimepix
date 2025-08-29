@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from apps.games.models import Game
+import pytz
 
 # Define primetime start time (8:00 PM)
 PRIMETIME_START = time(20, 0)
@@ -18,16 +19,27 @@ def view_schedule_page(request):
     week_end = week_start + timedelta(days=7)
 
     # Filter games in this week starting at or after 8:00 PM (primetime)
-    games = Game.objects.filter(
+    eastern = pytz.timezone('US/Eastern')
+    all_games = Game.objects.filter(
         start_time__gte=week_start,
         start_time__lt=week_end,
-        start_time__time__gte=PRIMETIME_START
     ).order_by('start_time')
+    
+    # Filter for primetime games
+    primetime_games = []
+    for game in all_games:
+        try:
+            et_time = game.start_time.astimezone(eastern)
+            if et_time.time() >= PRIMETIME_START:
+                primetime_games.append(game)
+        except:
+            if hasattr(game, 'is_primetime') and game.is_primetime:
+                primetime_games.append(game)
 
     context = {
         'games_with_info': [
             {'game': game, 'started': game.start_time <= now, 'user_pick': None}
-            for game in games
+            for game in primetime_games
         ],
     }
     return render(request, 'schedule.html', context)
@@ -35,41 +47,40 @@ def view_schedule_page(request):
 
 @login_required(login_url='login')
 def view_score(request):
-    """Enhanced version of your existing view with gradual primetime additions"""
+    """Enhanced version with primetime filtering"""
     
-    # Your existing filter logic
+    # Filter logic
     selected_team = request.GET.get('team', '').strip()
     games = Game.objects.all()
 
-    # Filter games by team if a team is selected (your original logic)
+    # Filter games by team if a team is selected
     if selected_team:
         games = games.filter(
             Q(home_team__icontains=selected_team) | Q(away_team__icontains=selected_team)
         )
 
-    # NEW: Add primetime filter option
+    # Primetime filter option
     show_primetime_only = request.GET.get('primetime') == 'true'
     if show_primetime_only:
-        # Filter for games that would be considered primetime
-        # We'll do this in Python to use the model property if it exists
+        # Filter for primetime games using the model property
         all_games = list(games.order_by('-start_time'))
         primetime_games = []
+        eastern = pytz.timezone('US/Eastern')
+        
         for game in all_games:
-            if hasattr(game, 'is_primetime') and game.is_primetime:
-                primetime_games.append(game)
-            # Fallback if property doesn't exist - check if game starts at 8 PM or later
-            elif not hasattr(game, 'is_primetime'):
-                try:
-                    # Convert to Eastern Time for comparison
-                    import pytz
-                    eastern = pytz.timezone('US/Eastern')
+            try:
+                # Use model property if available
+                if hasattr(game, 'is_primetime') and game.is_primetime:
+                    primetime_games.append(game)
+                else:
+                    # Fallback: manual check
                     et_time = game.start_time.astimezone(eastern)
-                    if et_time.time() >= time(20, 0):  # 8 PM ET
+                    if et_time.time() >= PRIMETIME_START:
                         primetime_games.append(game)
-                except:
-                    # If timezone conversion fails, use simple time comparison
-                    if game.start_time.time() >= time(20, 0):
-                        primetime_games.append(game)
+            except Exception:
+                # Last fallback
+                if game.start_time.time() >= PRIMETIME_START:
+                    primetime_games.append(game)
         
         # Convert back to queryset for pagination
         if primetime_games:
@@ -78,42 +89,40 @@ def view_score(request):
         else:
             games = Game.objects.none()
 
-    # Your existing team dropdown logic
+    # Team dropdown
     teams = Game.objects.values_list('home_team', flat=True).distinct().order_by('home_team')
 
-    # NEW: Calculate some stats for the template
+    # Calculate stats
     total_games = Game.objects.count()
     try:
-        all_nfl_games = list(Game.objects.all())
+        # Count primetime games efficiently
+        eastern = pytz.timezone('US/Eastern')
+        all_nfl_games = list(Game.objects.filter(sport='NFL'))
         primetime_count = 0
+        
         for game in all_nfl_games:
-            if hasattr(game, 'is_primetime') and game.is_primetime:
-                primetime_count += 1
-            elif not hasattr(game, 'is_primetime'):
-                # Fallback calculation
-                try:
-                    import pytz
-                    eastern = pytz.timezone('US/Eastern')
+            try:
+                if hasattr(game, 'is_primetime') and game.is_primetime:
+                    primetime_count += 1
+                else:
                     et_time = game.start_time.astimezone(eastern)
-                    if et_time.time() >= time(20, 0):
+                    if et_time.time() >= PRIMETIME_START:
                         primetime_count += 1
-                except:
-                    if game.start_time.time() >= time(20, 0):
-                        primetime_count += 1
-    except:
+            except Exception:
+                if game.start_time.time() >= PRIMETIME_START:
+                    primetime_count += 1
+    except Exception:
         primetime_count = 0
 
-    # Your existing pagination logic
-    paginator = Paginator(games.order_by('-start_time'), 10)
+    # Pagination
+    paginator = Paginator(games.order_by('-start_time'), 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Enhanced context with new data
     context = {
         'games': page_obj,
         'teams': teams,
         'selected_team': selected_team,
-        # NEW: Add primetime-related context
         'show_primetime_only': show_primetime_only,
         'total_games': total_games,
         'primetime_count': primetime_count,

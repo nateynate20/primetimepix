@@ -10,6 +10,45 @@ import re
 class Command(BaseCommand):
     help = "Sync NFL schedule using nfl_data_py"
 
+    # Team logo mapping - Fixed LA Rams issue
+    TEAM_LOGOS = {
+        'ARI': 'https://a.espncdn.com/i/teamlogos/nfl/500/ari.png',
+        'ATL': 'https://a.espncdn.com/i/teamlogos/nfl/500/atl.png',
+        'BAL': 'https://a.espncdn.com/i/teamlogos/nfl/500/bal.png',
+        'BUF': 'https://a.espncdn.com/i/teamlogos/nfl/500/buf.png',
+        'CAR': 'https://a.espncdn.com/i/teamlogos/nfl/500/car.png',
+        'CHI': 'https://a.espncdn.com/i/teamlogos/nfl/500/chi.png',
+        'CIN': 'https://a.espncdn.com/i/teamlogos/nfl/500/cin.png',
+        'CLE': 'https://a.espncdn.com/i/teamlogos/nfl/500/cle.png',
+        'DAL': 'https://a.espncdn.com/i/teamlogos/nfl/500/dal.png',
+        'DEN': 'https://a.espncdn.com/i/teamlogos/nfl/500/den.png',
+        'DET': 'https://a.espncdn.com/i/teamlogos/nfl/500/det.png',
+        'GB': 'https://a.espncdn.com/i/teamlogos/nfl/500/gb.png',
+        'HOU': 'https://a.espncdn.com/i/teamlogos/nfl/500/hou.png',
+        'IND': 'https://a.espncdn.com/i/teamlogos/nfl/500/ind.png',
+        'JAX': 'https://a.espncdn.com/i/teamlogos/nfl/500/jax.png',
+        'KC': 'https://a.espncdn.com/i/teamlogos/nfl/500/kc.png',
+        'LV': 'https://a.espncdn.com/i/teamlogos/nfl/500/lv.png',
+        'LAC': 'https://a.espncdn.com/i/teamlogos/nfl/500/lac.png',
+        # LA Rams - multiple possible abbreviations
+        'LAR': 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png',
+        'LA': 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png',  # Alternative
+        'STL': 'https://a.espncdn.com/i/teamlogos/nfl/500/lar.png', # Legacy
+        'MIA': 'https://a.espncdn.com/i/teamlogos/nfl/500/mia.png',
+        'MIN': 'https://a.espncdn.com/i/teamlogos/nfl/500/min.png',
+        'NE': 'https://a.espncdn.com/i/teamlogos/nfl/500/ne.png',
+        'NO': 'https://a.espncdn.com/i/teamlogos/nfl/500/no.png',
+        'NYG': 'https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png',
+        'NYJ': 'https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png',
+        'PHI': 'https://a.espncdn.com/i/teamlogos/nfl/500/phi.png',
+        'PIT': 'https://a.espncdn.com/i/teamlogos/nfl/500/pit.png',
+        'SF': 'https://a.espncdn.com/i/teamlogos/nfl/500/sf.png',
+        'SEA': 'https://a.espncdn.com/i/teamlogos/nfl/500/sea.png',
+        'TB': 'https://a.espncdn.com/i/teamlogos/nfl/500/tb.png',
+        'TEN': 'https://a.espncdn.com/i/teamlogos/nfl/500/ten.png',
+        'WAS': 'https://a.espncdn.com/i/teamlogos/nfl/500/was.png',
+    }
+
     def parse_game_time(self, time_str):
         """Parse various time formats from NFL data"""
         if not time_str or str(time_str).upper() in ['TBD', 'TBA', 'NULL', 'NAN']:
@@ -75,15 +114,26 @@ class Command(BaseCommand):
         self.stdout.write(f"Retrieved {len(df)} games.")
         self.stdout.write(f"Columns available: {list(df.columns)}")
         
-        # Debug: Show sample of game times to understand format
-        if not df.empty and 'gametime' in df.columns:
-            sample_times = df['gametime'].dropna().head(5).tolist()
-            self.stdout.write(f"Sample game times: {sample_times}")
+        # Debug: Show sample of game times and team names to understand format
+        if not df.empty:
+            if 'gametime' in df.columns:
+                sample_times = df['gametime'].dropna().head(5).tolist()
+                self.stdout.write(f"Sample game times: {sample_times}")
+            
+            # Debug: Show unique team names to check Rams abbreviation
+            home_teams = df['home_team'].dropna().unique()
+            away_teams = df['away_team'].dropna().unique()
+            all_teams = set(list(home_teams) + list(away_teams))
+            rams_teams = [team for team in all_teams if 'ram' in team.lower() or 'la' in team.lower()]
+            if rams_teams:
+                self.stdout.write(f"Rams-related team names found: {rams_teams}")
 
         for _, row in df.iterrows():
             try:
                 game_day_str = row.get('gameday')
                 game_time_str = row.get('gametime')
+                home_team = row.get('home_team', '')
+                away_team = row.get('away_team', '')
 
                 if not game_day_str:
                     skipped += 1
@@ -114,13 +164,13 @@ class Command(BaseCommand):
                 # Create a more robust external_id
                 game_id = row.get('game_id')
                 if not game_id:
-                    game_id = f"{row.get('away_team', 'UNK')}@{row.get('home_team', 'UNK')}@{date_part.isoformat()}"
+                    game_id = f"{away_team}@{home_team}@{date_part.isoformat()}"
 
                 game, created_flag = Game.objects.update_or_create(
                     external_id=game_id,
                     defaults={
-                        'home_team': row.get('home_team', ''),
-                        'away_team': row.get('away_team', ''),
+                        'home_team': home_team,
+                        'away_team': away_team,
                         'start_time': start_time_utc,
                         'sport': 'NFL',
                         'game_week': row.get('week', 0),
@@ -128,15 +178,29 @@ class Command(BaseCommand):
                         'status': 'scheduled',
                         'season': row.get('season', season_year),
                         'game_type': row.get('game_type', 'REG'),  # REG, WC, DIV, CON, SB
+                        # Add logo URLs with debug info
+                        'home_logo': self.TEAM_LOGOS.get(home_team, ''),
+                        'away_logo': self.TEAM_LOGOS.get(away_team, ''),
                     }
                 )
+                
+                # Debug missing logos
+                if not self.TEAM_LOGOS.get(home_team) or not self.TEAM_LOGOS.get(away_team):
+                    missing_teams = []
+                    if not self.TEAM_LOGOS.get(home_team):
+                        missing_teams.append(f"Home: {home_team}")
+                    if not self.TEAM_LOGOS.get(away_team):
+                        missing_teams.append(f"Away: {away_team}")
+                    self.stdout.write(
+                        self.style.WARNING(f"Missing logo mapping for: {', '.join(missing_teams)}")
+                    )
                 
                 if created_flag:
                     created += 1
                     self.stdout.write(
                         self.style.SUCCESS(
                             f"Created: {game} at {start_time.strftime('%Y-%m-%d %I:%M %p %Z')} "
-                            f"(Week {row.get('week', 'N/A')})"
+                            f"(Week {row.get('week', 'N/A')}) - Primetime: {game.is_primetime}"
                         )
                     )
                 else:
@@ -144,7 +208,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.WARNING(
                             f"Updated: {game} at {start_time.strftime('%Y-%m-%d %I:%M %p %Z')} "
-                            f"(Week {row.get('week', 'N/A')})"
+                            f"(Week {row.get('week', 'N/A')}) - Primetime: {game.is_primetime}"
                         )
                     )
 
@@ -161,15 +225,7 @@ class Command(BaseCommand):
             )
         )
         
-        # Summary of primetime games (games after 8 PM ET)
-        # Note: This is approximate since we're checking UTC times
-        primetime_games = Game.objects.filter(
-            sport='NFL',
-            start_time__date__gte=datetime(season_year, 8, 1).date(),
-            start_time__date__lte=datetime(season_year + 1, 2, 28).date(),
-        ).count()
-        
-        # Count games that match the primetime property
+        # Summary of primetime games
         total_games = Game.objects.filter(sport='NFL').count()
         actual_primetime = sum(1 for game in Game.objects.filter(sport='NFL') if game.is_primetime)
         

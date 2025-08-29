@@ -1,9 +1,9 @@
 #apps/picks/urls.py
 from django.urls import path
-from .views import display_nfl_schedule, standings, general_standings
+from . import views
 
 urlpatterns = [
-    path('schedule/', display_nfl_schedule, name='schedule'),
-    path('standings/', standings, name='standings'),
-    path('general-standings/', general_standings, name='general_standings'),
+    path('schedule/', views.display_nfl_schedule, name='schedule'),
+    path('standings/', views.standings, name='standings'),
+    path('general-standings/', views.general_standings, name='general_standings'),
 ]
