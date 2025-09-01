@@ -5,10 +5,20 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
 from apps.games.models import Game
+<<<<<<< HEAD
+from .models import (
+    Pick,
+    LeagueCreationRequest,
+    LeagueJoinRequest,
+    League,
+    
+)
+=======
 from apps.leagues.models import League
 from .models import Pick
 from .services import PickService, StatsService
 from apps.games.utils import filter_primetime_games, get_current_nfl_week
+>>>>>>> 80abcf7c5cfbf6c12ebf84c535599e472ccfb913
 
 
 @login_required(login_url="login")

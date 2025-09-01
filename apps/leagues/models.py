@@ -1,5 +1,9 @@
+<<<<<<< HEAD
+#apps/leagues/models.py
+=======
 # apps/leagues/models.py
 
+>>>>>>> 80abcf7c5cfbf6c12ebf84c535599e472ccfb913
 from django.db import models
 from django.contrib.auth import get_user_model
 
