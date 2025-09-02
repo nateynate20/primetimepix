@@ -3,28 +3,19 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.utils import timezone
 
 from apps.games.models import Game
-<<<<<<< HEAD
-from .models import (
-    Pick,
-    LeagueCreationRequest,
-    LeagueJoinRequest,
-    League,
-    
-)
-=======
 from apps.leagues.models import League
 from .models import Pick
 from .services import PickService, StatsService
 from apps.games.utils import filter_primetime_games, get_current_nfl_week
->>>>>>> 80abcf7c5cfbf6c12ebf84c535599e472ccfb913
 
 
 @login_required(login_url="login")
 def display_nfl_schedule(request):
     """Display NFL schedule with primetime filtering, picks, and scores"""
-    current_week = get_current_nfl_week()
+    current_week = get_week_date_range()
 
     # --- Filters ---
     selected_team = request.GET.get("team", "").strip()
@@ -37,7 +28,7 @@ def display_nfl_schedule(request):
         ) | games_qs.filter(away_team__icontains=selected_team)
 
     # --- Primetime filtering ---
-    games = filter_primetime_games(games_qs) if show_primetime_only else list(games_qs)
+    games = is_datetime_primetime(games_qs) if show_primetime_only else list(games_qs)
 
     # --- League selection ---
     league_id = request.GET.get("league") or request.POST.get("league")
@@ -92,31 +83,57 @@ def display_nfl_schedule(request):
         "show_primetime_only": show_primetime_only,
         "current_week": current_week,
         "total_games": Game.objects.count(),
-        "primetime_count": len(filter_primetime_games(Game.objects.all())),
+        "primetime_count": len(is_datetime_primetime(Game.objects.all())),
     }
     return render(request, "picks/schedule.html", context)
 
 
 @login_required(login_url="login")
 def standings(request):
-    """League-specific standings view"""
-    league_id = request.GET.get("league")
-    if not league_id:
-        messages.error(request, "Please select a league.")
-        return redirect("schedule")
+    league_id = request.GET.get('league')
+    league = None
+    if league_id:
+        league = League.objects.filter(id=league_id, members=request.user).first()
 
-    league = League.objects.filter(id=league_id, is_approved=True, members=request.user).first()
-    if not league:
-        messages.error(request, "Invalid or unauthorized league selected.")
-        return redirect("schedule")
+    # Get all picks for finished games
+    picks_query = Pick.objects.filter(
+        game__status='finished',
+        is_correct__isnull=False
+    )
+    
+    if league:
+        picks_query = picks_query.filter(league=league)
 
-    leaderboard = PickService.calculate_leaderboard(league=league)
-    paginator = Paginator(leaderboard, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    # Calculate standings
+    standings_dict = {}
+    for pick in picks_query:
+        user_stats = standings_dict.setdefault(pick.user_id, {
+            'username': pick.user.username,
+            'correct': 0,
+            'total': 0,
+            'percentage': 0,
+            'points': 0
+        })
+        
+        user_stats['total'] += 1
+        if pick.is_correct:
+            user_stats['correct'] += 1
+            user_stats['points'] += pick.points
+        
+        user_stats['percentage'] = (user_stats['correct'] / user_stats['total']) * 100
 
-    context = {"league": league, "page_obj": page_obj}
-    return render(request, "picks/standings.html", context)
+    # Sort by points, then percentage
+    standings = sorted(
+        standings_dict.values(),
+        key=lambda x: (-x['points'], -x['percentage'])
+    )
+
+    context = {
+        'standings': standings,
+        'league': league,
+        'is_overall': not league
+    }
+    return render(request, 'standings.html', context)
 
 
 @login_required(login_url="login")
@@ -129,3 +146,58 @@ def general_standings(request):
 
     context = {"page_obj": page_obj}
     return render(request, "picks/general_standings.html", context)
+
+
+@login_required
+def view_schedule_page(request):
+    now = timezone.now()
+    games = Game.objects.filter(start_time__gte=now).order_by('start_time')
+    user_picks = Pick.objects.filter(user=request.user, game__in=games)
+    picks_dict = {pick.game_id: pick.picked_team for pick in user_picks}
+    games_with_info = []
+    for game in games:
+        started = now >= game.start_time
+        games_with_info.append({
+            'game': game,
+            'user_pick': picks_dict.get(game.id),
+            'started': started,
+        })
+    context = {'games_with_info': games_with_info}
+    return render(request, 'schedule.html', context)
+
+@login_required
+def save_picks(request):
+    if request.method != 'POST':
+        return redirect('schedule')
+        
+    league_id = request.POST.get('league')
+    league = None
+    if league_id:
+        league = League.objects.filter(id=league_id, members=request.user).first()
+
+    now = timezone.now()
+    picks_made = 0
+
+    for key, value in request.POST.items():
+        if key.startswith('pick_'):
+            game_id = key.replace('pick_', '')
+            try:
+                game = Game.objects.get(id=game_id)
+                if game.start_time <= now:
+                    messages.error(request, f"Cannot make pick for {game} - game has started")
+                    continue
+
+                Pick.objects.update_or_create(
+                    user=request.user,
+                    game=game,
+                    league=league,
+                    defaults={'picked_team': value}
+                )
+                picks_made += 1
+            except Game.DoesNotExist:
+                continue
+
+    if picks_made:
+        messages.success(request, f"Successfully saved {picks_made} picks!")
+    
+    return redirect('schedule')

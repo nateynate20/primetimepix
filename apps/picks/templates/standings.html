@@ -3,111 +3,86 @@
 {% block title %}League Standings - NFL Pick'em{% endblock %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <h2 class="text-neon mb-3">
-        <i class="fas fa-trophy me-2"></i>League Standings
-    </h2>
-    {% if league %}
-        <p class="text-muted-custom">{{ league.name }} - {{ league.description }}</p>
-    {% endif %}
-</div>
-
-{% if page_obj %}
-    <div class="card">
-        <div class="card-header bg-transparent border-bottom border-secondary">
-            <h5 class="mb-0 text-neon">
-                <i class="fas fa-ranking-star me-2"></i>Current Rankings
-            </h5>
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-neon">
+            {% if league %}
+                {{ league.name }} Standings
+            {% else %}
+                Overall Standings
+            {% endif %}
+        </h1>
+        
+        {% if user.leagues.exists %}
+        <div class="flex gap-4">
+            <a href="{% url 'standings' %}" class="btn-neon {% if is_overall %}active{% endif %}">
+                Overall
+            </a>
+            {% for user_league in user.leagues.all %}
+            <a href="{% url 'standings' %}?league={{ user_league.id }}" 
+               class="btn-neon {% if league.id == user_league.id %}active{% endif %}">
+                {{ user_league.name }}
+            </a>
+            {% endfor %}
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-dark table-striped mb-0">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Rank</th>
-                            <th>User</th>
-                            <th class="text-center">Correct</th>
-                            <th class="text-center">Total</th>
-                            <th class="text-center">Accuracy</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rec in page_obj %}
-                            <tr {% if rec.user == user %}class="table-primary"{% elif forloop.counter <= 3 %}class="table-success"{% endif %}>
-                                <td class="text-center fw-bold">
-                                    {% if forloop.counter == 1 %}
-                                        <i class="fas fa-crown text-warning fs-4"></i>
-                                    {% elif forloop.counter == 2 %}
-                                        <i class="fas fa-medal text-secondary fs-5"></i>
-                                    {% elif forloop.counter == 3 %}
-                                        <i class="fas fa-award text-warning fs-5"></i>
-                                    {% else %}
-                                        {{ forloop.counter }}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <strong>{{ rec.user.username }}</strong>
-                                    {% if rec.user == user %}
-                                        <span class="badge bg-primary ms-2">You</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center text-neon">{{ rec.correct_predictions }}</td>
-                                <td class="text-center">{{ rec.total_predictions }}</td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary">{{ rec.accuracy|default:"0" }}%</span>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        {% endif %}
     </div>
 
-    {% if page_obj.paginator.num_pages > 1 %}
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
-                            <i class="fas fa-chevron-left me-1"></i>Previous
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">Previous</span>
-                    </li>
-                {% endif %}
-
-                <li class="page-item active">
-                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-                </li>
-
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
-                            Next<i class="fas fa-chevron-right ms-1"></i>
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">Next</span>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    {% endif %}
-{% else %}
-    <div class="alert alert-custom text-center">
-        <i class="fas fa-users-slash fa-4x mb-3"></i>
-        <h4>No Standings Data</h4>
-        <p class="mb-0">Standings data will appear here soon once members start making picks.</p>
+    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <table class="min-w-full">
+            <thead>
+                <tr class="bg-gray-700">
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Rank
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        User
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Points
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Correct
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Total
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Percentage
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-600">
+                {% for standing in standings %}
+                <tr class="{% if standing.username == user.username %}bg-gray-700{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {{ forloop.counter }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-neon">
+                        {{ standing.username }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {{ standing.points }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {{ standing.correct }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {{ standing.total }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        {{ standing.percentage|floatformat:1 }}%
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                        No picks have been made yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-{% endif %}
-
-<div class="text-center mt-4">
-    <a href="{% url 'user_dashboard' %}" class="btn-neon">
-        <i class="fas fa-home me-2"></i>Back to Dashboard
-    </a>
 </div>
 {% endblock %}

@@ -1,8 +1,6 @@
 import numpy as np
 import pytest
 
-import pandas.util._test_decorators as td
-
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -138,11 +136,11 @@ class TestDataFrameSubclassing:
         # GH 11808
         class A(DataFrame):
             @property
-            def bar(self):
+            def nonexistence(self):
                 return self.i_dont_exist
 
         with pytest.raises(AttributeError, match=".*i_dont_exist.*"):
-            A().bar
+            A().nonexistence
 
     def test_subclass_align(self):
         # GH 12983
@@ -216,7 +214,7 @@ class TestDataFrameSubclassing:
             columns=["X", "Y", "Z"],
         )
 
-        res = df.stack()
+        res = df.stack(future_stack=True)
         exp = tm.SubclassedSeries(
             [1, 2, 3, 4, 5, 6, 7, 8, 9], index=[list("aaabbbccc"), list("XYZXYZXYZ")]
         )
@@ -253,10 +251,10 @@ class TestDataFrameSubclassing:
             columns=Index(["W", "X"], name="www"),
         )
 
-        res = df.stack()
+        res = df.stack(future_stack=True)
         tm.assert_frame_equal(res, exp)
 
-        res = df.stack("yyy")
+        res = df.stack("yyy", future_stack=True)
         tm.assert_frame_equal(res, exp)
 
         exp = tm.SubclassedDataFrame(
@@ -277,7 +275,7 @@ class TestDataFrameSubclassing:
             columns=Index(["y", "z"], name="yyy"),
         )
 
-        res = df.stack("www")
+        res = df.stack("www", future_stack=True)
         tm.assert_frame_equal(res, exp)
 
     def test_subclass_stack_multi_mixed(self):
@@ -315,10 +313,10 @@ class TestDataFrameSubclassing:
             columns=Index(["W", "X"], name="www"),
         )
 
-        res = df.stack()
+        res = df.stack(future_stack=True)
         tm.assert_frame_equal(res, exp)
 
-        res = df.stack("yyy")
+        res = df.stack("yyy", future_stack=True)
         tm.assert_frame_equal(res, exp)
 
         exp = tm.SubclassedDataFrame(
@@ -339,7 +337,7 @@ class TestDataFrameSubclassing:
             columns=Index(["y", "z"], name="yyy"),
         )
 
-        res = df.stack("www")
+        res = df.stack("www", future_stack=True)
         tm.assert_frame_equal(res, exp)
 
     def test_subclass_unstack(self):
@@ -497,8 +495,7 @@ class TestDataFrameSubclassing:
     def test_subclassed_wide_to_long(self):
         # GH 9762
 
-        np.random.seed(123)
-        x = np.random.randn(3)
+        x = np.random.default_rng(2).standard_normal(3)
         df = tm.SubclassedDataFrame(
             {
                 "A1970": {0: "a", 1: "b", 2: "c"},
@@ -577,7 +574,6 @@ class TestDataFrameSubclassing:
         assert not isinstance(result, tm.SubclassedDataFrame)
         tm.assert_series_equal(result, expected)
 
-    @pytest.mark.filterwarnings("ignore:.*None will no longer:FutureWarning")
     def test_subclassed_reductions(self, all_reductions):
         # GH 25596
 
@@ -586,7 +582,6 @@ class TestDataFrameSubclassing:
         assert isinstance(result, tm.SubclassedSeries)
 
     def test_subclassed_count(self):
-
         df = tm.SubclassedDataFrame(
             {
                 "Person": ["John", "Myla", "Lewis", "John", "Myla"],
@@ -610,16 +605,14 @@ class TestDataFrameSubclassing:
                 list(zip(list("WWXX"), list("yzyz"))), names=["www", "yyy"]
             ),
         )
-        with tm.assert_produces_warning(FutureWarning):
-            result = df.count(level=1)
-        assert isinstance(result, tm.SubclassedDataFrame)
+        result = df.count()
+        assert isinstance(result, tm.SubclassedSeries)
 
         df = tm.SubclassedDataFrame()
         result = df.count()
         assert isinstance(result, tm.SubclassedSeries)
 
     def test_isin(self):
-
         df = tm.SubclassedDataFrame(
             {"num_legs": [2, 4], "num_wings": [2, 0]}, index=["falcon", "dog"]
         )
@@ -627,7 +620,6 @@ class TestDataFrameSubclassing:
         assert isinstance(result, tm.SubclassedDataFrame)
 
     def test_duplicated(self):
-
         df = tm.SubclassedDataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7, 8, 9]})
         result = df.duplicated()
         assert isinstance(result, tm.SubclassedSeries)
@@ -638,13 +630,11 @@ class TestDataFrameSubclassing:
 
     @pytest.mark.parametrize("idx_method", ["idxmax", "idxmin"])
     def test_idx(self, idx_method):
-
         df = tm.SubclassedDataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7, 8, 9]})
         result = getattr(df, idx_method)()
         assert isinstance(result, tm.SubclassedSeries)
 
     def test_dot(self):
-
         df = tm.SubclassedDataFrame([[0, 1, -2, -1], [1, 1, 1, 1]])
         s = tm.SubclassedSeries([1, 1, 2, 1])
         result = df.dot(s)
@@ -656,7 +646,6 @@ class TestDataFrameSubclassing:
         assert isinstance(result, tm.SubclassedDataFrame)
 
     def test_memory_usage(self):
-
         df = tm.SubclassedDataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7, 8, 9]})
         result = df.memory_usage()
         assert isinstance(result, tm.SubclassedSeries)
@@ -664,22 +653,25 @@ class TestDataFrameSubclassing:
         result = df.memory_usage(index=False)
         assert isinstance(result, tm.SubclassedSeries)
 
-    @td.skip_if_no_scipy
     def test_corrwith(self):
+        pytest.importorskip("scipy")
         index = ["a", "b", "c", "d", "e"]
         columns = ["one", "two", "three", "four"]
         df1 = tm.SubclassedDataFrame(
-            np.random.randn(5, 4), index=index, columns=columns
+            np.random.default_rng(2).standard_normal((5, 4)),
+            index=index,
+            columns=columns,
         )
         df2 = tm.SubclassedDataFrame(
-            np.random.randn(4, 4), index=index[:4], columns=columns
+            np.random.default_rng(2).standard_normal((4, 4)),
+            index=index[:4],
+            columns=columns,
         )
         correls = df1.corrwith(df2, axis=1, drop=True, method="kendall")
 
         assert isinstance(correls, (tm.SubclassedSeries))
 
     def test_asof(self):
-
         N = 3
         rng = pd.date_range("1/1/1990", periods=N, freq="53s")
         df = tm.SubclassedDataFrame(
@@ -741,7 +733,9 @@ class TestDataFrameSubclassing:
     def test_replace_list_method(self):
         # https://github.com/pandas-dev/pandas/pull/46018
         df = tm.SubclassedDataFrame({"A": [0, 1, 2]})
-        result = df.replace([1, 2], method="ffill")
+        msg = "The 'method' keyword in SubclassedDataFrame.replace is deprecated"
+        with tm.assert_produces_warning(FutureWarning, match=msg):
+            result = df.replace([1, 2], method="ffill")
         expected = tm.SubclassedDataFrame({"A": [0, 0, 0]})
         assert isinstance(result, tm.SubclassedDataFrame)
         tm.assert_frame_equal(result, expected)

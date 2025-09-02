@@ -5,7 +5,7 @@ from django.utils import timezone
 from typing import List, Dict, Optional
 from .models import Pick, UserStats
 from apps.games.models import Game
-from apps.games.utils import filter_primetime_games, get_current_nfl_week
+from apps.games.utils import is_datetime_primetime, get_week_date_range
 
 User = get_user_model()
 

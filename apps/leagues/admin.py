@@ -46,8 +46,8 @@ class LeagueMembershipAdmin(admin.ModelAdmin):
 class LeagueCreationRequestAdmin(ExportMixin, admin.ModelAdmin):
     resource_class = LeagueCreationRequestResource
     autocomplete_fields = ['user']
-    list_display = ('league_name', 'user', 'created_at', 'approved')
-    list_filter = (ApprovedFilter, 'created_at')
+    list_display = ('league_name', 'get_username', 'approved', 'created_at')
+    list_filter = ('approved',)
     search_fields = ('league_name', 'user__username')
     ordering = ('-created_at',)
     list_per_page = 25
@@ -63,6 +63,10 @@ class LeagueCreationRequestAdmin(ExportMixin, admin.ModelAdmin):
         updated = queryset.update(approved=False)
         self.message_user(request, f"❌ {updated} league(s) unapproved.")
     unapprove_leagues.short_description = "❌ Mark selected leagues as unapproved"
+
+    def get_username(self, obj):
+        return obj.user.username
+    get_username.short_description = 'Username'
 
 @admin.register(LeagueJoinRequest)
 class LeagueJoinRequestAdmin(admin.ModelAdmin):

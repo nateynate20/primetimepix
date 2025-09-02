@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 #apps/leagues/models.py
-=======
-# apps/leagues/models.py
-
->>>>>>> 80abcf7c5cfbf6c12ebf84c535599e472ccfb913
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -42,14 +37,17 @@ class LeagueMembership(models.Model):
 
 
 class LeagueCreationRequest(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='league_creation_requests'
+    )
     league_name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
     approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"League Creation Request by {self.user.username}: {self.league_name}"
+        return f"{self.league_name} - {self.user.username}"
 
 
 class LeagueJoinRequest(models.Model):
