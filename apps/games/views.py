@@ -1,83 +1,65 @@
 # games/views.py
 
-from datetime import datetime, time, date, timedelta
+from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Q
 from .models import Game
-from apps.picks.models import Pick
-import pytz
-
-# Define primetime start time (8:00 PM)
-PRIMETIME_START = time(20, 0)
 
 
-def get_thanksgiving_date(year):
-    """Returns the date of Thanksgiving (4th Thursday in November)."""
-    nov1 = date(year, 11, 1)
-    first_thursday = nov1 + timedelta(days=(3 - nov1.weekday()) % 7)
-    return first_thursday + timedelta(weeks=3)
+def get_current_week_dates():
+    """Get the start and end dates for the current week (Monday to Sunday)."""
+    today = timezone.now().date()
+    days_since_monday = today.weekday()
+    week_start = today - timedelta(days=days_since_monday)
+    week_end = week_start + timedelta(days=6)
+    return week_start, week_end
 
 
-@login_required(login_url='login')
-def view_schedule_page(request):
-    now = timezone.now()
+@login_required
+def weekly_primetime_view(request):
+    """View for displaying weekly primetime games with optional filters."""
 
-    today = datetime.now().date()
-    year = today.year
-    PRIMETIME_START = time(20, 0)  # 8 PM kickoff
+    week_start, week_end = get_current_week_dates()
 
-    # Get start (Monday) and end (next Monday) of current week
-    week_start = now - timedelta(days=now.weekday())
-    week_end = week_start + timedelta(days=7)
-
-    # Define holiday dates (Thanksgiving, Christmas, New Year's)
-    holiday_dates = [
-        get_thanksgiving_date(year),
-        date(year, 12, 25),
-        date(year + 1 if today.month == 12 else year, 1, 1),
-    ]
-
-    # Filter games in this week starting at or after 8:00 PM (primetime)
-    eastern = pytz.timezone('US/Eastern')
-    all_games = Game.objects.filter(
-        start_time__gte=week_start,
-        start_time__lt=week_end,
+    # Base queryset for this week
+    base_games = Game.objects.filter(
+        start_time__date__gte=week_start,
+        start_time__date__lte=week_end,
     ).order_by('start_time')
 
-    # Filter for primetime games
-    primetime_games = []
-    for game in all_games:
-        try:
-            et_time = game.start_time.astimezone(eastern)
-            if et_time.time() >= PRIMETIME_START:
-                primetime_games.append(game)
-        except:
-            if hasattr(game, 'is_primetime') and game.is_primetime:
-                primetime_games.append(game)
-
-    # Filter for games today or later
-    upcoming_games = Game.objects.filter(date__gte=today)
-    primetime_games = upcoming_games.filter(start_time__gte=PRIMETIME_START)
-    holiday_games = upcoming_games.filter(date__in=holiday_dates)
-
-    # Combine and order games
-    games = primetime_games.union(holiday_games).order_by('date', 'start_time')
-
-    # Optional team filtering
-    selected_team = request.GET.get('team', '').strip()
+    # Optional team filter
+    selected_team = request.GET.get('team')
     if selected_team:
-        games = games.filter(
-            Q(home_team__icontains=selected_team) |
-            Q(away_team__icontains=selected_team)
+        base_games = base_games.filter(
+            models.Q(home_team__iexact=selected_team) |
+            models.Q(away_team__iexact=selected_team)
         )
 
+    # Check if user wants primetime only
+    show_primetime_only = request.GET.get('primetime') == 'true'
+
+    if show_primetime_only:
+        games = [g for g in base_games if g.is_primetime]
+    else:
+        games = base_games
+
     # Pagination
-    paginator = Paginator(games, 10)
-    page_number = request.GET.get('page')
+    paginator = Paginator(games, 12)
+    page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+
+    # Statistics
+    total_games = base_games.count() if hasattr(base_games, 'count') else len(base_games)
+    primetime_count = sum(1 for g in base_games if g.is_primetime)
+
+    # Collect unique teams (for dropdown/filter UI)
+    team_set = set()
+    for g in Game.objects.filter(start_time__date__gte=week_start, start_time__date__lte=week_end):
+        team_set.add(g.home_team)
+        team_set.add(g.away_team)
+    teams = sorted(team_set)
 
     context = {
         'games': page_obj,
@@ -86,93 +68,69 @@ def view_schedule_page(request):
         'show_primetime_only': show_primetime_only,
         'total_games': total_games,
         'primetime_count': primetime_count,
+        'week_start': week_start,
+        'week_end': week_end,
     }
 
-    return render(request, 'schedule.html', context)
+    return render(request, 'views_score.html', context)
 
 
-@login_required(login_url='login')
-def view_score(request):
-    """Enhanced version with primetime filtering"""
+@login_required
+def weekly_score_view(request):
+    """View for displaying weekly scores."""
 
-    # Filter logic
-    selected_team = request.GET.get('team', '').strip()
-    games = Game.objects.all()
+    week_start, week_end = get_current_week_dates()
 
-    # Filter games by team if a team is selected
+    # Completed games for the week
+    games = Game.objects.filter(
+        start_time__date__gte=week_start,
+        start_time__date__lte=week_end,
+        status__in=['FINAL', 'COMPLETED', 'F', 'final', 'completed']
+    ).order_by('-start_time')
+
+    # If no completed games, show all games from this week
+    if not games.exists():
+        games = Game.objects.filter(
+            start_time__date__gte=week_start,
+            start_time__date__lte=week_end,
+        ).order_by('-start_time')
+
+    # Optional team filter
+    selected_team = request.GET.get('team')
     if selected_team:
         games = games.filter(
-            Q(home_team__icontains=selected_team) |
-            Q(away_team__icontains=selected_team)
+            models.Q(home_team__iexact=selected_team) |
+            models.Q(away_team__iexact=selected_team)
         )
 
-    # Primetime filter option
-    show_primetime_only = request.GET.get('primetime') == 'true'
-    if show_primetime_only:
-        # Filter for primetime games using the model property
-        all_games = list(games.order_by('-start_time'))
-        primetime_games = []
-        eastern = pytz.timezone('US/Eastern')
-
-        for game in all_games:
-            try:
-                # Use model property if available
-                if hasattr(game, 'is_primetime') and game.is_primetime:
-                    primetime_games.append(game)
-                else:
-                    # Fallback: manual check
-                    et_time = game.start_time.astimezone(eastern)
-                    if et_time.time() >= PRIMETIME_START:
-                        primetime_games.append(game)
-            except Exception:
-                # Last fallback
-                if game.start_time.time() >= PRIMETIME_START:
-                    primetime_games.append(game)
-
-        # Convert back to queryset for pagination
-        if primetime_games:
-            game_ids = [game.id for game in primetime_games]
-            games = Game.objects.filter(id__in=game_ids).order_by('-start_time')
-        else:
-            games = Game.objects.none()
-
-    # Team dropdown
-    teams = Game.objects.values_list('home_team', flat=True).distinct().order_by('home_team')
-
-    # Calculate stats
-    total_games = Game.objects.count()
-    try:
-        # Count primetime games efficiently
-        eastern = pytz.timezone('US/Eastern')
-        all_nfl_games = list(Game.objects.filter(sport='NFL'))
-        primetime_count = 0
-
-        for game in all_nfl_games:
-            try:
-                if hasattr(game, 'is_primetime') and game.is_primetime:
-                    primetime_count += 1
-                else:
-                    et_time = game.start_time.astimezone(eastern)
-                    if et_time.time() >= PRIMETIME_START:
-                        primetime_count += 1
-            except Exception:
-                if game.start_time.time() >= PRIMETIME_START:
-                    primetime_count += 1
-    except Exception:
-        primetime_count = 0
-
     # Pagination
-    paginator = Paginator(games.order_by('-start_time'), 12)
-    page_number = request.GET.get('page')
+    paginator = Paginator(games, 12)
+    page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+
+    # Stats
+    total_games = games.count()
+    completed_games = Game.objects.filter(
+        start_time__date__gte=week_start,
+        start_time__date__lte=week_end,
+        status__in=['FINAL', 'COMPLETED', 'F', 'final', 'completed']
+    ).count()
+
+    # Collect unique teams for dropdown/filter
+    team_set = set()
+    for g in Game.objects.filter(start_time__date__gte=week_start, start_time__date__lte=week_end):
+        team_set.add(g.home_team)
+        team_set.add(g.away_team)
+    teams = sorted(team_set)
 
     context = {
         'games': page_obj,
         'teams': teams,
         'selected_team': selected_team,
-        'show_primetime_only': show_primetime_only,
         'total_games': total_games,
-        'primetime_count': primetime_count,
+        'completed_games': completed_games,
+        'week_start': week_start,
+        'week_end': week_end,
     }
 
     return render(request, 'views_score.html', context)

@@ -1,7 +1,8 @@
 # primetimepix/urls.py
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
+from apps.users import views as user_views
+from . import views   # <-- your landing_page view is here
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -9,6 +10,5 @@ urlpatterns = [
     path('leagues/', include('apps.leagues.urls')),
     path('picks/', include('apps.picks.urls')),
     path('users/', include('apps.users.urls')),
-    path('', include('apps.users.urls')),  # Redirect root to users app
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('', views.landing_page, name='landing_page'),   # <--- FIXED
 ]

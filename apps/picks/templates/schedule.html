@@ -4,46 +4,70 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-neon mb-6">NFL Primetime Schedule</h1>
+    <h1 class="text-3xl font-bold text-neon mb-6">NFL Schedule</h1>
+
+    <!-- Filter Form -->
+    <form method="get" class="flex flex-wrap items-center gap-4 mb-6">
+        <div>
+            <label for="team" class="text-gray-300 mr-2">Filter by Team:</label>
+            <select name="team" id="team" class="bg-gray-700 text-white rounded p-2">
+                <option value="">All Teams</option>
+                {% for team in teams %}
+                <option value="{{ team }}" {% if selected_team == team %}selected{% endif %}>
+                    {{ team }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex items-center">
+            <label class="flex items-center space-x-2 text-gray-300">
+                <input type="checkbox" name="primetime" value="true" {% if show_primetime_only %}checked{% endif %} class="form-checkbox text-neon">
+                <span>Primetime Only</span>
+            </label>
+        </div>
+        <button type="submit" class="bg-neon text-black px-4 py-2 rounded-lg font-bold hover:bg-green-400 transition">
+            Apply Filters
+        </button>
+    </form>
     
-    {% if games_with_info %}
-    <form method="post" action="{% url 'save_picks' %}">
+    {% if games %}
+    <form method="post" action="">
         {% csrf_token %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {% for item in games_with_info %}
+            {% for game in games %}
             <div class="bg-gray-800 rounded-lg p-6 shadow-lg">
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex items-center">
-                        <span class="text-xl font-semibold">{{ item.game.away_team }}</span>
+                        <span class="text-xl font-semibold">{{ game.away_team }}</span>
                         <span class="mx-3 text-gray-400">@</span>
-                        <span class="text-xl font-semibold">{{ item.game.home_team }}</span>
+                        <span class="text-xl font-semibold">{{ game.home_team }}</span>
                     </div>
                 </div>
                 
                 <div class="text-gray-400 text-sm mb-4">
-                    Week {{ item.game.week }} - {{ item.game.start_time|date:"l, F j, g:i A" }}
+                    Week {{ game.week }} – {{ game.start_time|date:"l, F j, g:i A" }}
                 </div>
 
-                {% if not item.started %}
+                {% if not game.locked %}
                     <div class="space-y-2">
                         <label class="flex items-center space-x-3">
-                            <input type="radio" name="pick_{{ item.game.id }}" value="{{ item.game.away_team }}"
-                                   {% if item.user_pick == item.game.away_team %}checked{% endif %}
+                            <input type="radio" name="pick_{{ game.id }}" value="away"
+                                   {% if game.user_pick == game.away_team %}checked{% endif %}
                                    class="form-radio text-neon">
-                            <span>{{ item.game.away_team }}</span>
+                            <span>{{ game.away_team }}</span>
                         </label>
                         <label class="flex items-center space-x-3">
-                            <input type="radio" name="pick_{{ item.game.id }}" value="{{ item.game.home_team }}"
-                                   {% if item.user_pick == item.game.home_team %}checked{% endif %}
+                            <input type="radio" name="pick_{{ game.id }}" value="home"
+                                   {% if game.user_pick == game.home_team %}checked{% endif %}
                                    class="form-radio text-neon">
-                            <span>{{ item.game.home_team }}</span>
+                            <span>{{ game.home_team }}</span>
                         </label>
                     </div>
                 {% else %}
                     <div class="text-yellow-500">
                         Game has started
-                        {% if item.user_pick %}
-                        - You picked: {{ item.user_pick }}
+                        {% if game.user_pick %}
+                        – You picked: {{ game.user_pick }}
                         {% endif %}
                     </div>
                 {% endif %}
@@ -59,7 +83,7 @@
     </form>
     {% else %}
     <div class="text-center text-gray-400">
-        <p class="text-xl">No upcoming primetime games scheduled.</p>
+        <p class="text-xl">No games match your filters.</p>
     </div>
     {% endif %}
 </div>

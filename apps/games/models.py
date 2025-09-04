@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+import pytz
+from datetime import time
 
 class Game(models.Model):
     """Simplified Game model focused on NFL primetime pick'em flow.
@@ -24,7 +26,7 @@ class Game(models.Model):
         ('superbowl', 'Super Bowl'),
     ]
 
-    game_id = models.CharField(max_length=100, unique=True, default="default_game_id")  # Add default value
+    game_id = models.CharField(max_length=100, unique=True, default="default_game_id")
     season = models.IntegerField()
     week = models.IntegerField()
     game_type = models.CharField(max_length=10)  # REG, POST, etc.
@@ -51,4 +53,25 @@ class Game(models.Model):
 
     @property
     def is_finished(self):
-        return self.status == 'finished'
+        # normalize so final and finished are treated the same
+        return self.status.lower() in ['final', 'finished']
+
+    @property
+    def is_primetime(self):
+        """
+        Return True if this game is considered 'primetime' (8:00 PM or later Eastern time).
+        """
+        if not self.start_time:
+            return False
+        try:
+            eastern = pytz.timezone('US/Eastern')
+            et_time = self.start_time.astimezone(eastern)
+            return et_time.time() >= time(20, 0)  # 8:00 PM ET
+        except Exception:
+            return False
+
+    def can_make_picks(self):
+        """
+        Return True if the game has not started yet, meaning the user can still make picks.
+        """
+        return not self.has_started

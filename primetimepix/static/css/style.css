@@ -37,3 +37,28 @@ body {
   object-fit: contain;
   display: inline-block;
 }
+
+/* Fix input field text and background contrast */
+input,
+textarea,
+select {
+  color: #000;               /* Dark text for visibility */
+  background-color: #fff;    /* White background */
+  border: 1px solid #39ff14; /* Optional: neon border to match theme */
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Explicit styling for password fields */
+input[type="password"] {
+  color: #000;               /* Dark text for visibility */
+  background-color: #fff;    /* White background */
+  border: 1px solid #39ff14; /* Neon border */
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Optional: Style placeholder text */
+::placeholder {
+  color: #888;               /* Light gray placeholder */
+}
