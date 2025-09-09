@@ -31,34 +31,174 @@ body {
   display: block;
 }
 
+/* Team Logo Styling */
 .team-logo {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  display: inline-block;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: inline-block;
+}
+
+.team-logo-placeholder {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: var(--bs-gray-400);
+}
+
+/* Primetime Card Variations */
+.primetime-card {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
+    transition: all 0.3s ease;
+}
+
+.primetime-tnf {
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.4);
+}
+
+.primetime-snf {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+}
+
+.primetime-mnf {
+    box-shadow: 0 0 15px rgba(25, 135, 84, 0.4);
+}
+
+.primetime-thanksgiving {
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+}
+
+.primetime-christmas {
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.5);
+}
+
+.primetime-playoff {
+    box-shadow: 0 0 20px rgba(13, 202, 240, 0.6);
+}
+
+/* Hover Effects */
+.primetime-card:hover {
+    box-shadow: 0 0 25px rgba(255, 193, 7, 0.6);
+    transform: translateY(-2px);
+}
+
+.primetime-tnf:hover {
+    box-shadow: 0 0 25px rgba(13, 110, 253, 0.6);
+}
+
+.primetime-snf:hover {
+    box-shadow: 0 0 25px rgba(255, 193, 7, 0.7);
+}
+
+.primetime-mnf:hover {
+    box-shadow: 0 0 25px rgba(25, 135, 84, 0.6);
+}
+
+.primetime-thanksgiving:hover {
+    box-shadow: 0 0 25px rgba(255, 140, 0, 0.7);
+}
+
+.primetime-christmas:hover {
+    box-shadow: 0 0 25px rgba(220, 53, 69, 0.7);
+}
+
+.primetime-playoff:hover {
+    box-shadow: 0 0 30px rgba(13, 202, 240, 0.8);
+}
+
+/* Gradient Backgrounds for Headers */
+.bg-gradient-orange {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+}
+
+.bg-gradient-christmas {
+    background: linear-gradient(135deg, #dc3545 0%, #c41e3a 100%);
+}
+
+.bg-gradient-playoff {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%);
+}
+
+/* Border Colors */
+.border-orange {
+    border-color: #ff8c00 !important;
+    border-width: 2px !important;
+}
+
+/* Alert Custom */
+.alert-custom {
+    background: linear-gradient(135deg, var(--bs-dark) 0%, var(--bs-secondary) 100%);
+    border: 1px solid var(--bs-primary);
+    color: var(--bs-light);
+}
+
+/* Card Transitions */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+/* Score Emphasis for Winners */
+.text-success {
+    font-weight: 700 !important;
+    text-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+}
+
+/* Turkey icon fix for FontAwesome */
+.fa-turkey:before {
+    content: "\f700"; /* drumstick-bite icon as turkey substitute */
+}
+
+/* Text muted custom for dark theme */
+.text-muted-custom {
+    color: #8b92a8 !important;
 }
 
 /* Fix input field text and background contrast */
 input,
 textarea,
 select {
-  color: #000;               /* Dark text for visibility */
-  background-color: #fff;    /* White background */
-  border: 1px solid #39ff14; /* Optional: neon border to match theme */
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #39ff14;
   padding: 8px;
   border-radius: 4px;
 }
 
 /* Explicit styling for password fields */
 input[type="password"] {
-  color: #000;               /* Dark text for visibility */
-  background-color: #fff;    /* White background */
-  border: 1px solid #39ff14; /* Neon border */
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #39ff14;
   padding: 8px;
   border-radius: 4px;
 }
 
 /* Optional: Style placeholder text */
 ::placeholder {
-  color: #888;               /* Light gray placeholder */
+  color: #888;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .team-logo {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .team-logo-placeholder {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .fs-3 {
+        font-size: 1.5rem !important;
+    }
 }
