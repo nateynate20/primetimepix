@@ -88,6 +88,17 @@ def weekly_score_view(request):
         game.display_time_et = game.start_time_et
         game.game_week = game.week
         game.primetime_label = game.primetime_type if game.is_primetime else None
+        
+        # Add winner determination for completed games
+        if game.status == 'final' and game.home_score is not None and game.away_score is not None:
+            if game.home_score > game.away_score:
+                game.winner = game.home_team
+            elif game.away_score > game.home_score:
+                game.winner = game.away_team
+            else:
+                game.winner = 'tie'
+        else:
+            game.winner = None
 
     paginator = Paginator(games_list, 12)
     page_number = request.GET.get('page', 1)

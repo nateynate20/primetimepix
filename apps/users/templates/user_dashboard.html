@@ -93,4 +93,62 @@
     </div>
   </div>
 </div>
+<!-- My Primetime Picks -->
+<div class="mb-8">
+  <h3 class="text-neon text-2xl font-bold mb-4 flex items-center">
+    <i class="fas fa-star mr-2"></i>My Primetime Picks This Week
+  </h3>
+
+  {% if primetime_games %}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for game in primetime_games %}
+    <div class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col">
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-semibold">{{ game.away_team }}</span>
+        <span class="font-semibold">{{ game.home_team }}</span>
+      </div>
+
+      <div class="text-gray-400 text-sm mb-2">
+        Week {{ game.week }} –
+        {% if game.start_time_et %}
+          {{ game.start_time_et|date:"l, F j, g:i A" }} ET
+        {% else %}
+          Time TBD
+        {% endif %}
+      </div>
+
+      {% if game.user_pick %}
+      <div class="text-green-400 font-semibold mb-2">
+        Your Pick: {{ game.user_pick.picked_team }}
+      </div>
+      {% endif %}
+
+      {% if not game.locked %}
+      <form method="post" action="{% url 'schedule' %}?league={{ league.id }}">
+        {% csrf_token %}
+        <div class="flex space-x-2">
+          <button type="submit" name="pick_{{ game.id }}" value="away"
+                  class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded">
+            {{ game.away_team }}
+          </button>
+          <button type="submit" name="pick_{{ game.id }}" value="home"
+                  class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded">
+            {{ game.home_team }}
+          </button>
+        </div>
+      </form>
+      {% else %}
+      <div class="text-gray-400 font-semibold mt-2">
+        Picks closed
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-gray-400 mt-4">
+    No primetime games available this week.
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

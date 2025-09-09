@@ -2,9 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from apps.users.forms import SignupUserForm  # fix import path
+from apps.users.forms import SignupUserForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+
+from apps.games.models import Game
+from apps.games.utils import get_current_week_dates, is_primetime_game
+from apps.picks.models import Pick
 
 
 @login_required
@@ -12,11 +16,32 @@ def dashboard(request):
     user = request.user
     leagues = user.leagues.all()
     league = leagues.first() if leagues.exists() else None
+
+    # --- Get current week primetime games ---
+    current_week_start, current_week_end = get_current_week_dates()
+    primetime_games = Game.objects.filter(
+        start_time__date__gte=current_week_start,
+        start_time__date__lte=current_week_end,
+    ).order_by("week", "start_time")
+
+    primetime_games = [g for g in primetime_games if is_primetime_game(g)]
+
+    # --- Get user's picks for these games ---
+    user_picks_qs = Pick.objects.filter(user=user, game__in=primetime_games).select_related("game")
+    picks_dict = {p.game.id: p for p in user_picks_qs}
+
+    # Attach pick object and lock status to each game
+    for game in primetime_games:
+        game.user_pick = picks_dict.get(game.id)
+        game.locked = not game.can_make_picks()
+
     context = {
         'user': user,
         'league': league,
+        'primetime_games': primetime_games,
     }
     return render(request, 'user_dashboard.html', context)
+
 
 
 def landing_page(request):

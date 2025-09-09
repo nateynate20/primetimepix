@@ -73,7 +73,6 @@ class Game(models.Model):
     away_score = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
 
-    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -85,7 +84,6 @@ class Game(models.Model):
 
     @property
     def start_time_et(self):
-        """Return start_time converted to US Eastern time safely."""
         if not self.start_time:
             return None
         eastern = pytz.timezone('US/Eastern')
@@ -103,7 +101,7 @@ class Game(models.Model):
 
     @property
     def is_finished(self):
-        return self.status.lower() in ['final', 'finished', 'completed']
+        return self.status and self.status.lower() in ['final', 'finished', 'completed']
 
     @property
     def home_logo(self):
@@ -121,38 +119,26 @@ class Game(models.Model):
 
     @property
     def is_primetime(self):
-        """Enhanced primetime detection based on ET."""
         if not self.start_time:
             return False
-
-        # All playoff games
         if self.game_type in ['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']:
             return True
-
-        try:
-            et_time = self.start_time_et
-            game_date = et_time.date()
-            game_time = et_time.time()
-            weekday = et_time.weekday()  # Monday=0, Sunday=6
-
-            if self._is_holiday_game(game_date):
-                return True
-
-            # Thursday Night Football
-            if weekday == 3 and game_time >= time(19, 0):
-                return True
-            # Sunday Night Football
-            if weekday == 6 and game_time >= time(20, 0):
-                return True
-            # Monday Night Football
-            if weekday == 0 and game_time >= time(19, 0):
-                return True
-            # Saturday late-season games
-            if weekday == 5 and game_time >= time(16, 30):
-                return True
-        except:
+        et_time = self.start_time_et
+        if not et_time:
             return False
-
+        game_date = et_time.date()
+        game_time = et_time.time()
+        weekday = et_time.weekday()
+        if self._is_holiday_game(game_date):
+            return True
+        if weekday == 3 and game_time >= time(19, 0):
+            return True
+        if weekday == 6 and game_time >= time(20, 0):
+            return True
+        if weekday == 0 and game_time >= time(19, 0):
+            return True
+        if weekday == 5 and game_time >= time(16, 30):
+            return True
         return False
 
     def _is_holiday_game(self, game_date):
@@ -175,35 +161,30 @@ class Game(models.Model):
     @property
     def primetime_type(self):
         if not self.is_primetime:
-            return None
-
+            return ""
         if self.game_type in ['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']:
             return self.get_game_type_display()
-
         et_time = self.start_time_et
         game_date = et_time.date()
         weekday = et_time.weekday()
-
         if self._is_holiday_game(game_date):
             if game_date.month == 11:
                 return "Thanksgiving"
-            elif game_date.month == 12 and game_date.day == 25:
+            if game_date.month == 12 and game_date.day == 25:
                 return "Christmas"
-            elif game_date.month == 1 and game_date.day == 1:
+            if game_date.month == 1 and game_date.day == 1:
                 return "New Year's"
-            else:
-                return "Holiday"
-
-        if weekday == 3:
-            return "Thursday Night"
-        elif weekday == 6:
-            return "Sunday Night"
-        elif weekday == 0:
-            return "Monday Night"
-        elif weekday == 5:
-            return "Saturday Night"
-
-        return "Primetime"
+            return "Holiday"
+        return {
+            3: "Thursday Night",
+            6: "Sunday Night",
+            0: "Monday Night",
+            5: "Saturday Night"
+        }.get(weekday, "Primetime")
 
     def can_make_picks(self):
         return not self.has_started
+
+    @property
+    def is_started(self):
+        return timezone.now() >= self.start_time

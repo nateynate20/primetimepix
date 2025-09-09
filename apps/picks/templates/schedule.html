@@ -1,104 +1,180 @@
 {% extends 'nflpix/base.html' %}
 
-{% block title %}NFL Schedule & Picks - NFL Pick'em{% endblock %}
+{% block title %}NFL Schedule - NFL Pick'em{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-neon mb-6">NFL Schedule & Picks</h1>
+    <h1 class="text-3xl font-bold text-neon mb-6">NFL Primetime Schedule</h1>
 
-    <!-- Filter Form -->
-    <form method="get" class="flex flex-wrap items-center gap-4 mb-6">
-        <div>
-            <label for="team" class="text-gray-300 mr-2">Filter by Team:</label>
-            <select name="team" id="team" class="bg-gray-700 text-white rounded p-2">
-                <option value="">All Teams</option>
-                {% for team in teams %}
-                <option value="{{ team }}" {% if selected_team == team %}selected{% endif %}>
-                    {{ team }}
-                </option>
-                {% endfor %}
-            </select>
+    <!-- Stats Bar -->
+    <div class="bg-gray-800 rounded-lg p-4 mb-6">
+        <div class="flex justify-between text-sm text-gray-300">
+            <span>Total Games: {{ total_games }}</span>
+            <span>Primetime Games: {{ primetime_count }}</span>
+            <span>Completed: {{ completed_games }}</span>
+            <span>Week: {{ week_start|date:"M j" }} - {{ week_end|date:"M j" }}</span>
         </div>
-        <div class="flex items-center">
-            <label class="flex items-center space-x-2 text-gray-300">
-                <input type="checkbox" name="primetime" value="true" {% if show_primetime_only %}checked{% endif %} class="form-checkbox text-neon">
-                <span>Primetime Only</span>
-            </label>
-        </div>
-        <button type="submit" class="bg-neon text-black px-4 py-2 rounded-lg font-bold hover:bg-green-400 transition">
-            Apply Filters
-        </button>
-    </form>
+    </div>
 
     {% if games %}
-    <form method="post" action="">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {% for game in games %}
-            <div class="bg-gray-800 rounded-lg p-6 shadow-lg hover:scale-105 transform transition-all duration-200 relative
-                        {% if game.is_primetime %}ring-4 ring-yellow-400{% endif %}">
-                {% if game.is_primetime %}
-                <span class="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full">
-                    {{ game.primetime_type }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for game in games %}
+        <div class="bg-gray-800 rounded-lg p-6 shadow-lg relative
+                    {% if game.status == 'in_progress' %}ring-2 ring-green-400{% endif %}
+                    {% if game.status == 'final' %}ring-2 ring-red-600{% endif %}">
+            
+            <!-- Status Badges -->
+            {% if game.status == 'in_progress' %}
+                <span class="absolute top-2 left-2 bg-green-400 text-black text-xs font-bold px-2 py-1 rounded-full">
+                    LIVE
                 </span>
-                {% endif %}
+            {% elif game.status == 'final' %}
+                <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    FINAL
+                </span>
+            {% elif game.locked %}
+                <span class="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    LOCKED
+                </span>
+            {% endif %}
 
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center space-x-2">
-                        {% if game.away_logo %}
+            <!-- Primetime Badge -->
+            <span class="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full">
+                {{ game.primetime_label }}
+            </span>
+
+            <!-- Teams -->
+            <div class="flex justify-between items-center mb-4 {% if game.status != 'scheduled' %}mt-6{% endif %}">
+                <div class="flex items-center space-x-2">
+                    {% if game.away_logo %}
                         <img src="{{ game.away_logo }}" alt="{{ game.away_team }}" class="w-8 h-8">
-                        {% endif %}
-                        <span class="text-xl font-semibold">{{ game.away_team }}</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xl font-semibold">{{ game.home_team }}</span>
-                        {% if game.home_logo %}
+                    {% endif %}
+                    <span class="text-xl font-semibold
+                                {% if game.winner == game.away_team %}text-green-400{% endif %}
+                                {% if game.user_pick and game.user_pick.picked_team == game.away_team %}border-b-2 border-blue-400{% endif %}">
+                        {{ game.away_team }}
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl font-semibold
+                                {% if game.winner == game.home_team %}text-green-400{% endif %}
+                                {% if game.user_pick and game.user_pick.picked_team == game.home_team %}border-b-2 border-blue-400{% endif %}">
+                        {{ game.home_team }}
+                    </span>
+                    {% if game.home_logo %}
                         <img src="{{ game.home_logo }}" alt="{{ game.home_team }}" class="w-8 h-8">
-                        {% endif %}
-                    </div>
+                    {% endif %}
                 </div>
+            </div>
 
-                <div class="text-gray-400 text-sm mb-4">
-                    Week {{ game.week }} – {{ game.start_time_et|date:"l, F j, g:i A" }} ET
-                </div>
-
-                {% if not game.locked %}
-                    <div class="space-y-2">
-                        <label class="flex items-center space-x-3">
-                            <input type="radio" name="pick_{{ game.id }}" value="away"
-                                   {% if game.user_pick == game.away_team %}checked{% endif %}
-                                   class="form-radio text-neon">
-                            <span>{{ game.away_team }}</span>
-                        </label>
-                        <label class="flex items-center space-x-3">
-                            <input type="radio" name="pick_{{ game.id }}" value="home"
-                                   {% if game.user_pick == game.home_team %}checked{% endif %}
-                                   class="form-radio text-neon">
-                            <span>{{ game.home_team }}</span>
-                        </label>
-                    </div>
+            <!-- Game Info -->
+            <div class="text-gray-400 text-sm mb-4">
+                Week {{ game.game_week }} • Primetime –
+                {% if game.display_time_et %}
+                    {{ game.display_time_et|date:"l, F j, g:i A" }} ET
                 {% else %}
-                    <div class="text-yellow-500">
-                        Game has started
-                        {% if game.user_pick %}
-                        – You picked: {{ game.user_pick }}
-                        {% endif %}
-                    </div>
+                    Time TBD
                 {% endif %}
             </div>
-            {% endfor %}
-        </div>
 
-        <div class="mt-8 text-center">
-            <button type="submit" class="bg-neon text-black px-8 py-3 rounded-lg font-bold hover:bg-green-400 transition">
-                Save Picks
-            </button>
+            <!-- Scores (if game started) -->
+            {% if game.status == 'final' or game.status == 'in_progress' %}
+                <div class="bg-gray-700 rounded-lg p-3 mb-4">
+                    <div class="flex justify-between text-lg font-bold">
+                        <span class="{% if game.winner == game.away_team %}text-green-400{% else %}text-white{% endif %}">
+                            {{ game.away_team }}: {{ game.away_score|default:"-" }}
+                        </span>
+                        <span class="{% if game.winner == game.home_team %}text-green-400{% else %}text-white{% endif %}">
+                            {{ game.home_team }}: {{ game.home_score|default:"-" }}
+                        </span>
+                    </div>
+
+                    {% if game.status == 'final' %}
+                        {% if game.winner and game.winner != 'tie' %}
+                            <div class="text-center mt-2 text-green-400 text-sm">
+                                🏆 {{ game.winner }} Wins!
+                            </div>
+                        {% elif game.winner == 'tie' %}
+                            <div class="text-center mt-2 text-yellow-400 text-sm">
+                                Tie Game
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- User's Pick -->
+            {% if game.user_pick %}
+                <div class="mb-4 p-3 bg-blue-900 rounded-lg">
+                    <div class="text-blue-300 font-semibold text-sm">Your Pick:</div>
+                    <div class="text-blue-100 font-bold">{{ game.user_pick.picked_team }}</div>
+                    {% if game.status == 'final' and game.winner %}
+                        {% if game.user_pick.picked_team == game.winner %}
+                            <div class="text-green-400 font-semibold mt-1">✅ Correct!</div>
+                        {% elif game.winner == 'tie' %}
+                            <div class="text-yellow-400 font-semibold mt-1">➖ Push (Tie)</div>
+                        {% else %}
+                            <div class="text-red-400 font-semibold mt-1">❌ Incorrect</div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Pick Buttons -->
+            {% if not game.locked and game.status == 'scheduled' %}
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="flex space-x-2">
+                        <button type="submit" name="pick_{{ game.id }}" value="away"
+                                class="flex-1 bg-gray-700 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition-colors
+                                       {% if game.user_pick and game.user_pick.picked_team == game.away_team %}bg-blue-600 ring-2 ring-blue-400{% endif %}">
+                            Pick {{ game.away_team }}
+                        </button>
+                        <button type="submit" name="pick_{{ game.id }}" value="home"
+                                class="flex-1 bg-gray-700 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition-colors
+                                       {% if game.user_pick and game.user_pick.picked_team == game.home_team %}bg-blue-600 ring-2 ring-blue-400{% endif %}">
+                            Pick {{ game.home_team }}
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="text-center text-gray-400 font-semibold mt-4 p-3 bg-gray-700 rounded">
+                    {% if game.status == 'final' %}
+                        Game Complete
+                    {% elif game.status == 'in_progress' %}
+                        Game in Progress
+                    {% else %}
+                        Picks Closed
+                    {% endif %}
+                </div>
+            {% endif %}
         </div>
-    </form>
-    {% else %}
-    <div class="text-center text-gray-400 mt-8">
-        <p class="text-xl">No games match your filters.</p>
+        {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    {% if games.has_other_pages %}
+        <div class="flex justify-center mt-8">
+            <div class="flex space-x-2">
+                {% if games.has_previous %}
+                    <a href="?page={{ games.previous_page_number }}&primetime=true"
+                       class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                        Previous
+                    </a>
+                {% endif %}
+                
+                <span class="px-4 py-2 bg-gray-800 text-white rounded">
+                    Page {{ games.number }} of {{ games.paginator.num_pages }}
+                </span>
+                
+                {% if games.has_next %}
+                    <a href="?page={{ games.next_page_number }}&primetime=true"
+                       class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                        Next
+                    </a>
+                {% endif %}
+            </div>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
