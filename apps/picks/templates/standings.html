@@ -1,6 +1,8 @@
 {% extends 'nflpix/base.html' %}
 
-{% block title %}League Standings - NFL Pick'em{% endblock %}
+{% block title %}
+    {% if league %}{{ league.name }} Standings{% else %}League Standings{% endif %} - NFL Pick'em
+{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
@@ -9,18 +11,20 @@
             {% if league %}
                 {{ league.name }} Standings
             {% else %}
-                Overall Standings
+                League Standings
             {% endif %}
         </h1>
         
-        {% if user.leagues.exists %}
+        <!-- League Navigation -->
+        {% if user_leagues %}
         <div class="flex gap-4">
-            <a href="{% url 'standings' %}" class="btn-neon {% if is_overall %}active{% endif %}">
+            <a href="{% url 'general_standings' %}" 
+               class="px-4 py-2 rounded {% if is_overall %}bg-neon text-black{% else %}bg-gray-700 text-neon hover:bg-gray-600{% endif %}">
                 Overall
             </a>
-            {% for user_league in user.leagues.all %}
+            {% for user_league in user_leagues %}
             <a href="{% url 'standings' %}?league={{ user_league.id }}" 
-               class="btn-neon {% if league.id == user_league.id %}active{% endif %}">
+               class="px-4 py-2 rounded {% if league and league.id == user_league.id %}bg-neon text-black{% else %}bg-gray-700 text-neon hover:bg-gray-600{% endif %}">
                 {{ user_league.name }}
             </a>
             {% endfor %}
@@ -28,6 +32,7 @@
         {% endif %}
     </div>
 
+    {% if page_obj %}
     <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <table class="min-w-full">
             <thead>
@@ -48,35 +53,61 @@
                         Total
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Percentage
+                        Accuracy
                     </th>
+                    {% if not league %}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Primetime
+                    </th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-600">
-                {% for standing in standings %}
-                <tr class="{% if standing.username == user.username %}bg-gray-700{% endif %}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        {{ forloop.counter }}
+                {% for standing in page_obj %}
+                <tr class="{% if standing.user == user %}bg-gray-700{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">
+                        {% if forloop.counter == 1 %}
+                            🏆 1st
+                        {% elif forloop.counter == 2 %}
+                            🥈 2nd
+                        {% elif forloop.counter == 3 %}
+                            🥉 3rd
+                        {% else %}
+                            {{ forloop.counter }}
+                        {% endif %}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-neon">
-                        {{ standing.username }}
+                        {{ standing.user.username }}
+                        {% if standing.user == user %}
+                            <span class="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded">You</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-yellow-400">
+                        {{ standing.total_points }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-400">
+                        {{ standing.correct_predictions }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        {{ standing.points }}
+                        {{ standing.total_predictions }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        {{ standing.correct }}
+                        <span class="px-2 py-1 bg-gray-600 rounded text-white">
+                            {{ standing.accuracy }}%
+                        </span>
                     </td>
+                    {% if not league %}
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        {{ standing.total }}
+                        <span class="text-yellow-300">{{ standing.primetime_correct }}/{{ standing.primetime_picks }}</span>
+                        {% if standing.primetime_picks > 0 %}
+                            <br><span class="text-xs text-gray-400">({{ standing.primetime_percentage }}%)</span>
+                        {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        {{ standing.percentage|floatformat:1 }}%
-                    </td>
+                    {% endif %}
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                    <td colspan="{% if league %}6{% else %}7{% endif %}" class="px-6 py-4 text-center text-gray-400">
                         No picks have been made yet.
                     </td>
                 </tr>
@@ -84,5 +115,37 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex justify-center mt-8">
+        <div class="flex space-x-2">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if league %}&league={{ league.id }}{% endif %}"
+                   class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                    Previous
+                </a>
+            {% endif %}
+            
+            <span class="px-4 py-2 bg-gray-800 text-white rounded">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if league %}&league={{ league.id }}{% endif %}"
+                   class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                    Next
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center text-gray-400 mt-8">
+        <p class="text-xl">No standings available.</p>
+        <p class="text-sm mt-2">Standings will appear once users start making picks.</p>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

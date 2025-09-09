@@ -3,103 +3,146 @@
 {% block title %}Overall Leaderboard - NFL Pick'em{% endblock %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <h2 class="text-neon mb-3">
-        <i class="fas fa-crown me-2"></i>Overall Leaderboard
-    </h2>
-    <p class="text-muted-custom">See how you rank against all players on the platform</p>
-</div>
-
-{% if page_obj %}
-    <div class="card">
-        <div class="card-header bg-transparent border-bottom border-secondary">
-            <h5 class="mb-0 text-neon">
-                <i class="fas fa-ranking-star me-2"></i>Top Performers
-            </h5>
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-neon">
+            Overall Standings
+        </h1>
+        
+        <!-- Navigation to League Standings -->
+        {% if user_leagues %}
+        <div class="flex gap-4">
+            <span class="px-4 py-2 rounded bg-neon text-black">
+                Overall
+            </span>
+            {% for user_league in user_leagues %}
+            <a href="{% url 'standings' %}?league={{ user_league.id }}" 
+               class="px-4 py-2 rounded bg-gray-700 text-neon hover:bg-gray-600">
+                {{ user_league.name }}
+            </a>
+            {% endfor %}
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-dark table-striped mb-0">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Rank</th>
-                            <th>Player</th>
-                            <th class="text-center">Total Picks</th>
-                            <th class="text-center">Correct</th>
-                            <th class="text-center">Accuracy</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rec in page_obj %}
-                            <tr {% if rec.user == user %}class="table-primary"{% elif forloop.counter <= 3 %}class="table-success"{% endif %}>
-                                <td class="text-center fw-bold">
-                                    {% if forloop.counter == 1 %}
-                                        <i class="fas fa-crown text-warning fs-4"></i>
-                                    {% elif forloop.counter == 2 %}
-                                        <i class="fas fa-medal text-secondary fs-5"></i>
-                                    {% elif forloop.counter == 3 %}
-                                        <i class="fas fa-award text-warning fs-5"></i>
-                                    {% else %}
-                                        {{ forloop.counter }}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <strong>{{ rec.user.username }}</strong>
-                                    {% if rec.user == user %}
-                                        <span class="badge bg-primary ms-2">You</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">{{ rec.total_predictions }}</td>
-                                <td class="text-center text-neon">{{ rec.correct_predictions }}</td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary">{{ rec.accuracy|default:"0" }}%</span>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        {% endif %}
     </div>
 
+    {% if page_obj %}
+    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="bg-gray-700 px-6 py-4 border-b border-gray-600">
+            <h2 class="text-xl font-bold text-neon">
+                Top Performers
+            </h2>
+            <p class="text-gray-300 text-sm mt-1">See how you rank against all players on the platform</p>
+        </div>
+        
+        <table class="min-w-full">
+            <thead>
+                <tr class="bg-gray-700">
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Rank
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Player
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Points
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Total Picks
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Correct
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Accuracy
+                    </th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Primetime
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-600">
+                {% for rec in page_obj %}
+                <tr class="{% if rec.user == user %}bg-gray-700{% elif forloop.counter <= 3 %}bg-gray-750{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold">
+                        {% if forloop.counter == 1 %}
+                            <span class="text-yellow-400 text-2xl">🏆</span>
+                        {% elif forloop.counter == 2 %}
+                            <span class="text-gray-400 text-xl">🥈</span>
+                        {% elif forloop.counter == 3 %}
+                            <span class="text-orange-400 text-xl">🥉</span>
+                        {% else %}
+                            {{ forloop.counter }}
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="font-medium text-neon">{{ rec.user.username }}</span>
+                        {% if rec.user == user %}
+                            <span class="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded">You</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-yellow-400">
+                        {{ rec.total_points }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                        {{ rec.total_predictions }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-green-400">
+                        {{ rec.correct_predictions }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                        <span class="px-2 py-1 bg-gray-600 rounded text-white">
+                            {{ rec.accuracy|default:"0" }}%
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                        <span class="text-yellow-300">{{ rec.primetime_correct }}/{{ rec.primetime_picks }}</span>
+                        {% if rec.primetime_picks > 0 %}
+                            <br><span class="text-xs text-gray-400">({{ rec.primetime_percentage }}%)</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-4 text-center text-gray-400">
+                        No picks have been made yet. Leaderboard data will appear once players start making picks.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
     {% if page_obj.paginator.num_pages > 1 %}
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
-                            <i class="fas fa-chevron-left me-1"></i>Previous
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">Previous</span>
-                    </li>
-                {% endif %}
-
-                <li class="page-item active">
-                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-                </li>
-
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
-                            Next<i class="fas fa-chevron-right ms-1"></i>
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">Next</span>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    {% endif %}
-{% else %}
-    <div class="alert alert-custom text-center">
-        <i class="fas fa-chart-line fa-4x mb-3"></i>
-        <h4>No Leaderboard Data</h4>
-        <p class="mb-0">Leaderboard data will appear here once players start making picks.</p>
+    <div class="flex justify-center mt-8">
+        <div class="flex space-x-2">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}"
+                   class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                    Previous
+                </a>
+            {% endif %}
+            
+            <span class="px-4 py-2 bg-gray-800 text-white rounded">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}"
+                   class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                    Next
+                </a>
+            {% endif %}
+        </div>
     </div>
-{% endif %}
+    {% endif %}
+
+    {% else %}
+    <div class="text-center text-gray-400 mt-8">
+        <div class="text-6xl mb-4">📊</div>
+        <h3 class="text-xl mb-2">No Leaderboard Data</h3>
+        <p class="text-sm">Leaderboard data will appear here once players start making picks.</p>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -2,7 +2,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from apps.games.models import Game
 from apps.leagues.models import League
 
@@ -13,6 +13,7 @@ class Pick(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     league = models.ForeignKey(League, on_delete=models.CASCADE, null=True, blank=True)
     picked_team = models.CharField(max_length=50)
+    confidence = models.IntegerField(default=1)  # ADD THIS FIELD
     is_correct = models.BooleanField(null=True, blank=True)
     points = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -32,34 +33,53 @@ class Pick(models.Model):
 
     def calculate_result(self):
         """Calculate if this pick was correct based on game result"""
-        if not hasattr(self.game, 'is_finished') or not self.game.is_finished:
+        if not self.game.is_finished:
             return None
         
-        winner = None
-        if hasattr(self.game, 'home_score') and hasattr(self.game, 'away_score'):
-            if self.game.home_score > self.game.away_score:
-                winner = self.game.home_team
-            elif self.game.away_score > self.game.home_score:
-                winner = self.game.away_team
-            # If scores are equal, it's a tie (winner remains None)
+        # Use the Game model's winner property
+        winner = self.game.winner
+        if winner is None:
+            return None
             
-        self.is_correct = winner == self.picked_team if winner else False
+        # Handle tie games - traditionally these are considered "pushes" 
+        if winner == 'tie':
+            self.is_correct = None  # Neither correct nor incorrect
+            self.points = 0  # No points awarded for ties
+        else:
+            self.is_correct = (winner == self.picked_team)
+            # Calculate points based on correctness and confidence
+            if self.is_correct:
+                self.points = self.confidence
+            else:
+                self.points = 0
+            
         self.save()
         return self.is_correct
 
     @property
     def is_primetime_pick(self):
         """Check if this pick is for a primetime game"""
-        if hasattr(self.game, 'is_primetime'):
-            return self.game.is_primetime
-        # Fallback logic if game doesn't have is_primetime property
-        try:
-            import pytz
-            eastern = pytz.timezone('US/Eastern')
-            et_time = self.game.start_time.astimezone(eastern)
-            return et_time.time() >= timezone.datetime.strptime('20:00', '%H:%M').time()
-        except:
-            return False
+        return self.game.is_primetime if hasattr(self.game, 'is_primetime') else False
+
+    @property
+    def result_status(self):
+        """Get human-readable result status"""
+        if self.is_correct is None:
+            if self.game.is_finished and self.game.winner == 'tie':
+                return "Push (Tie)"
+            return "Pending"
+        elif self.is_correct:
+            return "Correct"
+        else:
+            return "Incorrect"
+
+    @property
+    def points_earned(self):
+        """Get points earned for this pick"""
+        if self.is_correct is True:
+            return self.confidence
+        else:
+            return 0
 
 
 class UserStats(models.Model):
@@ -91,7 +111,7 @@ class UserStats(models.Model):
     
     def update_stats(self):
         """Update user statistics based on their picks"""
-        user_picks = Pick.objects.filter(user=self.user)
+        user_picks = Pick.objects.filter(user=self.user, is_correct__isnull=False)
         self.total_picks = user_picks.count()
         
         # Count correct picks
@@ -105,15 +125,13 @@ class UserStats(models.Model):
             self.win_percentage = 0.0
         
         # Calculate total points
-        self.total_points = user_picks.aggregate(
-            total=models.Sum('points')
+        self.total_points = Pick.objects.filter(user=self.user).aggregate(
+            total=Sum('points')
         )['total'] or 0
         
-        # Update primetime stats
+        # Update primetime stats using the game's is_primetime property
         try:
-            primetime_picks = user_picks.filter(
-                game__start_time__time__gte=timezone.datetime.strptime('20:00', '%H:%M').time()
-            )
+            primetime_picks = user_picks.filter(game__is_primetime=True)
             self.primetime_picks = primetime_picks.count()
             self.primetime_correct = primetime_picks.filter(is_correct=True).count()
             
@@ -242,7 +260,11 @@ class LeagueStats(models.Model):
     
     def update_league_stats(self):
         """Update statistics for this user in this league"""
-        league_picks = Pick.objects.filter(user=self.user, league=self.league)
+        league_picks = Pick.objects.filter(
+            user=self.user, 
+            league=self.league,
+            is_correct__isnull=False
+        )
         self.total_picks = league_picks.count()
         self.correct_picks = league_picks.filter(is_correct=True).count()
         
@@ -251,9 +273,10 @@ class LeagueStats(models.Model):
         else:
             self.win_percentage = 0.0
         
-        self.total_points = league_picks.aggregate(
-            total=models.Sum('points')
-        )['total'] or 0
+        self.total_points = Pick.objects.filter(
+            user=self.user, 
+            league=self.league
+        ).aggregate(total=Sum('points'))['total'] or 0
         
         self.save()
     

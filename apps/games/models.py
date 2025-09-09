@@ -182,9 +182,49 @@ class Game(models.Model):
             5: "Saturday Night"
         }.get(weekday, "Primetime")
 
+    # NEW PROPERTIES ADDED BELOW
+
+    @property
+    def winner(self):
+        """Determine the winner of the game if it's finished"""
+        if self.status != 'final' or self.home_score is None or self.away_score is None:
+            return None
+        
+        if self.home_score > self.away_score:
+            return self.home_team
+        elif self.away_score > self.home_score:
+            return self.away_team
+        else:
+            return 'tie'
+
+    @property
+    def is_locked(self):
+        """Check if picks are locked for this game"""
+        return self.has_started or self.status != 'scheduled'
+
+    @property
+    def locked(self):
+        """Alias for is_locked to match template usage"""
+        return self.is_locked
+
     def can_make_picks(self):
-        return not self.has_started
+        """Check if users can still make picks for this game"""
+        return not self.is_locked
 
     @property
     def is_started(self):
         return timezone.now() >= self.start_time
+
+    def update_pick_results(self):
+        """Update all picks for this game when the game is finished"""
+        if self.status == 'final' and self.winner is not None:
+            from apps.picks.models import Pick
+            picks = Pick.objects.filter(game=self)
+            updated_count = 0
+            for pick in picks:
+                old_correct = pick.is_correct
+                pick.calculate_result()
+                if old_correct != pick.is_correct:
+                    updated_count += 1
+            return updated_count
+        return 0

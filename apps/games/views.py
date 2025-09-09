@@ -1,3 +1,5 @@
+# apps/games/views.py
+
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render
@@ -15,6 +17,7 @@ def get_current_week_dates():
 
 @login_required
 def weekly_primetime_view(request):
+    """Display weekly schedule - view only, no picks functionality"""
     week_start, week_end = get_current_week_dates()
 
     base_games = Game.objects.filter(
@@ -35,6 +38,7 @@ def weekly_primetime_view(request):
     for game in games:
         game.display_time_et = game.start_time_et
         game.game_week = game.week
+        game.primetime_label = game.primetime_type if game.is_primetime else None
 
     paginator = Paginator(games, 12)
     page_number = request.GET.get('page', 1)
@@ -42,6 +46,7 @@ def weekly_primetime_view(request):
 
     total_games = len(list(base_games))
     primetime_count = sum(1 for g in base_games if g.is_primetime)
+    completed_games = sum(1 for g in games if g.status == 'final')
 
     # Teams dropdown
     team_set = set()
@@ -59,14 +64,15 @@ def weekly_primetime_view(request):
         'show_primetime_only': show_primetime_only,
         'total_games': total_games,
         'primetime_count': primetime_count,
+        'completed_games': completed_games,
         'week_start': week_start,
         'week_end': week_end,
     }
     return render(request, 'schedule.html', context)
 
-
 @login_required
 def weekly_score_view(request):
+    """Display weekly scores - view only, no picks functionality"""
     week_start, week_end = get_current_week_dates()
 
     games_qs = Game.objects.filter(
@@ -88,17 +94,7 @@ def weekly_score_view(request):
         game.display_time_et = game.start_time_et
         game.game_week = game.week
         game.primetime_label = game.primetime_type if game.is_primetime else None
-        
-        # Add winner determination for completed games
-        if game.status == 'final' and game.home_score is not None and game.away_score is not None:
-            if game.home_score > game.away_score:
-                game.winner = game.home_team
-            elif game.away_score > game.home_score:
-                game.winner = game.away_team
-            else:
-                game.winner = 'tie'
-        else:
-            game.winner = None
+        # Note: winner property is now handled by the Game model automatically
 
     paginator = Paginator(games_list, 12)
     page_number = request.GET.get('page', 1)

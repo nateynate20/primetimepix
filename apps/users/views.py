@@ -30,10 +30,10 @@ def dashboard(request):
     user_picks_qs = Pick.objects.filter(user=user, game__in=primetime_games).select_related("game")
     picks_dict = {p.game.id: p for p in user_picks_qs}
 
-    # Attach pick object and lock status to each game
+    # Attach pick object to each game - locked status is handled by the Game model's property
     for game in primetime_games:
         game.user_pick = picks_dict.get(game.id)
-        game.locked = not game.can_make_picks()
+        # NOTE: game.locked is now a property - no need to set it manually
 
     context = {
         'user': user,
@@ -41,7 +41,6 @@ def dashboard(request):
         'primetime_games': primetime_games,
     }
     return render(request, 'user_dashboard.html', context)
-
 
 
 def landing_page(request):
