@@ -4,6 +4,8 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-8">
+
+  <!-- Header -->
   <div class="text-center mb-8">
     <h1 class="text-4xl font-extrabold text-neon mb-3 font-orbitron">
       Welcome back, {{ user.username }}!
@@ -11,61 +13,110 @@
     <p class="text-lg text-gray-400">Ready to make some winning picks?</p>
   </div>
 
+  <!-- Admin Notice -->
   {% if user.is_staff %}
-    <div class="mb-6">
-      <div class="bg-blue-900 border-l-4 border-neon p-4 rounded flex items-center">
-        <i class="fas fa-crown text-neon mr-3"></i>
-        <span class="font-semibold">Admin Access:</span>
-        <span class="ml-2">You have administrative privileges.</span>
-        <a href="{% url 'admin:index' %}" class="ml-auto text-neon underline hover:text-green-400">Go to Admin Panel</a>
-      </div>
+  <div class="mb-6">
+    <div class="bg-blue-900 border-l-4 border-neon p-4 rounded flex items-center">
+      <i class="fas fa-crown text-neon mr-3"></i>
+      <span class="font-semibold">Admin Access:</span>
+      <span class="ml-2">You have administrative privileges.</span>
+      <a href="{% url 'admin:index' %}" class="ml-auto text-neon underline hover:text-green-400">Go to Admin Panel</a>
     </div>
+  </div>
   {% endif %}
 
+  <!-- Primetime Picks (Top Priority) -->
+  <div class="mb-8">
+    <h3 class="text-neon text-2xl font-bold mb-4 flex items-center">
+      <i class="fas fa-star mr-2"></i>My Primetime Picks This Week
+    </h3>
+    {% if primetime_games %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% for game in primetime_games %}
+      <div class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center">
+
+        <!-- Teams & Logos -->
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center space-x-2">
+            <img src="{{ game.away_logo|default:'/static/images/default_team.png' }}" alt="{{ game.away_team }}" class="w-8 h-8">
+            <span class="text-xl font-semibold {% if game.away_is_winner %}text-green-400{% endif %}">{{ game.away_team }}</span>
+          </div>
+          <span class="text-gray-400 font-bold text-lg mx-2">vs</span>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-semibold {% if game.home_is_winner %}text-green-400{% endif %}">{{ game.home_team }}</span>
+            <img src="{{ game.home_logo|default:'/static/images/default_team.png' }}" alt="{{ game.home_team }}" class="w-8 h-8">
+          </div>
+        </div>
+
+        <!-- Game Info -->
+        <div class="text-gray-400 text-sm mb-2 text-center">
+          Week {{ game.week }} {% if game.is_primetime %}• {{ game.primetime_type }}{% endif %} –
+          {% if game.display_time_et %}
+            <time datetime="{{ game.start_time|date:'c' }}">
+              {{ game.display_time_et|date:"l, F j, g:i A" }} ET
+            </time>
+          {% else %}
+            Time TBD
+          {% endif %}
+        </div>
+
+        <!-- Scores -->
+        <div class="text-white font-bold text-lg bg-gray-700 rounded-lg p-3 w-full mb-2">
+          {% if game.has_score %}
+          <div class="flex justify-between">
+            <span class="{% if game.away_is_winner %}text-green-400{% endif %}">{{ game.away_score|default:"-" }}</span>
+            <span class="{% if game.home_is_winner %}text-green-400{% endif %}">{{ game.home_score|default:"-" }}</span>
+          </div>
+          {% if game.status == 'final' %}
+            {% if game.winner and game.winner != 'tie' %}
+              <div class="text-center mt-2 text-green-400 text-sm">🏆 {{ game.winner }} Wins!</div>
+            {% elif game.winner == 'tie' %}
+              <div class="text-center mt-2 text-yellow-400 text-sm">⚖️ Tie Game</div>
+            {% endif %}
+          {% endif %}
+          {% else %}
+          <div class="text-center text-gray-400">
+            {% if game.status == 'scheduled' %}
+              Game Not Started
+            {% else %}
+              Scores TBD
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- User Pick -->
+        <div class="mt-2 text-center font-semibold {% if game.user_pick %}text-neon{% else %}text-gray-400{% endif %}">
+          {% if game.user_pick %}
+            Your Pick: {{ game.user_pick.picked_team }} • 
+            <a href="{% url 'schedule' %}?league={{ league.id }}" class="underline text-green-400 hover:text-green-300">Change Pick</a>
+          {% else %}
+            You haven't picked yet • 
+            <a href="{% url 'schedule' %}?league={{ league.id }}" class="underline text-green-400 hover:text-green-300">Make Pick</a>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-gray-400 mt-4">No primetime games available this week.</div>
+    {% endif %}
+  </div>
+
+  <!-- Dashboard Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-    <!-- Make Picks -->
-    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
-      <i class="fas fa-hand-pointer fa-3x text-neon mb-3"></i>
-      <h5 class="text-xl font-bold text-neon mb-2">Make Picks</h5>
-      <p class="text-gray-400 mb-4">Select your winners for upcoming games and compete with your friends.</p>
-      <a href="{% url 'schedule' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
-        <i class="fas fa-calendar mr-2"></i>View Games
+    {% for card in dashboard_cards %}
+    <div class="{{ card.bg_class }} rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
+      <i class="{{ card.icon }} fa-3x {{ card.icon_color }} mb-3"></i>
+      <h5 class="text-xl font-bold {{ card.title_color }} mb-2">{{ card.title }}</h5>
+      <p class="text-gray-400 mb-4">{{ card.description }}</p>
+      <a href="{{ card.url }}" class="{{ card.btn_class }} flex items-center justify-center">
+        {% if card.btn_icon %}<i class="{{ card.btn_icon }} mr-2"></i>{% endif %}{{ card.btn_text }}
       </a>
     </div>
-    <!-- Scores & Results -->
-    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
-      <i class="fas fa-trophy fa-3x text-neon mb-3"></i>
-      <h5 class="text-xl font-bold text-neon mb-2">Scores & Results</h5>
-      <p class="text-gray-400 mb-4">Check game results and see how your picks performed.</p>
-      <a href="{% url 'view_score' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
-        <i class="fas fa-chart-line mr-2"></i>View Scores
-      </a>
-    </div>
-    <!-- My Leagues -->
-    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
-      <i class="fas fa-users fa-3x text-neon mb-3"></i>
-      <h5 class="text-xl font-bold text-neon mb-2">My Leagues</h5>
-      <p class="text-gray-400 mb-4">View standings and compete with your friends in private leagues.</p>
-      {% if league %}
-        <a href="{% url 'league_detail_no_id' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
-          <i class="fas fa-list mr-2"></i>View Leagues
-        </a>
-      {% else %}
-        <a href="{% url 'league_detail_no_id' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
-          <i class="fas fa-user-plus fa-2x text-neon mb-2"></i>
-          <span class="text-neon font-semibold">Join League</span>
-        </a>
-      {% endif %}
-    </div>
-   <!-- Overall Standings - FIXED -->
-    <div class="bg-gray-900 rounded-xl shadow-neon p-6 flex flex-col items-center text-center">
-      <i class="fas fa-medal fa-3x text-neon mb-3"></i>
-      <h5 class="text-xl font-bold text-neon mb-2">Overall Standings</h5>
-      <p class="text-gray-400 mb-4">See how you rank against all players on the platform.</p>
-      <a href="{% url 'general_standings' %}" class="bg-neon text-black font-bold px-6 py-2 rounded hover:bg-green-400 transition flex items-center justify-center">
-        <i class="fas fa-ranking-star mr-2"></i>View Leaderboard
-      </a>
-    </div>
+    {% endfor %}
+  </div>
 
   <!-- Quick Actions -->
   <div class="mb-8">
@@ -73,81 +124,24 @@
       <i class="fas fa-chart-bar mr-2"></i>Quick Actions
     </h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <a href="{% url 'league_create_request' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+      <a href="{% url 'league_create_request' %}" class="quick-action">
         <i class="fas fa-plus-circle fa-2x text-neon mb-2"></i>
         <span class="text-neon font-semibold">Create League</span>
       </a>
-      <a href="{% url 'league_detail_no_id' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+      <a href="{% url 'league_detail_no_id' %}" class="quick-action">
         <i class="fas fa-user-plus fa-2x text-neon mb-2"></i>
         <span class="text-neon font-semibold">Join League</span>
       </a>
-      <a href="{% url 'schedule' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+      <a href="{% url 'schedule' %}" class="quick-action">
         <i class="fas fa-calendar-check fa-2x text-neon mb-2"></i>
         <span class="text-neon font-semibold">This Week</span>
       </a>
-      <a href="{% url 'general_standings' %}" class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col items-center hover:bg-gray-800 transition">
+      <a href="{% url 'general_standings' %}" class="quick-action">
         <i class="fas fa-crown fa-2x text-neon mb-2"></i>
         <span class="text-neon font-semibold">Leaderboard</span>
       </a>
     </div>
   </div>
-</div>
-<!-- My Primetime Picks -->
-<div class="mb-8">
-  <h3 class="text-neon text-2xl font-bold mb-4 flex items-center">
-    <i class="fas fa-star mr-2"></i>My Primetime Picks This Week
-  </h3>
 
-  {% if primetime_games %}
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {% for game in primetime_games %}
-    <div class="bg-gray-900 rounded-xl shadow-neon p-4 flex flex-col">
-      <div class="flex justify-between items-center mb-2">
-        <span class="font-semibold">{{ game.away_team }}</span>
-        <span class="font-semibold">{{ game.home_team }}</span>
-      </div>
-
-      <div class="text-gray-400 text-sm mb-2">
-        Week {{ game.week }} –
-        {% if game.start_time_et %}
-          {{ game.start_time_et|date:"l, F j, g:i A" }} ET
-        {% else %}
-          Time TBD
-        {% endif %}
-      </div>
-
-      {% if game.user_pick %}
-      <div class="text-green-400 font-semibold mb-2">
-        Your Pick: {{ game.user_pick.picked_team }}
-      </div>
-      {% endif %}
-
-      {% if not game.locked %}
-      <form method="post" action="{% url 'schedule' %}?league={{ league.id }}">
-        {% csrf_token %}
-        <div class="flex space-x-2">
-          <button type="submit" name="pick_{{ game.id }}" value="away"
-                  class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded">
-            {{ game.away_team }}
-          </button>
-          <button type="submit" name="pick_{{ game.id }}" value="home"
-                  class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded">
-            {{ game.home_team }}
-          </button>
-        </div>
-      </form>
-      {% else %}
-      <div class="text-gray-400 font-semibold mt-2">
-        Picks closed
-      </div>
-      {% endif %}
-    </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="text-gray-400 mt-4">
-    No primetime games available this week.
-  </div>
-  {% endif %}
 </div>
 {% endblock %}

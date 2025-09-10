@@ -1,10 +1,11 @@
+# apps/games/models.py - Updated with better primetime detection
 from django.db import models
 from django.utils import timezone
 import pytz
 from datetime import time, date, timedelta
 
 class Game(models.Model):
-    """NFL Game model with primetime detection, team logos, and helper methods."""
+    """NFL Game model with improved primetime detection, team logos, and helper methods."""
 
     # Choices
     SPORT_CHOICES = [('NFL', 'National Football League')]
@@ -95,48 +96,91 @@ class Game(models.Model):
 
     @property
     def is_primetime(self):
-        """Determine if game is primetime."""
+        """
+        Determine if game is primetime with improved logic.
+        Focuses on: Sunday Night, Monday Night, Thursday Night, holidays, and playoffs.
+        """
         et_time = self.display_time_et
         if not et_time:
             return False
 
-        # Always primetime: playoffs / major games
+        # Always primetime: playoffs and major games
         if self.game_type in ['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']:
             return True
 
-        # Holiday games
+        # Holiday games are always primetime
         if self._is_holiday_game(et_time.date()):
             return True
 
-        # Standard NFL primetime schedule
-        weekday = et_time.weekday()  # 0=Mon, 3=Thu, 6=Sun
+        # Day of week check
+        weekday = et_time.weekday()  # 0=Monday, 1=Tuesday, ..., 6=Sunday
         game_time = et_time.time()
-        schedule = {0: time(20, 20), 3: time(20, 20), 6: time(20, 20)}
-        return weekday in schedule and game_time >= schedule[weekday]
+        
+        # Sunday Night Football (NBC) - Usually 8:20 PM ET
+        if weekday == 6:  # Sunday
+            # More flexible time check - any game 7:00 PM or later on Sunday
+            if game_time >= time(19, 0):  # 7:00 PM or later
+                return True
+                
+        # Monday Night Football (ESPN) - Usually 8:15 PM ET  
+        elif weekday == 0:  # Monday
+            # Any game 7:00 PM or later on Monday
+            if game_time >= time(19, 0):  # 7:00 PM or later
+                return True
+                
+        # Thursday Night Football (Amazon Prime) - Usually 8:15 PM ET
+        elif weekday == 3:  # Thursday
+            # Any game 7:00 PM or later on Thursday
+            if game_time >= time(19, 0):  # 7:00 PM or later
+                return True
+
+        # Special Saturday games during playoffs/end of season
+        elif weekday == 5:  # Saturday
+            # Saturday games are often primetime during playoffs
+            if self.week >= 17 or self.game_type != 'regular':
+                return True
+            # Regular season Saturday games after 7 PM
+            if game_time >= time(19, 0):
+                return True
+
+        return False
 
     @property
     def primetime_type(self):
+        """Return the type of primetime game."""
         if not self.is_primetime:
             return ""
+            
         # Major game types
         if self.game_type in ['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']:
             return self.get_game_type_display()
 
         # Holiday games
         et_time = self.display_time_et
-        game_date = et_time.date()
-        if self._is_holiday_game(game_date):
-            if game_date.month == 11:
-                return "Thanksgiving"
-            if game_date.month == 12 and game_date.day == 25:
-                return "Christmas"
-            if game_date.month == 1 and game_date.day == 1:
-                return "New Year's"
-            return "Holiday"
+        if et_time:
+            game_date = et_time.date()
+            if self._is_holiday_game(game_date):
+                if game_date.month == 11:  # November
+                    return "Thanksgiving"
+                elif game_date.month == 12 and game_date.day == 25:
+                    return "Christmas"
+                elif game_date.month == 1 and game_date.day == 1:
+                    return "New Year's"
+                else:
+                    return "Holiday"
 
-        # Standard primetime
-        weekday = et_time.weekday()
-        return {0: "Monday Night", 3: "Thursday Night", 6: "Sunday Night"}.get(weekday, "Primetime")
+            # Standard primetime by day
+            weekday = et_time.weekday()
+            if weekday == 6:  # Sunday
+                return "Sunday Night"
+            elif weekday == 0:  # Monday
+                return "Monday Night"
+            elif weekday == 3:  # Thursday
+                return "Thursday Night"
+            elif weekday == 5:  # Saturday
+                return "Saturday Night"
+                
+        return "Primetime"
 
     # --------------------------
     # Logos
@@ -210,14 +254,22 @@ class Game(models.Model):
     # Holiday Helper
     # --------------------------
     def _is_holiday_game(self, game_date):
+        """Check if game is on a major holiday."""
         year = game_date.year
+        
+        # Thanksgiving (4th Thursday of November)
         thanksgiving = self._get_thanksgiving_date(year)
         if game_date == thanksgiving:
             return True
-        if game_date.month == 12 and game_date.day in [24, 25, 31]:
+            
+        # Christmas Eve and Christmas Day
+        if game_date.month == 12 and game_date.day in [24, 25]:
             return True
-        if game_date.month == 1 and game_date.day == 1:
+            
+        # New Year's Eve and New Year's Day
+        if (game_date.month == 12 and game_date.day == 31) or (game_date.month == 1 and game_date.day == 1):
             return True
+            
         return False
 
     def _get_thanksgiving_date(self, year):
