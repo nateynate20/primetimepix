@@ -3,17 +3,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{% block title %}PrimetimePix{% endblock %}</title>
+  <title>{% block title %}PrimeTimePix{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Make your picks for NFL primetime games. Compete with friends, climb the leaderboard!">
   
   <!-- Favicon -->
   <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
   
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
   
-  <!-- Tailwind CDN (optional for utility help) -->
+  <!-- FontAwesome - CRITICAL MISSING -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'neon': '#39ff14',
+          },
+          fontFamily: {
+            'orbitron': ['Orbitron', 'sans-serif'],
+          },
+          boxShadow: {
+            'neon': '0 0 20px rgba(57, 255, 20, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
   
   <!-- Your custom styles -->
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -23,11 +44,46 @@
 <body class="bg-black text-white font-sans min-h-screen flex flex-col">
 
   {% include 'nflpix/navbar.html' %}
+  
+  <!-- Messages/Alerts -->
+  {% if messages %}
+  <div class="max-w-7xl mx-auto px-4 mt-4">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} bg-gray-800 border-l-4 
+                {% if message.tags == 'success' %}border-green-500 text-green-400
+                {% elif message.tags == 'error' or message.tags == 'danger' %}border-red-500 text-red-400
+                {% elif message.tags == 'warning' %}border-yellow-500 text-yellow-400
+                {% else %}border-blue-500 text-blue-400{% endif %}
+                p-4 mb-4 rounded" role="alert">
+      <div class="flex items-center">
+        <i class="fas 
+           {% if message.tags == 'success' %}fa-check-circle
+           {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle
+           {% elif message.tags == 'warning' %}fa-exclamation-triangle
+           {% else %}fa-info-circle{% endif %}
+           mr-2"></i>
+        {{ message }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
-  {% block content %}{% endblock %}
+  <main class="flex-grow">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
 
-  <footer class="bg-gray-900 text-center text-sm text-gray-400 py-4">
-    © 2025 PrimetimePix. All rights reserved.
+  <footer class="bg-gray-900 text-center text-sm text-gray-400 py-6 mt-auto border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>© 2025 PrimeTimePix. All rights reserved.</p>
+      <div class="mt-2 space-x-4">
+        <a href="#" class="hover:text-neon transition">Privacy Policy</a>
+        <a href="#" class="hover:text-neon transition">Terms of Service</a>
+        <a href="mailto:support@primetimepix.com" class="hover:text-neon transition">Contact</a>
+      </div>
+    </div>
   </footer>
 
   {% block extra_scripts %}{% endblock %}

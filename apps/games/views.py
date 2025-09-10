@@ -10,10 +10,37 @@ from .models import Game
 
 def get_current_week_dates():
     today = timezone.now().date()
-    days_since_monday = today.weekday()
-    week_start = today - timedelta(days=days_since_monday)
+    # Monday = 0, Sunday = 6
+    week_start = today - timedelta(days=today.weekday())
     week_end = week_start + timedelta(days=6)
     return week_start, week_end
+
+def get_filtered_games(request, queryset):
+    """Filter games by team and primetime flag from request."""
+    selected_team = request.GET.get('team')
+    if selected_team:
+        queryset = queryset.filter(
+            Q(home_team__icontains=selected_team) |
+            Q(away_team__icontains=selected_team)
+        )
+
+    show_primetime_only = request.GET.get('primetime') == 'true'
+    if show_primetime_only:
+        queryset = [g for g in queryset if g.is_primetime]
+    else:
+        queryset = list(queryset)
+
+    return queryset, selected_team, show_primetime_only
+
+def get_teams_dropdown(games_queryset):
+    """Return sorted list of team last names for dropdown."""
+    team_set = set()
+    for g in games_queryset:
+        if g.home_team.split():
+            team_set.add(g.home_team.split()[-1])
+        if g.away_team.split():
+            team_set.add(g.away_team.split()[-1])
+    return sorted(team_set)
 
 @login_required
 def weekly_primetime_view(request):
@@ -25,46 +52,19 @@ def weekly_primetime_view(request):
         start_time__date__lte=week_end,
     ).order_by('start_time')
 
-    selected_team = request.GET.get('team')
-    if selected_team:
-        base_games = base_games.filter(
-            Q(home_team__icontains=selected_team) |
-            Q(away_team__icontains=selected_team)
-        )
-
-    show_primetime_only = request.GET.get('primetime') == 'true'
-    games = [g for g in base_games if g.is_primetime] if show_primetime_only else list(base_games)
-
-    for game in games:
-        game.display_time_et = game.start_time_et
-        game.game_week = game.week
-        game.primetime_label = game.primetime_type if game.is_primetime else None
+    games, selected_team, show_primetime_only = get_filtered_games(request, base_games)
 
     paginator = Paginator(games, 12)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-
-    total_games = len(list(base_games))
-    primetime_count = sum(1 for g in base_games if g.is_primetime)
-    completed_games = sum(1 for g in games if g.status == 'final')
-
-    # Teams dropdown
-    team_set = set()
-    for g in base_games:
-        if g.home_team.split():
-            team_set.add(g.home_team.split()[-1])
-        if g.away_team.split():
-            team_set.add(g.away_team.split()[-1])
-    teams = sorted(team_set)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
 
     context = {
         'games': page_obj,
-        'teams': teams,
+        'teams': get_teams_dropdown(base_games),
         'selected_team': selected_team,
         'show_primetime_only': show_primetime_only,
-        'total_games': total_games,
-        'primetime_count': primetime_count,
-        'completed_games': completed_games,
+        'total_games': len(base_games),
+        'primetime_count': sum(1 for g in base_games if g.is_primetime),
+        'completed_games': sum(1 for g in games if g.is_finished),
         'week_start': week_start,
         'week_end': week_end,
     }
@@ -75,52 +75,24 @@ def weekly_score_view(request):
     """Display weekly scores - view only, no picks functionality"""
     week_start, week_end = get_current_week_dates()
 
-    games_qs = Game.objects.filter(
+    base_games = Game.objects.filter(
         start_time__date__gte=week_start,
         start_time__date__lte=week_end,
     ).order_by('-start_time')
 
-    selected_team = request.GET.get('team')
-    if selected_team:
-        games_qs = games_qs.filter(
-            Q(home_team__icontains=selected_team) |
-            Q(away_team__icontains=selected_team)
-        )
+    games, selected_team, show_primetime_only = get_filtered_games(request, base_games)
 
-    show_primetime_only = request.GET.get('primetime') == 'true'
-    games_list = [g for g in games_qs if g.is_primetime] if show_primetime_only else list(games_qs)
-
-    for game in games_list:
-        game.display_time_et = game.start_time_et
-        game.game_week = game.week
-        game.primetime_label = game.primetime_type if game.is_primetime else None
-        # Note: winner property is now handled by the Game model automatically
-
-    paginator = Paginator(games_list, 12)
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-
-    total_games = len(games_list)
-    completed_games = sum(1 for g in games_list if g.is_finished)
-    primetime_count = sum(1 for g in games_list if g.is_primetime)
-
-    # Teams dropdown
-    team_set = set()
-    for g in games_qs:
-        if g.home_team.split():
-            team_set.add(g.home_team.split()[-1])
-        if g.away_team.split():
-            team_set.add(g.away_team.split()[-1])
-    teams = sorted(team_set)
+    paginator = Paginator(games, 12)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
 
     context = {
         'games': page_obj,
-        'teams': teams,
+        'teams': get_teams_dropdown(base_games),
         'selected_team': selected_team,
         'show_primetime_only': show_primetime_only,
-        'total_games': total_games,
-        'completed_games': completed_games,
-        'primetime_count': primetime_count,
+        'total_games': len(games),
+        'primetime_count': sum(1 for g in games if g.is_primetime),
+        'completed_games': sum(1 for g in games if g.is_finished),
         'week_start': week_start,
         'week_end': week_end,
     }

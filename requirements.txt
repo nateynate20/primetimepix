@@ -1,29 +1,50 @@
-appdirs==1.4.4
-asgiref==3.9.1
-certifi==2025.8.3
-charset-normalizer==3.4.2
-cramjam==2.11.0
-diff-match-patch==20241021
-dj-database-url==3.0.1
+# requirements.txt
+# Core Django
 Django==4.2.23
 django-grappelli==4.0.2
 django-import-export==4.3.9
-fastparquet==2024.11.0
-fsspec==2025.7.0
-idna==3.10
-nfl_data_py==0.3.1
-numpy==1.26.4
-packaging==25.0
-pandas==2.1.1
-python-dateutil==2.9.0.post0
-python-decouple==3.8
-python-snappy==0.7.3
-pytz==2023.3.post1
-requests==2.32.4
-six==1.17.0
-sqlparse==0.5.3
-tablib==3.8.0
-typing_extensions==4.14.1
-tzdata==2025.2
-urllib3==2.5.0
+
+# Database
+psycopg2-binary==2.9.9
+dj-database-url==3.0.1
+
+# Static Files
 whitenoise==6.5.0
+
+# API & Data Processing
+requests==2.32.4
+pandas==2.1.1
+numpy==1.26.4
+python-dateutil==2.9.0.post0
+
+# NFL Data
+nfl_data_py==0.3.1
+fastparquet==2024.11.0
+python-snappy==0.7.3
+cramjam==2.11.0
+
+# Utilities
+python-decouple==3.8
+pytz==2023.3.post1
+certifi==2025.8.3
+charset-normalizer==3.4.2
+idna==3.10
+urllib3==2.5.0
+
+# Data formats
+tablib==3.8.0
+diff-match-patch==20241021
+
+# Production essentials
+gunicorn==21.2.0
+redis==5.0.1
+celery==5.3.4
+
+# Monitoring (optional but recommended)
+sentry-sdk==1.39.1
+
+# Development/Testing
+pytest==7.4.3
+pytest-django==4.7.0
+black==23.12.1
+flake8==6.1.0
