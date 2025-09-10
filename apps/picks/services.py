@@ -111,10 +111,18 @@ class PickService:
             total_points = user_picks.aggregate(Sum('points'))['points__sum'] or 0
             win_percentage = (correct_picks / total_picks) * 100 if total_picks > 0 else 0
             
-            # Get primetime stats
-            primetime_picks = user_picks.filter(game__is_primetime=True)
-            primetime_total = primetime_picks.count()
-            primetime_correct = primetime_picks.filter(is_correct=True).count()
+            # Get primetime stats - using the game's is_primetime property
+            primetime_picks = []
+            primetime_correct = 0
+            primetime_total = 0
+            
+            # We need to fetch the games and check is_primetime
+            for pick in user_picks.select_related('game'):
+                if pick.game.is_primetime:
+                    primetime_total += 1
+                    if pick.is_correct:
+                        primetime_correct += 1
+            
             primetime_percentage = (primetime_correct / primetime_total * 100) if primetime_total > 0 else 0
             
             leaderboard.append({
@@ -144,9 +152,9 @@ class PickService:
     def get_user_stats(user, league=None):
         """Get comprehensive stats for a user - format expected by templates"""
         if league:
-            picks = Pick.objects.filter(user=user, league=league, is_correct__isnull=False)
+            picks = Pick.objects.filter(user=user, league=league, is_correct__isnull=False).select_related('game')
         else:
-            picks = Pick.objects.filter(user=user, is_correct__isnull=False)
+            picks = Pick.objects.filter(user=user, is_correct__isnull=False).select_related('game')
         
         total_picks = picks.count()
         if total_picks == 0:
@@ -165,10 +173,15 @@ class PickService:
         total_points = picks.aggregate(Sum('points'))['points__sum'] or 0
         win_percentage = (correct_picks / total_picks) * 100
         
-        # Primetime stats
-        primetime_picks = picks.filter(game__is_primetime=True)
-        primetime_total = primetime_picks.count()
-        primetime_correct = primetime_picks.filter(is_correct=True).count()
+        # Primetime stats - check each game's is_primetime property
+        primetime_total = 0
+        primetime_correct = 0
+        for pick in picks:
+            if pick.game.is_primetime:
+                primetime_total += 1
+                if pick.is_correct:
+                    primetime_correct += 1
+        
         primetime_percentage = (primetime_correct / primetime_total * 100) if primetime_total > 0 else 0
         
         # Current streak
