@@ -72,17 +72,28 @@ def weekly_primetime_view(request):
 
 @login_required
 def weekly_score_view(request):
-    """Display weekly scores - view only, no picks functionality"""
+    """
+    Display weekly scores - view only, shows ALL GAMES (not just primetime).
+    This is for viewing scores and results of all games.
+    """
     week_start, week_end = get_current_week_dates()
 
+    # Get ALL games for the week (not filtering to primetime)
     base_games = Game.objects.filter(
         start_time__date__gte=week_start,
         start_time__date__lte=week_end,
-    ).order_by('-start_time')
+    ).order_by('-start_time')  # Most recent first for scores
 
+    # Apply team and primetime filters if requested
     games, selected_team, show_primetime_only = get_filtered_games(request, base_games)
 
-    paginator = Paginator(games, 12)
+    # Enhance games with additional display properties
+    for game in games:
+        game.has_score = game.status in ['final', 'in_progress'] and (game.home_score is not None or game.away_score is not None)
+        game.away_is_winner = game.winner == game.away_team if game.winner else False
+        game.home_is_winner = game.winner == game.home_team if game.winner else False
+
+    paginator = Paginator(games, 15)  # Show more games per page for scores
     page_obj = paginator.get_page(request.GET.get('page', 1))
 
     context = {
@@ -90,10 +101,11 @@ def weekly_score_view(request):
         'teams': get_teams_dropdown(base_games),
         'selected_team': selected_team,
         'show_primetime_only': show_primetime_only,
-        'total_games': len(games),
-        'primetime_count': sum(1 for g in games if g.is_primetime),
+        'total_games': len(base_games),
+        'primetime_count': sum(1 for g in base_games if g.is_primetime),
         'completed_games': sum(1 for g in games if g.is_finished),
         'week_start': week_start,
         'week_end': week_end,
+        'is_scores_page': True,  # Flag to help template know this is scores page
     }
     return render(request, 'views_score.html', context)

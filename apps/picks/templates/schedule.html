@@ -1,19 +1,43 @@
 {% extends 'nflpix/base.html' %}
 
-{% block title %}NFL Schedule - NFL Pick'em{% endblock %}
+{% block title %}NFL Primetime Picks - NFL Pick'em{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-neon mb-6">NFL Primetime Schedule</h1>
+    <h1 class="text-3xl font-bold text-neon mb-6">
+        <i class="fas fa-star mr-2"></i>NFL Primetime Picks
+    </h1>
+    <p class="text-gray-400 mb-6">Make your picks for this week's most important games - Monday Night, Thursday Night, Sunday Night, and holiday matchups!</p>
 
     <!-- Stats Bar -->
     <div class="bg-gray-800 rounded-lg p-4 mb-6">
         <div class="flex flex-wrap justify-between text-sm text-gray-300 gap-2">
-            <span>Total Games: {{ total_games }}</span>
-            <span>Primetime Games: {{ primetime_count }}</span>
+            <span>Total Games This Week: {{ total_games }}</span>
+            <span class="text-yellow-400 font-semibold">⭐ Primetime Games: {{ primetime_count }}</span>
             <span>Completed: {{ completed_games }}</span>
-            <span>Week: {{ week_start|date:"M j" }} - {{ week_end|date:"M j" }}</span>
+            <span>NFL Week {{ current_week }}: {{ week_start|date:"M j" }} - {{ week_end|date:"M j" }}</span>
         </div>
+    </div>
+
+    <!-- Week Navigation -->
+    <div class="bg-gray-800 rounded-lg p-4 mb-6">
+        <form method="get" class="flex flex-wrap items-center space-x-4 gap-2">
+            <label for="week" class="text-white font-semibold">NFL Week:</label>
+            <select name="week" id="week" onchange="this.form.submit()" 
+                    class="bg-gray-700 text-white border border-gray-600 rounded px-3 py-2">
+                {% for week in available_weeks %}
+                    <option value="{{ week }}" {% if week == current_week %}selected{% endif %}>
+                        Week {{ week }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if league %}
+                <input type="hidden" name="league" value="{{ league.id }}">
+            {% endif %}
+            {% if selected_team %}
+                <input type="hidden" name="team" value="{{ selected_team }}">
+            {% endif %}
+        </form>
     </div>
 
     <!-- League Selection -->
@@ -33,8 +57,26 @@
             {% if selected_team %}
                 <input type="hidden" name="team" value="{{ selected_team }}">
             {% endif %}
-            {% if show_primetime_only %}
-                <input type="hidden" name="primetime" value="true">
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Team Filter -->
+    {% if teams %}
+    <div class="bg-gray-800 rounded-lg p-4 mb-6">
+        <form method="get" class="flex flex-wrap items-center space-x-4 gap-2">
+            <label for="team" class="text-white font-semibold">Filter by Team:</label>
+            <select name="team" id="team" onchange="this.form.submit()" 
+                    class="bg-gray-700 text-white border border-gray-600 rounded px-3 py-2">
+                <option value="">All Primetime Games</option>
+                {% for team in teams %}
+                    <option value="{{ team }}" {% if selected_team == team %}selected{% endif %}>
+                        {{ team }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if league %}
+                <input type="hidden" name="league" value="{{ league.id }}">
             {% endif %}
         </form>
     </div>
@@ -43,10 +85,9 @@
     {% if games %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for game in games %}
-        <div class="bg-gray-800 rounded-lg p-6 shadow-lg relative
-                    {% if game.status == 'in_progress' %}ring-2 ring-green-400{% endif %}
-                    {% if game.status == 'final' %}ring-2 ring-red-600{% endif %}
-                    {% if game.is_primetime %}ring-1 ring-yellow-400{% endif %}">
+        <div class="bg-gray-800 rounded-lg p-6 shadow-lg relative ring-2 ring-yellow-400
+                    {% if game.status == 'in_progress' %}ring-green-400{% endif %}
+                    {% if game.status == 'final' %}ring-red-600{% endif %}">
 
             <!-- Status Badge -->
             {% if game.status == 'in_progress' %}
@@ -58,14 +99,12 @@
             {% endif %}
 
             <!-- Primetime Badge -->
-            {% if game.is_primetime and game.primetime_label %}
-                <span class="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full">
-                    {{ game.primetime_label }}
-                </span>
-            {% endif %}
+            <span class="absolute top-2 right-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full">
+                ⭐ {{ game.primetime_type|default:"PRIMETIME" }}
+            </span>
 
             <!-- Teams -->
-            <div class="flex justify-between items-center mb-4 {% if game.status != 'scheduled' %}mt-6{% endif %}">
+            <div class="flex justify-between items-center mb-4 mt-8">
                 <div class="flex items-center space-x-2">
                     <img src="{{ game.away_logo|default:'/static/images/default_team.png' }}" alt="{{ game.away_team }}" class="w-8 h-8">
                     <span class="text-xl font-semibold
@@ -86,7 +125,7 @@
 
             <!-- Game Info -->
             <div class="text-gray-400 text-sm mb-4">
-                Week {{ game.game_week }} {% if game.is_primetime %}• Primetime{% endif %} –
+                Week {{ game.week }} • {{ game.primetime_type|default:"Primetime" }} –
                 {% if game.display_time_et %}
                     <time datetime="{{ game.start_time|date:'c' }}">{{ game.display_time_et|date:"l, F j, g:i A" }} ET</time>
                 {% else %}
@@ -105,7 +144,7 @@
                         {% if game.winner and game.winner != 'tie' %}
                             <div class="text-center mt-2 text-green-400 text-sm">🏆 {{ game.winner }} Wins!</div>
                         {% elif game.winner == 'tie' %}
-                            <div class="text-center mt-2 text-yellow-400 text-sm">Tie Game</div>
+                            <div class="text-center mt-2 text-yellow-400 text-sm">⚖️ Tie Game</div>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -114,7 +153,7 @@
             <!-- User Pick -->
             {% if game.user_pick %}
                 <div class="mb-4 p-3 bg-blue-900 rounded-lg">
-                    <div class="text-blue-300 font-semibold text-sm">Your Pick:</div>
+                    <div class="text-blue-300 font-semibold text-sm">Your Primetime Pick:</div>
                     <div class="text-blue-100 font-bold">{{ game.user_pick.picked_team }}</div>
                     {% if game.status == 'final' and game.winner %}
                         {% if game.user_pick.picked_team == game.winner %}
@@ -164,12 +203,12 @@
         <div class="flex justify-center mt-8">
             <div class="flex space-x-2 flex-wrap">
                 {% if games.has_previous %}
-                    <a href="?page={{ games.previous_page_number }}{% if show_primetime_only %}&primetime=true{% endif %}{% if league %}&league={{ league.id }}{% endif %}{% if selected_team %}&team={{ selected_team }}{% endif %}"
+                    <a href="?page={{ games.previous_page_number }}{% if league %}&league={{ league.id }}{% endif %}{% if selected_team %}&team={{ selected_team }}{% endif %}"
                        class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">Previous</a>
                 {% endif %}
                 <span class="px-4 py-2 bg-gray-800 text-white rounded">Page {{ games.number }} of {{ games.paginator.num_pages }}</span>
                 {% if games.has_next %}
-                    <a href="?page={{ games.next_page_number }}{% if show_primetime_only %}&primetime=true{% endif %}{% if league %}&league={{ league.id }}{% endif %}{% if selected_team %}&team={{ selected_team }}{% endif %}"
+                    <a href="?page={{ games.next_page_number }}{% if league %}&league={{ league.id }}{% endif %}{% if selected_team %}&team={{ selected_team }}{% endif %}"
                        class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">Next</a>
                 {% endif %}
             </div>
@@ -178,9 +217,24 @@
 
     {% else %}
     <div class="text-center text-gray-400 mt-8">
-        <p class="text-xl">No games available for this week.</p>
-        <p class="text-sm mt-2">Check back later or try a different filter.</p>
+        <div class="text-6xl mb-4">⭐</div>
+        <h3 class="text-xl mb-2">No Primetime Games This Week</h3>
+        <p class="text-sm mt-2">Check back later as the schedule updates, or view the <a href="{% url 'view_score' %}" class="text-neon hover:underline">full schedule with all games</a>.</p>
     </div>
     {% endif %}
+
+    <!-- Info Box -->
+    <div class="mt-8 bg-blue-900 border-l-4 border-yellow-400 p-4 rounded">
+        <div class="flex items-center">
+            <i class="fas fa-info-circle text-yellow-400 mr-3"></i>
+            <div>
+                <h4 class="font-semibold text-yellow-400">About Primetime Picks</h4>
+                <p class="text-blue-100 text-sm mt-1">
+                    You're viewing only the most important games of the week - primetime matchups including Monday Night Football, Thursday Night Football, Sunday Night Football, and holiday games. 
+                    <a href="{% url 'view_score' %}" class="text-yellow-400 hover:underline">View all games and scores →</a>
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
