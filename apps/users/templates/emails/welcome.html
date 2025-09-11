@@ -1,0 +1,28 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Welcome to {{ site_name }}!{% endblock %}
+
+{% block content %}
+<h2>Welcome aboard, {{ user.username }}! 🎉</h2>
+
+<p>You've successfully joined the most exciting NFL primetime prediction platform!</p>
+
+<p>Here's what you can do now:</p>
+<ul>
+    <li>🏆 Join or create leagues to compete with friends</li>
+    <li>⭐ Make picks for primetime games (Monday Night, Thursday Night, Sunday Night)</li>
+    <li>📊 Track your performance on the leaderboard</li>
+    <li>🎯 Earn points and climb the rankings</li>
+</ul>
+
+<center>
+    <a href="{{ site_url }}/picks/" class="button">Make Your First Pick</a>
+</center>
+
+<p>Get started by making your picks for this week's primetime games. Remember, picks lock when games start!</p>
+
+<p>Good luck and may your predictions be ever accurate!</p>
+
+<p>Best regards,<br>
+The {{ site_name }} Team</p>
+{% endblock %}

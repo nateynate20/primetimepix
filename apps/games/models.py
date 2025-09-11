@@ -1,8 +1,9 @@
-# apps/games/models.py - Updated with better primetime detection
+# apps/games/models.py
 from django.db import models
 from django.utils import timezone
 import pytz
 from datetime import time, date, timedelta
+
 
 class Game(models.Model):
     """NFL Game model with improved primetime detection, team logos, and helper methods."""
@@ -96,51 +97,30 @@ class Game(models.Model):
 
     @property
     def is_primetime(self):
-        """
-        Determine if game is primetime with improved logic.
-        Focuses on: Sunday Night, Monday Night, Thursday Night, holidays, and playoffs.
-        """
+        """Determine if game is primetime with improved logic."""
         et_time = self.display_time_et
         if not et_time:
             return False
 
-        # Always primetime: playoffs and major games
+        # Playoffs & major games
         if self.game_type in ['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']:
             return True
 
-        # Holiday games are always primetime
+        # Holidays
         if self._is_holiday_game(et_time.date()):
             return True
 
-        # Day of week check
-        weekday = et_time.weekday()  # 0=Monday, 1=Tuesday, ..., 6=Sunday
+        weekday = et_time.weekday()  # 0=Mon ... 6=Sun
         game_time = et_time.time()
-        
-        # Sunday Night Football (NBC) - Usually 8:20 PM ET
-        if weekday == 6:  # Sunday
-            # More flexible time check - any game 7:00 PM or later on Sunday
-            if game_time >= time(19, 0):  # 7:00 PM or later
-                return True
-                
-        # Monday Night Football (ESPN) - Usually 8:15 PM ET  
-        elif weekday == 0:  # Monday
-            # Any game 7:00 PM or later on Monday
-            if game_time >= time(19, 0):  # 7:00 PM or later
-                return True
-                
-        # Thursday Night Football (Amazon Prime) - Usually 8:15 PM ET
-        elif weekday == 3:  # Thursday
-            # Any game 7:00 PM or later on Thursday
-            if game_time >= time(19, 0):  # 7:00 PM or later
-                return True
 
-        # Special Saturday games during playoffs/end of season
-        elif weekday == 5:  # Saturday
-            # Saturday games are often primetime during playoffs
-            if self.week >= 17 or self.game_type != 'regular':
-                return True
-            # Regular season Saturday games after 7 PM
-            if game_time >= time(19, 0):
+        if weekday == 6 and game_time >= time(19, 0):  # Sunday Night
+            return True
+        if weekday == 0 and game_time >= time(19, 0):  # Monday Night
+            return True
+        if weekday == 3 and game_time >= time(19, 0):  # Thursday Night
+            return True
+        if weekday == 5:  # Saturday
+            if self.week >= 17 or self.game_type != 'regular' or game_time >= time(19, 0):
                 return True
 
         return False
@@ -150,17 +130,15 @@ class Game(models.Model):
         """Return the type of primetime game."""
         if not self.is_primetime:
             return ""
-            
-        # Major game types
+
         if self.game_type in ['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']:
             return self.get_game_type_display()
 
-        # Holiday games
         et_time = self.display_time_et
         if et_time:
             game_date = et_time.date()
             if self._is_holiday_game(game_date):
-                if game_date.month == 11:  # November
+                if game_date.month == 11:
                     return "Thanksgiving"
                 elif game_date.month == 12 and game_date.day == 25:
                     return "Christmas"
@@ -169,17 +147,16 @@ class Game(models.Model):
                 else:
                     return "Holiday"
 
-            # Standard primetime by day
             weekday = et_time.weekday()
-            if weekday == 6:  # Sunday
+            if weekday == 6:
                 return "Sunday Night"
-            elif weekday == 0:  # Monday
+            elif weekday == 0:
                 return "Monday Night"
-            elif weekday == 3:  # Thursday
+            elif weekday == 3:
                 return "Thursday Night"
-            elif weekday == 5:  # Saturday
+            elif weekday == 5:
                 return "Saturday Night"
-                
+
         return "Primetime"
 
     # --------------------------
@@ -251,25 +228,18 @@ class Game(models.Model):
         return 0
 
     # --------------------------
-    # Holiday Helper
+    # Holiday Helpers
     # --------------------------
     def _is_holiday_game(self, game_date):
         """Check if game is on a major holiday."""
         year = game_date.year
-        
-        # Thanksgiving (4th Thursday of November)
         thanksgiving = self._get_thanksgiving_date(year)
         if game_date == thanksgiving:
             return True
-            
-        # Christmas Eve and Christmas Day
         if game_date.month == 12 and game_date.day in [24, 25]:
             return True
-            
-        # New Year's Eve and New Year's Day
         if (game_date.month == 12 and game_date.day == 31) or (game_date.month == 1 and game_date.day == 1):
             return True
-            
         return False
 
     def _get_thanksgiving_date(self, year):
@@ -278,3 +248,43 @@ class Game(models.Model):
         days_until_thursday = (3 - nov1.weekday()) % 7
         first_thursday = nov1 + timedelta(days=days_until_thursday)
         return first_thursday + timedelta(weeks=3)
+
+    # --------------------------
+    # Lock & Display
+    # --------------------------
+    @property
+    def is_locked_for_picks(self):
+        """Determine if picks are locked for this game."""
+        if self.status != 'scheduled':
+            return True
+        dt = self.start_time
+        if timezone.is_naive(dt):
+            dt = pytz.UTC.localize(dt)
+        lock_time = dt - timezone.timedelta(minutes=5)
+        return timezone.now() >= lock_time
+
+    @property
+    def display_status(self):
+        """Get display-friendly status."""
+        status_map = {
+            'scheduled': 'Scheduled',
+            'in_progress': 'LIVE',
+            'final': 'Final',
+            'cancelled': 'Cancelled',
+        }
+        return status_map.get(self.status, self.status)
+
+    @property
+    def score_display(self):
+        """Get formatted score display."""
+        if not self.has_started:
+            if self.display_time_et:
+                return self.display_time_et.strftime('%I:%M %p ET')
+            return "TBD"
+
+        if self.status == 'final':
+            return f"{self.away_score or 0} - {self.home_score or 0} (Final)"
+        elif self.status == 'in_progress':
+            return f"{self.away_score or 0} - {self.home_score or 0} (Live)"
+        else:
+            return "Starting soon"

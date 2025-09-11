@@ -1,0 +1,35 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Week {{ week }} Picks Reminder{% endblock %}
+
+{% block content %}
+<h2>Hey {{ user.username }}, Week {{ week }} Primetime Games Are Here! 🏈</h2>
+
+<p>Don't forget to make your picks for this week's primetime matchups!</p>
+
+{% if games %}
+<h3>This Week's Primetime Games:</h3>
+{% for game in games %}
+<div class="game-card">
+    <div class="team-vs">
+        {{ game.away_team }} @ {{ game.home_team }}
+        {% if game.is_primetime %}
+        <span class="primetime-badge">{{ game.primetime_type }}</span>
+        {% endif %}
+    </div>
+    <div class="game-time">
+        {{ game.display_time_et|date:"l, F j - g:i A ET" }}
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<center>
+    <a href="{{ picks_url }}" class="button">Make Your Picks Now</a>
+</center>
+
+<p><strong>Remember:</strong> Picks lock when games start, so don't wait too long!</p>
+
+<p>Good luck!<br>
+The {{ site_name }} Team</p>
+{% endblock %}
