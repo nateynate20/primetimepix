@@ -1,4 +1,3 @@
-# apps/games/views.py
 from datetime import timedelta
 from django.utils import timezone
 from django.shortcuts import render
@@ -43,7 +42,7 @@ def get_teams_dropdown(games_queryset):
 
 @login_required
 def weekly_primetime_view(request):
-    """Display weekly schedule - view only, no picks functionality"""
+    """Display weekly primetime schedule."""
     week_start, week_end = get_current_week_dates()
 
     base_games = Game.objects.filter(
@@ -69,15 +68,21 @@ def weekly_primetime_view(request):
     }
     return render(request, 'schedule.html', context)
 
+
 @login_required
 def weekly_score_view(request):
-    """Display weekly scores - view only, shows all games"""
-    week_start, week_end = get_current_week_dates()
+    """Display weekly scores or full schedule based on 'week' param."""
+    week_param = request.GET.get('week', 'current')
 
-    base_games = Game.objects.filter(
-        start_time__date__gte=week_start,
-        start_time__date__lte=week_end,
-    ).order_by('-start_time')  # Most recent first
+    if week_param == 'all':
+        base_games = Game.objects.all().order_by('-start_time')
+        week_start, week_end = None, None
+    else:
+        week_start, week_end = get_current_week_dates()
+        base_games = Game.objects.filter(
+            start_time__date__gte=week_start,
+            start_time__date__lte=week_end,
+        ).order_by('-start_time')
 
     games, selected_team, show_primetime_only = get_filtered_games(request, base_games)
 
@@ -101,5 +106,6 @@ def weekly_score_view(request):
         'week_start': week_start,
         'week_end': week_end,
         'is_scores_page': True,
+        'show_all_weeks': week_param == 'all',  # flag for template
     }
     return render(request, 'views_score.html', context)
