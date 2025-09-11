@@ -7,21 +7,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="{% block meta_description %}Make your picks for NFL primetime games. Compete with friends, climb the leaderboard!{% endblock %}">
   <meta name="theme-color" content="#000000">
-  
-  <!-- Favicon: external placeholder to avoid staticfiles manifest error -->
-  <link rel="icon" href="https://www.google.com/favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}">
-  
+
   <!-- Preload critical fonts -->
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" as="style">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
-  
-  <!-- FontAwesome with integrity check -->
+
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
-        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
         crossorigin="anonymous" referrerpolicy="no-referrer">
-  
-  <!-- Tailwind CDN with optimized config -->
+
+  <!-- Tailwind CDN -->
   <script>
     (function() {
       const script = document.createElement('script');
@@ -36,7 +32,7 @@
               },
               fontFamily: { 'orbitron': ['Orbitron', 'system-ui', 'sans-serif'] },
               boxShadow: { 'neon': '0 0 20px rgba(57, 255, 20, 0.5)', 'glow': '0 0 40px rgba(57, 255, 20, 0.3)' },
-              animation: { 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
+              animation: { 'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite' }
             }
           },
           darkMode: 'class'
@@ -45,11 +41,10 @@
       document.head.appendChild(script);
     })();
   </script>
-  
+
   <!-- Custom styles -->
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  
-  <!-- Block for page-specific head content -->
+
   {% block extra_head %}{% endblock %}
 </head>
 
@@ -58,44 +53,10 @@
     Skip to main content
   </a>
 
-  <!-- Navigation -->
   <header role="banner">
     {% include 'nflpix/navbar.html' %}
   </header>
-  
-  <!-- Global Messages -->
-  {% if messages %}
-    <div class="messages-container" role="alert" aria-live="polite">
-      <div class="max-w-7xl mx-auto px-4 pt-4">
-        {% for message in messages %}
-          <div class="message message--{{ message.tags }} 
-                     {% if message.tags == 'success' %}bg-green-900/20 border-green-500 text-green-400
-                     {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-900/20 border-red-500 text-red-400
-                     {% elif message.tags == 'warning' %}bg-yellow-900/20 border-yellow-500 text-yellow-400
-                     {% else %}bg-blue-900/20 border-blue-500 text-blue-400{% endif %}
-                     border-l-4 p-4 mb-4 rounded-r-lg backdrop-blur-sm" 
-               role="alert">
-            <div class="flex items-start space-x-3">
-              <i class="flex-shrink-0 mt-0.5 fas 
-                 {% if message.tags == 'success' %}fa-check-circle
-                 {% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle
-                 {% elif message.tags == 'warning' %}fa-exclamation-triangle
-                 {% else %}fa-info-circle{% endif %}"
-                 aria-hidden="true"></i>
-              <div class="flex-1">{{ message }}</div>
-              <button type="button" class="message-close opacity-70 hover:opacity-100 transition-opacity" 
-                      onclick="this.parentElement.parentElement.remove()" 
-                      aria-label="Dismiss message">
-                <i class="fas fa-times" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  {% endif %}
 
-  <!-- Main Content -->
   <main id="main-content" class="flex-1 pt-8" role="main">
     <div class="max-w-7xl mx-auto px-4 pb-8">
       {% block breadcrumbs %}{% endblock %}
@@ -103,77 +64,38 @@
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="bg-gray-900/50 border-t border-gray-800 mt-auto backdrop-blur-sm" role="contentinfo">
-    <div class="max-w-7xl mx-auto px-4 py-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="text-center md:text-left">
-          <h3 class="text-lg font-bold text-neon mb-2">PrimeTimePix</h3>
-          <p class="text-gray-400 text-sm">The ultimate NFL primetime prediction platform</p>
-        </div>
-        <div class="text-center">
-          <h4 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Quick Links</h4>
-          <nav class="space-y-2">
-            {% if user.is_authenticated %}
-              <a href="/users/dashboard/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Dashboard</a>
-              <a href="/leagues/league/" class="block text-gray-400 hover:text-neon transition-colors text-sm">My Leagues</a>
-            {% else %}
-              <a href="/users/login_user/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Login</a>
-              <a href="/users/register_user/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Register</a>
-            {% endif %}
-            <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Leaderboard</a>
-          </nav>
-        </div>
-        <div class="text-center md:text-right">
-          <h4 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Legal</h4>
-          <nav class="space-y-2">
-            <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Privacy Policy</a>
-            <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Terms of Service</a>
-            <a href="mailto:support@primetimepix.com" class="block text-gray-400 hover:text-neon transition-colors text-sm">Contact</a>
-          </nav>
-        </div>
+    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="text-center md:text-left">
+        <h3 class="text-lg font-bold text-neon mb-2">PrimeTimePix</h3>
+        <p class="text-gray-400 text-sm">The ultimate NFL primetime prediction platform</p>
       </div>
-      <div class="border-t border-gray-800 mt-8 pt-6 text-center">
-        <p class="text-gray-500 text-sm">&copy; {% now "Y" %} PrimeTimePix. All rights reserved.</p>
+      <div class="text-center">
+        <h4 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Quick Links</h4>
+        <nav class="space-y-2">
+          {% if user.is_authenticated %}
+            <a href="/users/dashboard/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Dashboard</a>
+            <a href="/leagues/league/" class="block text-gray-400 hover:text-neon transition-colors text-sm">My Leagues</a>
+          {% else %}
+            <a href="/users/login_user/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Login</a>
+            <a href="/users/register_user/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Register</a>
+          {% endif %}
+          <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Leaderboard</a>
+        </nav>
       </div>
+      <div class="text-center md:text-right">
+        <h4 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Legal</h4>
+        <nav class="space-y-2">
+          <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Privacy Policy</a>
+          <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Terms of Service</a>
+          <a href="mailto:support@primetimepix.com" class="block text-gray-400 hover:text-neon transition-colors text-sm">Contact</a>
+        </nav>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-6 text-center">
+      <p class="text-gray-500 text-sm">&copy; {% now "Y" %} PrimeTimePix. All rights reserved.</p>
     </div>
   </footer>
-
-  <!-- Loading indicator -->
-  <div id="loading-indicator" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
-    <div class="bg-gray-900 rounded-lg p-6 border border-gray-700">
-      <div class="flex items-center space-x-3">
-        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-neon"></div>
-        <span class="text-gray-300">Loading...</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const messages = document.querySelectorAll('.message');
-      messages.forEach(function(message) {
-        setTimeout(function() {
-          if (message.parentNode) {
-            message.style.opacity = '0';
-            message.style.transform = 'translateX(100%)';
-            setTimeout(() => message.remove(), 300);
-          }
-        }, 5000);
-      });
-    });
-
-    window.showLoading = function() {
-      document.getElementById('loading-indicator').classList.remove('hidden');
-      document.getElementById('loading-indicator').classList.add('flex');
-    };
-    
-    window.hideLoading = function() {
-      document.getElementById('loading-indicator').classList.add('hidden');
-      document.getElementById('loading-indicator').classList.remove('flex');
-    };
-  </script>
 
   {% block extra_scripts %}{% endblock %}
 </body>
