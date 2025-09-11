@@ -1,30 +1,54 @@
 #!/usr/bin/env bash
-# Exit on error
+# Exit immediately if a command exits with a non-zero status
 set -o errexit
 
-# Install Python dependencies
+# -----------------------------
+# Environment
+# -----------------------------
+export DJANGO_SETTINGS_MODULE=primetimepix.settings.production
+echo "Using settings: $DJANGO_SETTINGS_MODULE"
+
+# -----------------------------
+# Install dependencies
+# -----------------------------
+echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
+# -----------------------------
 # Collect static files
-python manage.py collectstatic --no-input --settings=primetimepix.settings.production
+# -----------------------------
+echo "Collecting static files..."
+python manage.py collectstatic --no-input
 
-
+# -----------------------------
 # Run database migrations
+# -----------------------------
+echo "Running database migrations..."
 python manage.py migrate
 
+# -----------------------------
 # Create cache table if using database cache
+# -----------------------------
+echo "Creating cache table (if needed)..."
 python manage.py createcachetable || true
 
-# Update NFL scores for recent games (last 7 days)
-echo "Updating NFL scores..."
+# -----------------------------
+# Update NFL scores
+# -----------------------------
+echo "Updating NFL scores for recent games..."
 python manage.py update_scores || true
 
-# Optional: Update primetime game flags
+# -----------------------------
+# Update primetime games
+# -----------------------------
 echo "Checking primetime games..."
 python manage.py update_primetime || true
 
-echo "Calculate pick results for standings" 
+# -----------------------------
+# Calculate pick results
+# -----------------------------
+echo "Calculating pick results for standings..."
 python manage.py calculate_results || true
 
-echo "Build completed successfully!"
+echo "✅ Build completed successfully!"

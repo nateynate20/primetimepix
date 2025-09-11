@@ -1,21 +1,18 @@
-import dj_database_url
 import os
+import dj_database_url
 from .base import *
 
-# SECURITY
 DEBUG = False
-ALLOWED_HOSTS = ['primetimepix.onrender.com']  # Replace with your domain
+ALLOWED_HOSTS = ['primetimepix.onrender.com']
 
-# Database
+# Postgres via DATABASE_URL
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,        # Persistent connections for performance
-        ssl_require=True         # Ensure SSL if needed
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
-# Static files via WhiteNoise
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATIC_URL = '/static/'
+# Ensure Whitenoise is used for static
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

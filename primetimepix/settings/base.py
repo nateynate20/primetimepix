@@ -3,10 +3,10 @@ import os
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 
-# Load .env
+# Load .env for dev (ignored in production if env vars are set)
 load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-production')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
@@ -30,7 +30,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serves static in prod
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -60,13 +60,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'primetimepix.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
+# Password validators
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -79,10 +73,10 @@ TIME_ZONE = 'US/Eastern'
 USE_I18N = True
 USE_TZ = True
 
-# --- Static & Media ---
+# Static & media
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'primetimepix' / 'static']  # dev only
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # production collectstatic
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
@@ -90,12 +84,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- Auth ---
+# Auth
 LOGIN_URL = '/users/login_user/'
 LOGIN_REDIRECT_URL = '/users/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
-# --- Messages ---
+# Messages
 MESSAGE_TAGS = {
     messages.DEBUG: 'secondary',
     messages.INFO: 'info',
@@ -104,7 +98,7 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# --- Email ---
+# Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
@@ -114,6 +108,6 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@primetimepix.com')
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-# --- Site Info ---
+# Site info
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 SITE_NAME = 'PrimeTimePix'
