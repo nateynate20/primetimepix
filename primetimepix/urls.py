@@ -11,5 +11,6 @@ urlpatterns = [
     path('leagues/', include('apps.leagues.urls')),
     path('picks/', include('apps.picks.urls')),
     path('users/', include('apps.users.urls')),
-    path('', views.landing_page, name='landing_page'),   # <--- FIXED
+    path('', views.landing_page, name='landing_page'),
+    path('test-email/', views.test_email, name='test_email'),   # <--- FIXED
 ]
