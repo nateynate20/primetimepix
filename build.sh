@@ -1,54 +1,41 @@
 #!/usr/bin/env bash
-# Exit immediately if a command exits with a non-zero status
+# Exit on error
 set -o errexit
 
-# -----------------------------
-# Environment
-# -----------------------------
-export DJANGO_SETTINGS_MODULE=primetimepix.settings.production
-echo "Using settings: $DJANGO_SETTINGS_MODULE"
+# -----------------------------------
+# Production Build Script for Render
+# -----------------------------------
 
-# -----------------------------
-# Install dependencies
-# -----------------------------
+# Ensure DJANGO_SETTINGS_MODULE points to production
+export DJANGO_SETTINGS_MODULE=primetimepix.settings.production
+
+# Upgrade pip and install dependencies
 echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# -----------------------------
+# Apply database migrations
+echo "Running migrations..."
+python manage.py migrate --noinput
+
 # Collect static files
-# -----------------------------
 echo "Collecting static files..."
-python manage.py collectstatic --no-input
+python manage.py collectstatic --noinput
 
-# -----------------------------
-# Run database migrations
-# -----------------------------
-echo "Running database migrations..."
-python manage.py migrate
-
-# -----------------------------
 # Create cache table if using database cache
-# -----------------------------
 echo "Creating cache table (if needed)..."
 python manage.py createcachetable || true
 
-# -----------------------------
-# Update NFL scores
-# -----------------------------
-echo "Updating NFL scores for recent games..."
-python manage.py update_scores || true
+# Update NFL scores for recent games (last 7 days)
+echo "Updating NFL scores..."
+python manage.py update_scores || echo "Score update failed, continuing..."
 
-# -----------------------------
-# Update primetime games
-# -----------------------------
+# Optional: Update primetime game flags
 echo "Checking primetime games..."
-python manage.py update_primetime || true
+python manage.py update_primetime || echo "Primetime update failed, continuing..."
 
-# -----------------------------
-# Calculate pick results
-# -----------------------------
+# Calculate pick results for standings
 echo "Calculating pick results for standings..."
-python manage.py calculate_results || true
+python manage.py calculate_results || echo "Pick calculation failed, continuing..."
 
 echo "✅ Build completed successfully!"
