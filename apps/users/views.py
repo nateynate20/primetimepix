@@ -5,10 +5,39 @@ from django.contrib.auth.forms import AuthenticationForm
 from apps.users.forms import SignupUserForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
 
 from apps.games.models import Game
 from apps.games.utils import get_current_week_dates, is_primetime_game
 from apps.picks.models import Pick
+
+def signup(request):
+    if request.method == "POST":
+        form = SignupUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            
+            # Send welcome email
+            try:
+                send_mail(
+                    'Welcome to PrimeTimePix!',
+                    f'Hi {user.username},\n\nWelcome to PrimeTimePix! You can now make picks for NFL primetime games.\n\nGet started: https://primetimepix.onrender.com/picks/\n\nGood luck!\nThe PrimeTimePix Team',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"Email sending failed: {e}")
+            
+            messages.success(request, "Welcome to PrimeTimePix! Check your email for next steps.")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = SignupUserForm()
+    return render(request, 'registration/signup.html', {'form': form})
 
 
 @login_required

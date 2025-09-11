@@ -2,7 +2,6 @@
 set -o errexit
 
 export DJANGO_SETTINGS_MODULE=primetimepix.settings.production
-export DATABASE_URL="postgresql://primetimepix:he9fE8B6HGO16dITUt0dTocFIzUf5Au6@dpg-d311vbndiees73aehp7g-a/primetimepix"
 
 pip install --upgrade pip
 pip install -r requirements.txt
@@ -10,26 +9,32 @@ pip install -r requirements.txt
 python manage.py collectstatic --no-input
 python manage.py migrate
 
-# Sync the ENTIRE 2024-2025 NFL season
+# Create admin user if none exists
+python manage.py shell -c "
+from django.contrib.auth.models import User
+if not User.objects.filter(is_superuser=True).exists():
+    User.objects.create_superuser('admin', 'evansna05@gmail.com', 'your-secure-admin-password')
+    print('✓ Admin user created')
+else:
+    print('✓ Admin user already exists')
+"
+
+# Create demo data
+python manage.py setup_demo_data
+
+# Sync full NFL season
 echo "=== SYNCING FULL NFL SEASON ==="
 python manage.py sync_nfl_schedule --all-weeks --season 2024
 
-# Check results
-echo "=== SEASON SYNC RESULTS ==="
+echo "=== FINAL SETUP COMPLETE ==="
 python manage.py shell -c "
 from apps.games.models import Game
-total = Game.objects.count()
-primetime = sum(1 for g in Game.objects.all() if g.is_primetime)
-print(f'Total games synced: {total}')
-print(f'Primetime games: {primetime}')
-print('Games by week:')
-for week in range(1, 19):
-    count = Game.objects.filter(week=week).count()
-    if count > 0:
-        print(f'  Week {week}: {count} games')
-playoffs = Game.objects.filter(game_type__in=['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']).count()
-if playoffs > 0:
-    print(f'Playoff games: {playoffs}')
+from apps.leagues.models import League
+from django.contrib.auth.models import User
+print(f'✓ Games: {Game.objects.count()}')
+print(f'✓ Primetime games: {sum(1 for g in Game.objects.all() if g.is_primetime)}')
+print(f'✓ Leagues: {League.objects.count()}')
+print(f'✓ Users: {User.objects.count()}')
 "
 
 python manage.py update_scores || true
