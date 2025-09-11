@@ -234,4 +234,4 @@ python manage.py update_scores || true
 python manage.py update_primetime || true
 python manage.py calculate_results || true
 
-echo "Build completed successfully!"
+echo "Build completed successfully!" 
