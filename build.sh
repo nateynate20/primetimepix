@@ -7,48 +7,29 @@ export DATABASE_URL="postgresql://primetimepix:he9fE8B6HGO16dITUt0dTocFIzUf5Au6@
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Debug settings and apps
-echo "=== DJANGO SETTINGS DEBUG ==="
-python -c "
-import os
-import django
-from django.conf import settings
-django.setup()
-print('Settings module:', settings.SETTINGS_MODULE)
-print('Database engine:', settings.DATABASES['default']['ENGINE'])
-print('Games apps:', [app for app in settings.INSTALLED_APPS if 'games' in app])
-
-# Test model import
-try:
-    from apps.games.models import Game
-    print('✓ Game model imported successfully')
-except Exception as e:
-    print('✗ Game model import failed:', e)
-"
-
 python manage.py collectstatic --no-input
 python manage.py migrate
 
-# Test database connection
-echo "=== DATABASE CONNECTION TEST ==="
-python manage.py shell -c "
-from apps.games.models import Game
-print('Games in DB before sync:', Game.objects.count())
-"
-
-# Sync NFL data
-echo "=== SYNCING NFL DATA ==="
-python manage.py sync_nfl_schedule --week 1
+# Sync the ENTIRE 2024-2025 NFL season
+echo "=== SYNCING FULL NFL SEASON ==="
+python manage.py sync_nfl_schedule --all-weeks --season 2024
 
 # Check results
-echo "=== FINAL RESULTS ==="
+echo "=== SEASON SYNC RESULTS ==="
 python manage.py shell -c "
 from apps.games.models import Game
-count = Game.objects.count()
-print(f'Games in DB after sync: {count}')
-if count > 0:
-    for game in Game.objects.all()[:3]:
-        print(f'  {game.away_team} @ {game.home_team} - Week {game.week} - Primetime: {game.is_primetime}')
+total = Game.objects.count()
+primetime = sum(1 for g in Game.objects.all() if g.is_primetime)
+print(f'Total games synced: {total}')
+print(f'Primetime games: {primetime}')
+print('Games by week:')
+for week in range(1, 19):
+    count = Game.objects.filter(week=week).count()
+    if count > 0:
+        print(f'  Week {week}: {count} games')
+playoffs = Game.objects.filter(game_type__in=['playoff', 'wildcard', 'divisional', 'conference', 'superbowl']).count()
+if playoffs > 0:
+    print(f'Playoff games: {playoffs}')
 "
 
 python manage.py update_scores || true
