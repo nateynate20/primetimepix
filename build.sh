@@ -207,6 +207,9 @@ add_admin_to_league_with_stats(heatabockas, 3, 1)
 print(f'NFL Shaderoom members: {nfl_shaderoom.members.count()}')
 print(f'Heatabockas members: {heatabockas.members.count()}')
 "
+# Generate password reset links for users
+echo "=== GENERATING USER LOGIN LINKS ==="
+python manage.py generate_password_links
 
 # Create demo data
 python manage.py setup_demo_data
