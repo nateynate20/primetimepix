@@ -54,44 +54,66 @@ heatabockas, created2 = League.objects.get_or_create(
 
 print(f'Leagues: {nfl_shaderoom.name} and {heatabockas.name}')
 
-# NFL Shaderoom users and stats
-shaderoom_users = [
-    {'username': 'von', 'email': '', 'team_name': 'Von Team', 'wins': 3, 'losses': 1},
-    {'username': 'rashaun', 'email': '', 'team_name': 'Rashaun Team', 'wins': 1, 'losses': 3},
-    {'username': 'kei', 'email': '', 'team_name': 'Kei Team', 'wins': 0, 'losses': 0},
-    {'username': 'shank', 'email': '', 'team_name': 'Shank Team', 'wins': 2, 'losses': 2},
-    {'username': 'ben1', 'email': '', 'team_name': 'Ben Team', 'wins': 2, 'losses': 2},
-    {'username': 'bryant', 'email': '', 'team_name': 'Bryant Team', 'wins': 2, 'losses': 2},
-]
+# User mapping - same users across leagues with different stats
+all_users = {
+    'von': {'email': '', 'team_name': 'Von Team'},
+    'rashaun': {'email': '', 'team_name': 'Rashaun Team'},
+    'kei': {'email': '', 'team_name': 'Kei Team'},
+    'shank': {'email': '', 'team_name': 'Shank Team'},
+    'ben': {'email': '', 'team_name': 'Ben Team'},
+    'bryant': {'email': '', 'team_name': 'Bryant Team'},
+    'shane': {'email': '', 'team_name': 'Shane Team'},
+    'ivan': {'email': '', 'team_name': 'Ivan Team'},
+    'teej': {'email': '', 'team_name': 'Teej Team'},
+    'stef': {'email': '', 'team_name': 'Stef Team'},
+    'yakk': {'email': '', 'team_name': 'Yakk Team'},
+    'fishie': {'email': '', 'team_name': 'Fishie Team'},
+}
 
-heatabockas_users = [
-    {'username': 'von2', 'email': '', 'team_name': 'Von Team', 'wins': 1, 'losses': 3},
-    {'username': 'shane', 'email': '', 'team_name': 'Shane Team', 'wins': 1, 'losses': 3},
-    {'username': 'ivan', 'email': '', 'team_name': 'Ivan Team', 'wins': 1, 'losses': 3},
-    {'username': 'teej', 'email': '', 'team_name': 'Teej Team', 'wins': 2, 'losses': 2},
-    {'username': 'stef', 'email': '', 'team_name': 'Stef Team', 'wins': 2, 'losses': 2},
-    {'username': 'ben2', 'email': '', 'team_name': 'Ben Team', 'wins': 2, 'losses': 2},
-    {'username': 'yakk', 'email': '', 'team_name': 'Yakk Team', 'wins': 3, 'losses': 1},
-    {'username': 'fishie', 'email': '', 'team_name': 'Fishie Team', 'wins': 1, 'losses': 1},
-]
+# League-specific stats
+league_stats = {
+    'NFL shaderoom': {
+        'von': {'wins': 3, 'losses': 1},
+        'rashaun': {'wins': 1, 'losses': 3},
+        'kei': {'wins': 0, 'losses': 0},
+        'shank': {'wins': 2, 'losses': 2},
+        'ben': {'wins': 2, 'losses': 2},
+        'bryant': {'wins': 2, 'losses': 2},
+    },
+    'heatabockas': {
+        'von': {'wins': 1, 'losses': 3},
+        'shane': {'wins': 1, 'losses': 3},
+        'ivan': {'wins': 1, 'losses': 3},
+        'teej': {'wins': 2, 'losses': 2},
+        'stef': {'wins': 2, 'losses': 2},
+        'ben': {'wins': 2, 'losses': 2},
+        'yakk': {'wins': 3, 'losses': 1},
+        'fishie': {'wins': 1, 'losses': 1},
+    }
+}
 
 # Get multiple sample games to avoid duplicates
-sample_games = list(Game.objects.all()[:20])
+sample_games = list(Game.objects.all()[:30])
 
-def create_users_for_league(users_data, league):
-    for user_data in users_data:
-        # Create user
-        user, user_created = User.objects.get_or_create(
-            username=user_data['username'],
-            defaults={
-                'email': user_data['email'],
-                'password': 'pbkdf2_sha256\$600000\$temp\$temp'
-            }
-        )
-        
-        # Create profile
-        if user_created:
-            Profile.objects.create(user=user, team_name=user_data['team_name'])
+# Create all users first
+for username, user_data in all_users.items():
+    user, user_created = User.objects.get_or_create(
+        username=username,
+        defaults={
+            'email': user_data['email'],
+            'password': 'pbkdf2_sha256\$600000\$temp\$temp'
+        }
+    )
+    
+    # Create profile only if user was just created
+    if user_created:
+        Profile.objects.create(user=user, team_name=user_data['team_name'])
+        print(f'Created user: {username}')
+
+# Function to add users to leagues with stats
+def add_users_to_league_with_stats(league, users_stats):
+    for username, stats in users_stats.items():
+        user = User.objects.get(username=username)
         
         # Add to league
         LeagueMembership.objects.get_or_create(user=user, league=league)
@@ -102,7 +124,7 @@ def create_users_for_league(users_data, league):
             picks_created = 0
             
             # Create win picks using different games
-            for i in range(user_data['wins']):
+            for i in range(stats['wins']):
                 if picks_created < len(sample_games):
                     game = sample_games[picks_created]
                     Pick.objects.create(
@@ -117,7 +139,7 @@ def create_users_for_league(users_data, league):
                     picks_created += 1
             
             # Create loss picks using different games
-            for i in range(user_data['losses']):
+            for i in range(stats['losses']):
                 if picks_created < len(sample_games):
                     game = sample_games[picks_created]
                     Pick.objects.create(
@@ -131,20 +153,22 @@ def create_users_for_league(users_data, league):
                     )
                     picks_created += 1
             
-            print(f'Created {user.username}: {user_data[\"wins\"]}W-{user_data[\"losses\"]}L')
+            print(f'Added {username} to {league.name}: {stats[\"wins\"]}W-{stats[\"losses\"]}L')
         else:
-            print(f'{user.username} already has picks in {league.name}')
+            print(f'{username} already has picks in {league.name}')
 
+# Add users to leagues with their respective stats
+add_users_to_league_with_stats(nfl_shaderoom, league_stats['NFL shaderoom'])
+add_users_to_league_with_stats(heatabockas, league_stats['heatabockas'])
+
+# Add admin user to both leagues with stats
 def add_admin_to_league_with_stats(league, wins, losses):
-    # Add admin user to league
     LeagueMembership.objects.get_or_create(user=admin_user, league=league)
     
-    # Only create historical picks if admin has no picks in this league
     existing_picks_count = Pick.objects.filter(user=admin_user, league=league).count()
     if existing_picks_count == 0 and sample_games:
         picks_created = 0
         
-        # Create win picks
         for i in range(wins):
             if picks_created < len(sample_games):
                 game = sample_games[picks_created]
@@ -159,7 +183,6 @@ def add_admin_to_league_with_stats(league, wins, losses):
                 )
                 picks_created += 1
         
-        # Create loss picks
         for i in range(losses):
             if picks_created < len(sample_games):
                 game = sample_games[picks_created]
@@ -178,11 +201,6 @@ def add_admin_to_league_with_stats(league, wins, losses):
     else:
         print(f'Admin already has picks in {league.name}')
 
-# Create users for both leagues
-create_users_for_league(shaderoom_users, nfl_shaderoom)
-create_users_for_league(heatabockas_users, heatabockas)
-
-# Add admin user to both leagues with respective stats
 add_admin_to_league_with_stats(nfl_shaderoom, 3, 1)
 add_admin_to_league_with_stats(heatabockas, 3, 1)
 
