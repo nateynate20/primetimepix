@@ -208,10 +208,6 @@ print(f'NFL Shaderoom members: {nfl_shaderoom.members.count()}')
 print(f'Heatabockas members: {heatabockas.members.count()}')
 "
 
-# Generate password reset links (excluding admin)
-echo "=== USER SETUP LINKS ==="
-python manage.py generate_user_links
-
 # Create demo data
 python manage.py setup_demo_data
 
@@ -234,4 +230,4 @@ python manage.py update_scores || true
 python manage.py update_primetime || true
 python manage.py calculate_results || true
 
-echo "Build completed successfully!" 
+echo "Build completed successfully!"
