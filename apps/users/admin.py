@@ -1,27 +1,25 @@
 from django.contrib import admin
-from django.utils.translation import gettext_lazy as _
-from import_export.admin import ExportMixin
-from import_export import resources
-from apps.users.models import Profile as Player
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+from .models import Profile
 
-class PlayerResource(resources.ModelResource):
-    class Meta:
-        model = Player
-        fields = ('id', 'user__username', 'user__email', 'team_name')
+# Unregister the default User admin
+admin.site.unregister(User)
 
-@admin.register(Player)
-class PlayerAdmin(ExportMixin, admin.ModelAdmin):
-    resource_class = PlayerResource
+# Create a simple inline for Profile
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+    verbose_name_plural = 'Profile'
+
+# Register User with Profile inline
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    inlines = (ProfileInline,)
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'team_name')
-    list_editable = ('team_name',)
     search_fields = ('user__username', 'team_name', 'user__email')
     list_filter = ('team_name',)
-    ordering = ('user__username',)
-    list_per_page = 25
-    fieldsets = (
-        (None, {'fields': ('user',)}),
-        (_('Team Information'), {
-            'fields': ('team_name',),
-            'classes': ('collapse',),
-        }),
-    )
