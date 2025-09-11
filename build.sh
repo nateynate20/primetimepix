@@ -54,7 +54,7 @@ heatabockas, created2 = League.objects.get_or_create(
 
 print(f'Leagues: {nfl_shaderoom.name} and {heatabockas.name}')
 
-# NFL Shaderoom users and stats (excluding nate1)
+# NFL Shaderoom users and stats
 shaderoom_users = [
     {'username': 'von', 'email': '', 'team_name': 'Von Team', 'wins': 3, 'losses': 1},
     {'username': 'rashaun', 'email': '', 'team_name': 'Rashaun Team', 'wins': 1, 'losses': 3},
@@ -64,7 +64,6 @@ shaderoom_users = [
     {'username': 'bryant', 'email': '', 'team_name': 'Bryant Team', 'wins': 2, 'losses': 2},
 ]
 
-# Heatabockas users and stats (excluding nate2)
 heatabockas_users = [
     {'username': 'von2', 'email': '', 'team_name': 'Von Team', 'wins': 1, 'losses': 3},
     {'username': 'shane', 'email': '', 'team_name': 'Shane Team', 'wins': 1, 'losses': 3},
@@ -76,8 +75,8 @@ heatabockas_users = [
     {'username': 'fishie', 'email': '', 'team_name': 'Fishie Team', 'wins': 1, 'losses': 1},
 ]
 
-# Get a sample game for historical picks
-sample_game = Game.objects.first()
+# Get multiple sample games to avoid duplicates
+sample_games = list(Game.objects.all()[:20])
 
 def create_users_for_league(users_data, league):
     for user_data in users_data:
@@ -97,91 +96,103 @@ def create_users_for_league(users_data, league):
         # Add to league
         LeagueMembership.objects.get_or_create(user=user, league=league)
         
-        # Create historical picks if sample game exists
-        if sample_game:
-            # Create win picks
-            for i in range(user_data['wins']):
-                Pick.objects.get_or_create(
-                    user=user,
-                    league=league,
-                    game=sample_game,
-                    picked_team=sample_game.home_team,
-                    defaults={
-                        'is_correct': True,
-                        'points': 1,
-                        'confidence': 1
-                    }
-                )
+        # Only create historical picks if user has no picks in this league
+        existing_picks_count = Pick.objects.filter(user=user, league=league).count()
+        if existing_picks_count == 0 and sample_games:
+            picks_created = 0
             
-            # Create loss picks  
+            # Create win picks using different games
+            for i in range(user_data['wins']):
+                if picks_created < len(sample_games):
+                    game = sample_games[picks_created]
+                    Pick.objects.create(
+                        user=user,
+                        league=league,
+                        game=game,
+                        picked_team=game.home_team,
+                        is_correct=True,
+                        points=1,
+                        confidence=1
+                    )
+                    picks_created += 1
+            
+            # Create loss picks using different games
             for i in range(user_data['losses']):
-                Pick.objects.get_or_create(
-                    user=user,
-                    league=league,
-                    game=sample_game,
-                    picked_team=sample_game.away_team,
-                    defaults={
-                        'is_correct': False,
-                        'points': 0,
-                        'confidence': 1
-                    }
-                )
-        
-        print(f'Created user: {user.username} ({user_data[\"wins\"]}W-{user_data[\"losses\"]}L)')
+                if picks_created < len(sample_games):
+                    game = sample_games[picks_created]
+                    Pick.objects.create(
+                        user=user,
+                        league=league,
+                        game=game,
+                        picked_team=game.away_team,
+                        is_correct=False,
+                        points=0,
+                        confidence=1
+                    )
+                    picks_created += 1
+            
+            print(f'Created {user.username}: {user_data[\"wins\"]}W-{user_data[\"losses\"]}L')
+        else:
+            print(f'{user.username} already has picks in {league.name}')
 
 def add_admin_to_league_with_stats(league, wins, losses):
     # Add admin user to league
     LeagueMembership.objects.get_or_create(user=admin_user, league=league)
     
-    # Create historical picks for admin
-    if sample_game:
+    # Only create historical picks if admin has no picks in this league
+    existing_picks_count = Pick.objects.filter(user=admin_user, league=league).count()
+    if existing_picks_count == 0 and sample_games:
+        picks_created = 0
+        
         # Create win picks
         for i in range(wins):
-            Pick.objects.get_or_create(
-                user=admin_user,
-                league=league,
-                game=sample_game,
-                picked_team=sample_game.home_team,
-                defaults={
-                    'is_correct': True,
-                    'points': 1,
-                    'confidence': 1
-                }
-            )
+            if picks_created < len(sample_games):
+                game = sample_games[picks_created]
+                Pick.objects.create(
+                    user=admin_user,
+                    league=league,
+                    game=game,
+                    picked_team=game.home_team,
+                    is_correct=True,
+                    points=1,
+                    confidence=1
+                )
+                picks_created += 1
         
-        # Create loss picks  
+        # Create loss picks
         for i in range(losses):
-            Pick.objects.get_or_create(
-                user=admin_user,
-                league=league,
-                game=sample_game,
-                picked_team=sample_game.away_team,
-                defaults={
-                    'is_correct': False,
-                    'points': 0,
-                    'confidence': 1
-                }
-            )
-    
-    print(f'Added admin user to {league.name} with {wins}W-{losses}L')
+            if picks_created < len(sample_games):
+                game = sample_games[picks_created]
+                Pick.objects.create(
+                    user=admin_user,
+                    league=league,
+                    game=game,
+                    picked_team=game.away_team,
+                    is_correct=False,
+                    points=0,
+                    confidence=1
+                )
+                picks_created += 1
+        
+        print(f'Added admin to {league.name}: {wins}W-{losses}L')
+    else:
+        print(f'Admin already has picks in {league.name}')
 
 # Create users for both leagues
 create_users_for_league(shaderoom_users, nfl_shaderoom)
 create_users_for_league(heatabockas_users, heatabockas)
 
 # Add admin user to both leagues with respective stats
-add_admin_to_league_with_stats(nfl_shaderoom, 3, 1)  # nate1 stats: 3W-1L
-add_admin_to_league_with_stats(heatabockas, 3, 1)    # nate2 stats: 3W-1L
+add_admin_to_league_with_stats(nfl_shaderoom, 3, 1)
+add_admin_to_league_with_stats(heatabockas, 3, 1)
 
 print(f'NFL Shaderoom members: {nfl_shaderoom.members.count()}')
 print(f'Heatabockas members: {heatabockas.members.count()}')
-print(f'Admin user {admin_user.username} added to both leagues')
 "
 
 # Generate password reset links (excluding admin)
 echo "=== USER SETUP LINKS ==="
 python manage.py generate_user_links
-
 
 # Create demo data
 python manage.py setup_demo_data
