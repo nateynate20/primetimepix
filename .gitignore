@@ -46,4 +46,4 @@ build/
 *.egg
 
 # Deployment
-*.dump
+*.dump.env
