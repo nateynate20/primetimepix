@@ -11,6 +11,40 @@ from django.conf import settings
 from apps.games.models import Game
 from apps.games.utils import get_current_week_dates, is_primetime_game
 from apps.picks.models import Pick
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import JsonResponse
+
+def test_email(request):
+    """Test email configuration"""
+    try:
+        result = send_mail(
+            'Test Email from PrimeTimePix',
+            'If you receive this, email is working!',
+            settings.DEFAULT_FROM_EMAIL,
+            ['evansna05@gmail.com'],  # Send to yourself
+            fail_silently=False,
+        )
+        return JsonResponse({
+            'success': True, 
+            'message': f'Email sent successfully! Result: {result}',
+            'settings': {
+                'host': settings.EMAIL_HOST,
+                'port': settings.EMAIL_PORT,
+                'user': settings.EMAIL_HOST_USER,
+                'from': settings.DEFAULT_FROM_EMAIL,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False, 
+            'error': str(e),
+            'settings': {
+                'host': settings.EMAIL_HOST,
+                'port': settings.EMAIL_PORT,
+                'user': settings.EMAIL_HOST_USER[:3] + '***',  # Partial for security
+            }
+        })
 
 def signup(request):
     if request.method == "POST":
