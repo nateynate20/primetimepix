@@ -1,0 +1,59 @@
+{% extends 'nflpix/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-neon">Join Requests for My Leagues</h1>
+        <a href="{% url 'league_list' %}" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+            Back to Leagues
+        </a>
+    </div>
+
+    {% if pending_requests %}
+        <div class="space-y-4">
+            {% for request in pending_requests %}
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold text-white mb-2">
+                                {{ request.user.username }} wants to join "{{ request.league.name }}"
+                            </h3>
+                            <div class="text-gray-400 text-sm space-y-1">
+                                <p>User Email: {{ request.user.email|default:"No email provided" }}</p>
+                                <p>Team Name: {{ request.user.profile.team_name|default:"No team name" }}</p>
+                                <p>Requested: {{ request.created_at|date:"M d, Y at g:i A" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-3 ml-4">
+                            <form method="post" action="{% url 'approve_join_request' request.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 transition font-bold">
+                                    Approve
+                                </button>
+                            </form>
+                            
+                            <form method="post" action="{% url 'deny_join_request' request.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-500 transition font-bold" 
+                                        onclick="return confirm('Are you sure you want to deny this request?')">
+                                    Deny
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-gray-800 rounded-lg p-8 text-center">
+            <div class="text-gray-400 text-lg mb-4">
+                No pending join requests for your leagues.
+            </div>
+            <a href="{% url 'league_list' %}" class="text-neon hover:text-green-400 underline">
+                View All Leagues
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

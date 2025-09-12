@@ -1,0 +1,86 @@
+{% extends 'nflpix/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-neon">Available Leagues</h1>
+        {% if user.is_authenticated %}
+            <a href="{% url 'create_league' %}" class="bg-neon text-black px-4 py-2 rounded-lg font-bold hover:bg-green-400 transition">
+                Create League
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for league in leagues %}
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-bold text-white">{{ league.name }}</h3>
+                    {% if league.is_private %}
+                        <span class="bg-yellow-600 text-black px-2 py-1 rounded text-xs font-bold">PRIVATE</span>
+                    {% else %}
+                        <span class="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">PUBLIC</span>
+                    {% endif %}
+                </div>
+
+                <p class="text-gray-300 mb-4">{{ league.description|default:"No description provided." }}</p>
+                
+                <div class="text-sm text-gray-400 mb-4">
+                    <p>Commissioner: {{ league.commissioner.username }}</p>
+                    <p>Sport: {{ league.sport }}</p>
+                    <p>Members: {{ league.member_count }}</p>
+                </div>
+
+                {% if user.is_authenticated %}
+                    {% if league.user_is_member %}
+                        <a href="{% url 'league_detail' league.id %}" class="w-full bg-neon text-black py-2 px-4 rounded-lg font-bold hover:bg-green-400 transition text-center block">
+                            View League
+                        </a>
+                    {% elif league.has_pending_request %}
+                        <button disabled class="w-full bg-gray-600 text-gray-400 py-2 px-4 rounded-lg font-bold cursor-not-allowed">
+                            Request Pending
+                        </button>
+                    {% else %}
+                        {% if league.is_private %}
+                            <form method="post" action="{% url 'request_join_league' league.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full bg-yellow-600 text-black py-2 px-4 rounded-lg font-bold hover:bg-yellow-500 transition">
+                                    Request to Join
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{% url 'join_league' league.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-green-500 transition">
+                                    Join League
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="w-full bg-gray-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-gray-500 transition text-center block">
+                        Login to Join
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="col-span-full text-center py-8">
+                <p class="text-gray-400 text-lg">No leagues available yet.</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'create_league' %}" class="mt-4 inline-block bg-neon text-black px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition">
+                        Create the First League
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if user.is_authenticated and user.league_set.exists %}
+        <div class="mt-8 text-center">
+            <a href="{% url 'my_league_requests' %}" class="text-neon hover:text-green-400 underline">
+                Manage Join Requests for My Leagues
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

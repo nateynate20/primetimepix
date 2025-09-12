@@ -1,0 +1,93 @@
+{% extends 'nflpix/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-neon">Create New League</h1>
+        <a href="{% url 'league_list' %}" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+            Back to Leagues
+        </a>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-bold text-gray-300 mb-2">
+                    League Name *
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="text-red-400 text-sm mt-1">
+                        {% for error in form.name.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-gray-300 mb-2">
+                    Description
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="text-red-400 text-sm mt-1">
+                        {% for error in form.description.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.sport.id_for_label }}" class="block text-sm font-bold text-gray-300 mb-2">
+                    Sport *
+                </label>
+                {{ form.sport }}
+                {% if form.sport.errors %}
+                    <div class="text-red-400 text-sm mt-1">
+                        {% for error in form.sport.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center">
+                {{ form.is_private }}
+                <label for="{{ form.is_private.id_for_label }}" class="ml-2 text-sm text-gray-300">
+                    Make this a private league (users must request to join)
+                </label>
+                {% if form.is_private.errors %}
+                    <div class="text-red-400 text-sm mt-1">
+                        {% for error in form.is_private.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="bg-gray-700 p-4 rounded-lg">
+                <h3 class="text-sm font-bold text-gray-300 mb-2">League Settings Info:</h3>
+                <ul class="text-sm text-gray-400 space-y-1">
+                    <li>• <strong>Public leagues:</strong> Anyone can join immediately</li>
+                    <li>• <strong>Private leagues:</strong> Users must request to join and wait for approval</li>
+                    <li>• You'll be the commissioner and can manage members</li>
+                    <li>• All leagues focus on NFL primetime games only</li>
+                </ul>
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-neon text-black px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition flex-1">
+                    Create League
+                </button>
+                <a href="{% url 'league_list' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-500 transition text-center">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

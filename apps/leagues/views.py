@@ -86,18 +86,63 @@ def request_create_league(request):
 
 @login_required
 def request_join_league(request, league_id=None):
-    """Submit a request to join an existing league"""
+    """Handle both public league joins and private league join requests"""
+    if league_id:
+        # Direct league join/request from league list
+        league = get_object_or_404(League, id=league_id, is_approved=True)
+        
+        # Check if user is already a member
+        if league.members.filter(id=request.user.id).exists():
+            messages.info(request, "You're already a member of this league.")
+            return redirect('league_detail_no_id')
+        
+        if request.method == 'POST':
+            if league.is_private:
+                # Create join request for private league
+                existing_request = LeagueJoinRequest.objects.filter(
+                    user=request.user, 
+                    league=league, 
+                    approved=False
+                ).first()
+                
+                if existing_request:
+                    messages.info(request, "You've already requested to join this league.")
+                else:
+                    LeagueJoinRequest.objects.create(user=request.user, league=league)
+                    messages.success(request, f"Join request sent for {league.name}. You'll be notified when approved.")
+                    
+                    # Send email to commissioner if they have email
+                    if league.commissioner.email:
+                        try:
+                            from django.core.mail import send_mail
+                            from django.conf import settings
+                            send_mail(
+                                f'New join request for {league.name}',
+                                f'{request.user.username} has requested to join your league "{league.name}".\n\nApprove this request in the admin panel: {request.build_absolute_uri("/admin/")}',
+                                settings.DEFAULT_FROM_EMAIL,
+                                [league.commissioner.email],
+                                fail_silently=True,
+                            )
+                        except Exception as e:
+                            print(f"Email notification failed: {e}")
+            else:
+                # Join public league directly
+                LeagueMembership.objects.get_or_create(user=request.user, league=league)
+                messages.success(request, f"Successfully joined {league.name}!")
+                return redirect('league_detail', league_id=league.id)
+        
+        return redirect('league_detail_no_id')
+    
+    # Original form-based logic for general join requests
     if request.method == 'POST':
         form = LeagueJoinRequestForm(request.POST, user=request.user)
         if form.is_valid():
             league = form.cleaned_data['league']
             
-            # Check if user is already a member
             if league.members.filter(id=request.user.id).exists():
                 messages.warning(request, 'You are already a member of this league.')
                 return redirect('league_detail_no_id')
             
-            # Check if request already exists
             if LeagueJoinRequest.objects.filter(user=request.user, league=league).exists():
                 messages.warning(request, 'You have already requested to join this league.')
                 return redirect('league_detail_no_id')
@@ -105,21 +150,11 @@ def request_join_league(request, league_id=None):
             obj = form.save(commit=False)
             obj.user = request.user
             obj.save()
-            messages.success(request, f'✅ Your request to join "{league.name}" has been submitted.')
+            messages.success(request, f'Your request to join "{league.name}" has been submitted.')
             return redirect('league_detail_no_id')
     else:
-        initial_data = {}
-        if league_id:
-            try:
-                league = League.objects.get(id=league_id, is_approved=True, is_private=False)
-                initial_data['league'] = league
-            except League.DoesNotExist:
-                messages.error(request, 'League not found or not available for joining.')
-                return redirect('league_detail_no_id')
-        
-        form = LeagueJoinRequestForm(initial=initial_data, user=request.user)
+        form = LeagueJoinRequestForm(user=request.user)
     
-    # Get available leagues for context
     available_leagues = League.objects.filter(
         is_approved=True,
         is_private=False
@@ -195,3 +230,89 @@ def review_league_join_requests(request):
         'pending_join_requests': pending_join_requests,
     }
     return render(request, 'admins/league_join_requests.html', context)
+
+def league_list(request):
+    """Show all approved leagues (both public and private)"""
+    leagues = League.objects.filter(is_approved=True).select_related('commissioner').annotate(
+        member_count=Count('members')
+    )
+    
+    # Add membership status for each league
+    for league in leagues:
+        if request.user.is_authenticated:
+            league.user_is_member = request.user in league.members.all()
+            league.has_pending_request = LeagueJoinRequest.objects.filter(
+                user=request.user,
+                league=league,
+                approved=False
+            ).exists()
+        else:
+            league.user_is_member = False
+            league.has_pending_request = False
+    
+    return render(request, 'leagues/league_list.html', {'leagues': leagues})
+
+@login_required
+def my_league_requests(request):
+    """Show pending requests for leagues where user is commissioner"""
+    pending_requests = LeagueJoinRequest.objects.filter(
+        league__commissioner=request.user,
+        approved=False
+    ).select_related('user', 'league').order_by('-created_at')
+    
+    return render(request, 'leagues/pending_requests.html', {
+        'pending_requests': pending_requests
+    })
+
+@login_required
+def approve_join_request(request, request_id):
+    """Approve a join request"""
+    join_request = get_object_or_404(
+        LeagueJoinRequest, 
+        id=request_id, 
+        league__commissioner=request.user
+    )
+    
+    if request.method == 'POST':
+        LeagueMembership.objects.get_or_create(
+            user=join_request.user,
+            league=join_request.league
+        )
+        
+        join_request.approved = True
+        join_request.save()
+        
+        messages.success(request, f"Approved {join_request.user.username} to join {join_request.league.name}")
+        
+        # Send approval email
+        if join_request.user.email:
+            try:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                send_mail(
+                    f'Welcome to {join_request.league.name}!',
+                    f'Your request to join "{join_request.league.name}" has been approved! You can now make picks and compete with other members.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [join_request.user.email],
+                    fail_silently=True,
+                )
+            except Exception as e:
+                print(f"Approval email failed: {e}")
+    
+    return redirect('my_league_requests')
+
+@login_required
+def deny_join_request(request, request_id):
+    """Deny a join request"""
+    join_request = get_object_or_404(
+        LeagueJoinRequest, 
+        id=request_id, 
+        league__commissioner=request.user
+    )
+    
+    if request.method == 'POST':
+        username = join_request.user.username
+        join_request.delete()
+        messages.success(request, f"Denied join request from {username}")
+    
+    return redirect('my_league_requests')
