@@ -14,8 +14,6 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 INSTALLED_APPS = [
     'import_export',
-    'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -26,6 +24,8 @@ INSTALLED_APPS = [
     'apps.leagues.apps.LeaguesConfig',
     'apps.picks.apps.PicksConfig',
     'grappelli',
+    'django.contrib.admin',
+    'django.contrib.auth',
 ]
 
 MIDDLEWARE = [
