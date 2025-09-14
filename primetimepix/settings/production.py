@@ -31,8 +31,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = f"PrimeTimePix <{os.getenv('EMAIL_HOST_USER')}>"
-SERVER_EMAIL = os.getenv('EMAIL_HOST_USER')
+DEFAULT_FROM_EMAIL = f"PrimeTimePix <{os.getenv('EMAIL_HOST_USER', 'noreply@primetimepix.com')}>"
+SERVER_EMAIL = os.getenv('EMAIL_HOST_USER', 'noreply@primetimepix.com')
 
 EMAIL_DEBUG = True 
 EMAIL_TIMEOUT = 10
@@ -43,3 +43,5 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 print(f"[PRODUCTION] Email configured: {bool(EMAIL_HOST_USER)}")
+
+SITE_ID = 1

@@ -15,16 +15,21 @@
                 
                 <form method="POST">
                     {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
                     <div class="mb-3">
-                        <label class="form-label">{{ form.username.label_tag }}</label>
-                        {{ form.username }}
+                        <label class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" required>
                         {% if form.username.errors %}
                             <div class="text-danger">{{ form.username.errors }}</div>
                         {% endif %}
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ form.password.label_tag }}</label>
-                        {{ form.password }}
+                        <label class="form-label">Password</label>
+                        <input type="password" name="password" class="form-control" required>
                         {% if form.password.errors %}
                             <div class="text-danger">{{ form.password.errors }}</div>
                         {% endif %}
