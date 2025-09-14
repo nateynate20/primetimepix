@@ -25,7 +25,6 @@ from apps.leagues.models import League
 from django.contrib.auth.models import User
 from apps.games.models import Game
 
-# Check if setup is already complete
 leagues_exist = League.objects.count() >= 2
 users_exist = User.objects.filter(is_superuser=False).count() >= 10
 games_exist = Game.objects.count() >= 100
@@ -44,7 +43,6 @@ from apps.users.models import Profile
 from apps.picks.models import Pick
 from apps.games.models import Game
 
-# Quick check - skip if data already exists
 if League.objects.count() >= 2 and User.objects.filter(is_superuser=False).count() >= 10:
     print('✓ Leagues and users already exist - skipping creation')
 else:
@@ -75,7 +73,7 @@ else:
         }
     )
 
-    # User mapping
+    # Users
     all_users = {
         'von': {'email': '', 'team_name': 'Von Team'},
         'rashaun': {'email': '', 'team_name': 'Rashaun Team'},
@@ -91,98 +89,30 @@ else:
         'fishie': {'email': '', 'team_name': 'Fishie Team'},
     }
 
-    league_stats = {
-        'NFL shaderoom': {
-            'von': {'wins': 3, 'losses': 1},
-            'rashaun': {'wins': 1, 'losses': 3},
-            'kei': {'wins': 0, 'losses': 0},
-            'shank': {'wins': 2, 'losses': 2},
-            'ben': {'wins': 2, 'losses': 2},
-            'bryant': {'wins': 2, 'losses': 2},
-        },
-        'heatabockas': {
-            'von': {'wins': 1, 'losses': 3},
-            'shane': {'wins': 1, 'losses': 3},
-            'ivan': {'wins': 1, 'losses': 3},
-            'teej': {'wins': 2, 'losses': 2},
-            'stef': {'wins': 2, 'losses': 2},
-            'ben': {'wins': 2, 'losses': 2},
-            'yakk': {'wins': 3, 'losses': 1},
-            'fishie': {'wins': 1, 'losses': 1},
-        }
-    }
-
     sample_games = list(Game.objects.all()[:30])
 
-    # Create users
-    for username, user_data in all_users.items():
-        user, user_created = User.objects.get_or_create(
+    for username, data in all_users.items():
+        user, created = User.objects.get_or_create(
             username=username,
-            defaults={
-                'email': user_data['email'],
-                'password': 'pbkdf2_sha256\$600000\$temp\$temp'
-            }
+            defaults={'email': data['email'], 'password': 'pbkdf2_sha256\$600000\$temp\$temp'}
         )
-        
-        if user_created:
-            Profile.objects.create(user=user, team_name=user_data['team_name'])
+        if created:
+            Profile.objects.create(user=user, team_name=data['team_name'])
 
-    # Add users to leagues (simplified)
-    def add_users_to_league_with_stats(league, users_stats):
-        for username, stats in users_stats.items():
-            user = User.objects.get(username=username)
-            LeagueMembership.objects.get_or_create(user=user, league=league)
-            
-            existing_picks_count = Pick.objects.filter(user=user, league=league).count()
-            if existing_picks_count == 0 and sample_games:
-                picks_created = 0
-                for i in range(stats['wins']):
-                    if picks_created < len(sample_games):
-                        game = sample_games[picks_created]
-                        Pick.objects.create(
-                            user=user, league=league, game=game,
-                            picked_team=game.home_team, is_correct=True,
-                            points=1, confidence=1
-                        )
-                        picks_created += 1
-                
-                for i in range(stats['losses']):
-                    if picks_created < len(sample_games):
-                        game = sample_games[picks_created]
-                        Pick.objects.create(
-                            user=user, league=league, game=game,
-                            picked_team=game.away_team, is_correct=False,
-                            points=0, confidence=1
-                        )
-                        picks_created += 1
-
-    add_users_to_league_with_stats(nfl_shaderoom, league_stats['NFL shaderoom'])
-    add_users_to_league_with_stats(heatabockas, league_stats['heatabockas'])
-
-    # Add admin to leagues
-    for league, wins, losses in [(nfl_shaderoom, 3, 1), (heatabockas, 3, 1)]:
-        LeagueMembership.objects.get_or_create(user=admin_user, league=league)
-        existing_picks = Pick.objects.filter(user=admin_user, league=league).count()
-        if existing_picks == 0 and sample_games:
-            picks_created = 0
-            for i in range(wins + losses):
-                if picks_created < len(sample_games):
-                    game = sample_games[picks_created]
-                    is_correct = i < wins
-                    Pick.objects.create(
-                        user=admin_user, league=league, game=game,
-                        picked_team=game.home_team if is_correct else game.away_team,
-                        is_correct=is_correct, points=1 if is_correct else 0,
-                        confidence=1
-                    )
-                    picks_created += 1
-
-    print(f'✓ Setup complete - {League.objects.count()} leagues, {User.objects.filter(is_superuser=False).count()} users')
+    print('✓ Users and profiles created')
 "
 
-# Generate password reset links only for users who haven't logged in
-echo "=== GENERATING USER LOGIN LINKS ==="
-python manage.py generate_password_links
+# --------------------------------------
+# Generate one-time password reset emails for new users
+# --------------------------------------
+echo "=== SENDING PASSWORD RESET EMAILS FOR FIRST-TIME USERS ==="
+python manage.py shell -c "
+import requests
+from django.test import Client
+c = Client()
+response = c.get('/send-pending-password-resets/')
+print(response.content.decode())
+"
 
 # Only sync NFL schedule if games are missing
 echo "=== CHECKING NFL SCHEDULE ==="

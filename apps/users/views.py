@@ -1,73 +1,80 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from apps.users.forms import SignupUserForm
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import JsonResponse, HttpResponse
+import traceback
+from django.views.decorators.csrf import csrf_exempt
 
 from apps.games.models import Game
 from apps.games.utils import get_current_week_dates, is_primetime_game
 from apps.picks.models import Pick
-from django.core.mail import send_mail
-from django.conf import settings
-from django.http import JsonResponse,  HttpResponse
-import traceback
-from django.contrib.auth.forms import PasswordResetForm
+from apps.users.models import Profile  # Assuming Profile model exists
 
-def test_email(request):
-    """Test email configuration"""
-    try:
-        result = send_mail(
-            'Test Email from PrimeTimePix',
-            'If you receive this, email is working!',
-            settings.DEFAULT_FROM_EMAIL,
-            ['evansna05@gmail.com'],  # Send to yourself
-            fail_silently=False,
-        )
-        return JsonResponse({
-            'success': True, 
-            'message': f'Email sent successfully! Result: {result}',
-            'settings': {
-                'host': settings.EMAIL_HOST,
-                'port': settings.EMAIL_PORT,
-                'user': settings.EMAIL_HOST_USER,
-                'from': settings.DEFAULT_FROM_EMAIL,
-            }
-        })
-    except Exception as e:
-        return JsonResponse({
-            'success': False, 
-            'error': str(e),
-            'settings': {
-                'host': settings.EMAIL_HOST,
-                'port': settings.EMAIL_PORT,
-                'user': settings.EMAIL_HOST_USER[:3] + '***',  # Partial for security
-            }
-        })
 
+# --------------------------------------
+# Email Testing (commented out)
+# --------------------------------------
+# def test_email(request):
+#     """Test email configuration"""
+#     try:
+#         result = send_mail(
+#             'Test Email from PrimeTimePix',
+#             'If you receive this, email is working!',
+#             settings.DEFAULT_FROM_EMAIL,
+#             ['evansna05@gmail.com'],  # Send to yourself
+#             fail_silently=False,
+#         )
+#         return JsonResponse({
+#             'success': True,
+#             'message': f'Email sent successfully! Result: {result}',
+#             'settings': {
+#                 'host': settings.EMAIL_HOST,
+#                 'port': settings.EMAIL_PORT,
+#                 'user': settings.EMAIL_HOST_USER,
+#                 'from': settings.DEFAULT_FROM_EMAIL,
+#             }
+#         })
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False,
+#             'error': str(e),
+#             'settings': {
+#                 'host': settings.EMAIL_HOST,
+#                 'port': settings.EMAIL_PORT,
+#                 'user': settings.EMAIL_HOST_USER[:3] + '***',  # Partial for security
+#             }
+#         })
+
+
+# --------------------------------------
+# User Signup
+# --------------------------------------
 def signup(request):
     if request.method == "POST":
         form = SignupUserForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            
+            messages.success(request, "Welcome to PrimeTimePix! Check your email for next steps.")
+
             # Send welcome email
             try:
                 send_mail(
                     'Welcome to PrimeTimePix!',
-                    f'Hi {user.username},\n\nWelcome to PrimeTimePix! You can now make picks for NFL primetime games.\n\nGet started: https://primetimepix.onrender.com/picks/\n\nGood luck!\nThe PrimeTimePix Team',
+                    f'Hi {user.username},\n\nWelcome! You can now make picks for NFL primetime games.\n\nGet started: https://primetimepix.onrender.com/picks/\n\nGood luck!\nThe PrimeTimePix Team',
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email],
                     fail_silently=True,
                 )
             except Exception as e:
                 print(f"Email sending failed: {e}")
-            
-            messages.success(request, "Welcome to PrimeTimePix! Check your email for next steps.")
+
             return redirect('dashboard')
         else:
             messages.error(request, "Please correct the errors below.")
@@ -76,7 +83,9 @@ def signup(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 
-
+# --------------------------------------
+# Debug Password Reset
+# --------------------------------------
 def debug_password_reset(request):
     """Debug password reset with detailed error logging"""
     debug_info = {
@@ -87,8 +96,6 @@ def debug_password_reset(request):
     }
     
     try:
-        # Check settings
-        from django.conf import settings
         debug_info['settings'] = {
             'EMAIL_HOST': settings.EMAIL_HOST,
             'EMAIL_HOST_USER': settings.EMAIL_HOST_USER[:5] + '***' if settings.EMAIL_HOST_USER else 'NOT SET',
@@ -114,7 +121,6 @@ def debug_password_reset(request):
             return JsonResponse(debug_info, json_dumps_params={'indent': 2})
         
         else:
-            # Show simple form
             html = f"""
             <html><body style="font-family: Arial; margin: 40px;">
             <h2>Debug Password Reset</h2>
@@ -134,20 +140,15 @@ def debug_password_reset(request):
         return JsonResponse(debug_info, json_dumps_params={'indent': 2})
 
 
-
-
-
-
-
-
-
+# --------------------------------------
+# Dashboard
+# --------------------------------------
 @login_required
 def dashboard(request):
     user = request.user
     leagues = user.leagues.all()
     league = leagues.first() if leagues.exists() else None
 
-    # --- Get current week primetime games ---
     current_week_start, current_week_end = get_current_week_dates()
     primetime_games = Game.objects.filter(
         start_time__date__gte=current_week_start,
@@ -156,14 +157,11 @@ def dashboard(request):
 
     primetime_games = [g for g in primetime_games if is_primetime_game(g)]
 
-    # --- Get user's picks for these games ---
     user_picks_qs = Pick.objects.filter(user=user, game__in=primetime_games).select_related("game")
     picks_dict = {p.game.id: p for p in user_picks_qs}
 
-    # Attach pick object to each game - locked status is handled by the Game model's property
     for game in primetime_games:
         game.user_pick = picks_dict.get(game.id)
-        # NOTE: game.locked is now a property - no need to set it manually
 
     context = {
         'user': user,
@@ -173,6 +171,9 @@ def dashboard(request):
     return render(request, 'user_dashboard.html', context)
 
 
+# --------------------------------------
+# Landing & Login
+# --------------------------------------
 def landing_page(request):
     return render(request, 'nflpix/landing.html')
 
@@ -192,23 +193,65 @@ def login_user(request):
     return render(request, 'registration/login.html', {'form': form})
 
 
-def signup(request):
-    if request.method == "POST":
-        form = SignupUserForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, "Account created successfully.")
-            return redirect('dashboard')
-        else:
-            messages.error(request, "Please correct the errors below.")
-    else:
-        form = SignupUserForm()
-    return render(request, 'registration/signup.html', {'form': form})
-
-
+# --------------------------------------
+# Logout
+# --------------------------------------
 @require_POST
 def logout_user(request):
     logout(request)
     messages.success(request, "You have successfully logged out.")
     return redirect('landing_page')
+
+
+# --------------------------------------
+# Send Password Reset Emails to First-Time Users (once)
+# --------------------------------------
+@csrf_exempt
+def send_pending_password_resets(request):
+    """
+    Sends password reset emails to users who haven't logged in yet.
+    Marks each user as 'reset_sent' to avoid resending.
+    """
+    if request.method not in ['GET', 'POST']:
+        return HttpResponse("Only GET/POST allowed.", status=405)
+
+    from django.contrib.auth.models import User
+
+    users = User.objects.filter(is_active=True, last_login__isnull=True)
+    sent_emails = []
+    failed_emails = []
+
+    for user in users:
+        try:
+            profile, _ = Profile.objects.get_or_create(user=user)
+            if getattr(profile, 'password_reset_sent', False):
+                continue  # Skip users already sent
+
+            if not user.email:
+                failed_emails.append({'email': None, 'reason': 'No email'})
+                continue
+
+            form = PasswordResetForm({'email': user.email})
+            if form.is_valid():
+                form.save(
+                    request=request,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    email_template_name='registration/password_reset_email.html',
+                    subject_template_name='registration/password_reset_subject.txt',
+                )
+                # Mark as sent
+                profile.password_reset_sent = True
+                profile.save()
+                sent_emails.append(user.email)
+            else:
+                failed_emails.append({'email': user.email, 'error': form.errors})
+        except Exception as e:
+            failed_emails.append({'email': user.email, 'error': str(e)})
+
+    return JsonResponse({
+        'total_users': users.count(),
+        'total_sent': len(sent_emails),
+        'total_failed': len(failed_emails),
+        'sent_emails': sent_emails,
+        'failed_emails': failed_emails
+    }, json_dumps_params={'indent': 2})

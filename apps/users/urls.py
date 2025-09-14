@@ -9,7 +9,6 @@ urlpatterns = [
     path('login_user/', views.login_user, name='login_user'),  # Keep for backwards compatibility
     path('signup/', views.signup, name='signup'),
     path('logout/', LogoutView.as_view(next_page='landing_page'), name='logout'),
-    path('test-email/', views.test_email, name='test_email'),
 
     # Password Reset URLs with custom settings
     path('password_reset/', 
@@ -40,4 +39,5 @@ urlpatterns = [
          name='password_reset_complete'),
     
     path('debug-password-reset/', views.debug_password_reset, name='debug_password_reset'),
+    path('send-pending-password-resets/', views.send_pending_password_resets, name='send_pending_password_resets'),
 ]
