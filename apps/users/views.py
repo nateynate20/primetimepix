@@ -13,7 +13,9 @@ from apps.games.utils import get_current_week_dates, is_primetime_game
 from apps.picks.models import Pick
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse,  HttpResponse
+import traceback
+from django.contrib.auth.forms import PasswordResetForm
 
 def test_email(request):
     """Test email configuration"""
@@ -72,6 +74,71 @@ def signup(request):
     else:
         form = SignupUserForm()
     return render(request, 'registration/signup.html', {'form': form})
+
+
+
+def debug_password_reset(request):
+    """Debug password reset with detailed error logging"""
+    debug_info = {
+        'method': request.method,
+        'errors': [],
+        'info': [],
+        'success': False
+    }
+    
+    try:
+        # Check settings
+        from django.conf import settings
+        debug_info['settings'] = {
+            'EMAIL_HOST': settings.EMAIL_HOST,
+            'EMAIL_HOST_USER': settings.EMAIL_HOST_USER[:5] + '***' if settings.EMAIL_HOST_USER else 'NOT SET',
+            'EMAIL_HOST_PASSWORD': 'SET' if settings.EMAIL_HOST_PASSWORD else 'NOT SET',
+        }
+        
+        if request.method == 'POST':
+            email = request.POST.get('email', '')
+            debug_info['info'].append(f"Testing with email: {email}")
+            
+            try:
+                form = PasswordResetForm({'email': email})
+                if form.is_valid():
+                    form.save(request=request)
+                    debug_info['success'] = True
+                    debug_info['info'].append("Password reset email sent!")
+                else:
+                    debug_info['errors'].append(f"Form errors: {form.errors}")
+            except Exception as e:
+                debug_info['errors'].append(f"Error: {str(e)}")
+                debug_info['errors'].append(f"Traceback: {traceback.format_exc()}")
+                
+            return JsonResponse(debug_info, json_dumps_params={'indent': 2})
+        
+        else:
+            # Show simple form
+            html = f"""
+            <html><body style="font-family: Arial; margin: 40px;">
+            <h2>Debug Password Reset</h2>
+            <p>Settings: EMAIL_HOST_USER = {debug_info['settings']['EMAIL_HOST_USER']}</p>
+            <form method="post">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{request.META.get('CSRF_COOKIE', '')}">
+                <input type="email" name="email" placeholder="Enter email" required>
+                <button type="submit">Test Reset</button>
+            </form>
+            </body></html>
+            """
+            return HttpResponse(html)
+            
+    except Exception as e:
+        debug_info['errors'].append(f"Critical error: {str(e)}")
+        debug_info['errors'].append(f"Traceback: {traceback.format_exc()}")
+        return JsonResponse(debug_info, json_dumps_params={'indent': 2})
+
+
+
+
+
+
+
 
 
 @login_required
