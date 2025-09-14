@@ -13,7 +13,6 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
 
 INSTALLED_APPS = [
-    'grappelli',
     'import_export',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -26,6 +25,7 @@ INSTALLED_APPS = [
     'apps.users.apps.UsersConfig',
     'apps.leagues.apps.LeaguesConfig',
     'apps.picks.apps.PicksConfig',
+    'grappelli',
 ]
 
 MIDDLEWARE = [
