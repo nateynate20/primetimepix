@@ -3,42 +3,225 @@
 {% block title %}Sign Up - NFL Pick'em{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <i class="fas fa-user-plus fa-3x text-neon mb-3"></i>
-                    <h2 class="text-neon">Join the Game</h2>
-                    <p class="text-muted-custom">Create your account</p>
-                </div>
-                
-                <form method="POST">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label_tag }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="text-danger">{{ field.errors }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn-neon-fill w-100 mb-3">
-                        <i class="fas fa-user-plus me-2"></i>Sign Up
-                    </button>
-                </form>
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <i class="fas fa-user-plus text-6xl text-neon mb-4"></i>
+                <h2 class="text-3xl font-extrabold text-neon">Join PrimeTimePix</h2>
+                <p class="mt-2 text-gray-400">Create your account and start making picks!</p>
             </div>
-            <div class="card-footer bg-transparent border-top border-secondary text-center">
-                <p class="mb-0 text-muted-custom">
+
+            <!-- Success/Error Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-900 text-green-300{% elif message.tags == 'error' %}bg-red-900 text-red-300{% else %}bg-blue-900 text-blue-300{% endif %}">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Form -->
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Username -->
+                <div>
+                    <label for="id_username" class="block text-sm font-bold text-gray-300 mb-2">
+                        Username <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" 
+                               name="username" 
+                               id="id_username" 
+                               required
+                               maxlength="150"
+                               placeholder="Choose a unique username"
+                               class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-neon focus:border-neon text-white placeholder-gray-400">
+                        <i class="fas fa-user absolute right-3 top-3.5 text-gray-400"></i>
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="mt-1 text-sm text-red-400">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">This will be visible to other players</p>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="id_email" class="block text-sm font-bold text-gray-300 mb-2">
+                        Email Address <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="email" 
+                               name="email" 
+                               id="id_email" 
+                               required
+                               placeholder="your@email.com"
+                               class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-neon focus:border-neon text-white placeholder-gray-400">
+                        <i class="fas fa-envelope absolute right-3 top-3.5 text-gray-400"></i>
+                    </div>
+                    {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-400">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">We'll send league updates and notifications here</p>
+                </div>
+
+                <!-- Team Name -->
+                <div>
+                    <label for="id_team_name" class="block text-sm font-bold text-gray-300 mb-2">
+                        Team Name <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" 
+                               name="team_name" 
+                               id="id_team_name" 
+                               required
+                               maxlength="15"
+                               placeholder="Your team's name"
+                               class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-neon focus:border-neon text-white placeholder-gray-400">
+                        <i class="fas fa-trophy absolute right-3 top-3.5 text-gray-400"></i>
+                    </div>
+                    {% if form.team_name.errors %}
+                        <p class="mt-1 text-sm text-red-400">{{ form.team_name.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Be creative! This represents you in leagues</p>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="id_password1" class="block text-sm font-bold text-gray-300 mb-2">
+                        Password <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" 
+                               name="password1" 
+                               id="id_password1" 
+                               required
+                               placeholder="Create a strong password"
+                               class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-neon focus:border-neon text-white placeholder-gray-400">
+                        <i class="fas fa-lock absolute right-3 top-3.5 text-gray-400"></i>
+                    </div>
+                    {% if form.password1.errors %}
+                        <p class="mt-1 text-sm text-red-400">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">At least 8 characters</p>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label for="id_password2" class="block text-sm font-bold text-gray-300 mb-2">
+                        Confirm Password <span class="text-red-400">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="password" 
+                               name="password2" 
+                               id="id_password2" 
+                               required
+                               placeholder="Re-enter your password"
+                               class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-neon focus:border-neon text-white placeholder-gray-400">
+                        <i class="fas fa-lock absolute right-3 top-3.5 text-gray-400"></i>
+                    </div>
+                    {% if form.password2.errors %}
+                        <p class="mt-1 text-sm text-red-400">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div class="flex items-start">
+                    <input type="checkbox" 
+                           id="terms" 
+                           required
+                           class="mt-1 w-4 h-4 text-neon bg-gray-700 border-gray-600 rounded focus:ring-neon">
+                    <label for="terms" class="ml-2 text-sm text-gray-300">
+                        I agree to the <a href="#" class="text-neon hover:text-green-400 underline">Terms of Service</a> 
+                        and <a href="#" class="text-neon hover:text-green-400 underline">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full bg-neon hover:bg-green-400 text-black font-bold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105 flex items-center justify-center">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <!-- What happens next -->
+            <div class="mt-6 p-4 bg-gray-700 rounded-lg">
+                <h3 class="text-sm font-bold text-neon mb-2">What happens after signup?</h3>
+                <ul class="text-xs text-gray-300 space-y-1">
+                    <li><i class="fas fa-check text-green-400 mr-2"></i>Instant access to public leagues</li>
+                    <li><i class="fas fa-check text-green-400 mr-2"></i>Create your own league as commissioner</li>
+                    <li><i class="fas fa-check text-green-400 mr-2"></i>Make picks for primetime NFL games</li>
+                    <li><i class="fas fa-check text-green-400 mr-2"></i>Compete on the global leaderboard</li>
+                </ul>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center mt-8 pt-6 border-t border-gray-700">
+                <p class="text-gray-400">
                     Already have an account? 
-                    <a href="{% url 'login' %}" class="text-neon">Login</a>
+                    <a href="{% url 'login' %}" class="text-neon hover:text-green-400 font-semibold">
+                        Sign In <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
                 </p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Add password strength indicator
+document.getElementById('id_password1').addEventListener('input', function(e) {
+    const password = e.target.value;
+    let strength = 0;
+    
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+    if (password.match(/[0-9]/)) strength++;
+    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    
+    const indicator = e.target.parentElement.querySelector('.strength-indicator') || 
+                     document.createElement('div');
+    indicator.className = 'strength-indicator mt-1 text-xs';
+    
+    if (strength === 0) {
+        indicator.textContent = '';
+    } else if (strength <= 2) {
+        indicator.textContent = '🔴 Weak password';
+        indicator.style.color = '#ef4444';
+    } else if (strength === 3) {
+        indicator.textContent = '🟡 Good password';
+        indicator.style.color = '#f59e0b';
+    } else {
+        indicator.textContent = '🟢 Strong password';
+        indicator.style.color = '#10b981';
+    }
+    
+    if (!e.target.parentElement.querySelector('.strength-indicator')) {
+        e.target.parentElement.appendChild(indicator);
+    }
+});
+
+// Show/hide password functionality
+document.querySelectorAll('input[type="password"]').forEach(input => {
+    const icon = input.parentElement.querySelector('.fa-lock');
+    if (icon) {
+        icon.style.cursor = 'pointer';
+        icon.addEventListener('click', function() {
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-lock');
+                icon.classList.add('fa-lock-open');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-lock-open');
+                icon.classList.add('fa-lock');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

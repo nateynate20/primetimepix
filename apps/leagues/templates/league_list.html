@@ -2,85 +2,157 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
+    <!-- Header -->
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-neon">Available Leagues</h1>
+        <div>
+            <h1 class="text-3xl font-bold text-neon">Available Leagues</h1>
+            <p class="text-gray-400 mt-2">Join public leagues instantly or request access to private ones</p>
+        </div>
         {% if user.is_authenticated %}
-            <a href="{% url 'create_league' %}" class="bg-neon text-black px-4 py-2 rounded-lg font-bold hover:bg-green-400 transition">
-                Create League
-            </a>
+            <div class="flex gap-3">
+                <a href="{% url 'my_leagues' %}" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+                    <i class="fas fa-users mr-2"></i>My Leagues
+                </a>
+                <a href="{% url 'create_league' %}" class="bg-neon text-black px-4 py-2 rounded-lg font-bold hover:bg-green-400 transition">
+                    <i class="fas fa-plus mr-2"></i>Create League
+                </a>
+            </div>
         {% endif %}
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for league in leagues %}
-            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold text-white">{{ league.name }}</h3>
-                    {% if league.is_private %}
-                        <span class="bg-yellow-600 text-black px-2 py-1 rounded text-xs font-bold">PRIVATE</span>
-                    {% else %}
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-gray-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-neon">{{ leagues|length }}</div>
+            <div class="text-gray-400 text-sm">Total Leagues</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-400">{{ public_leagues|length }}</div>
+            <div class="text-gray-400 text-sm">Public (Instant Join)</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-yellow-400">{{ private_leagues|length }}</div>
+            <div class="text-gray-400 text-sm">Private (Request Only)</div>
+        </div>
+    </div>
+
+    <!-- Public Leagues Section -->
+    {% if public_leagues %}
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-green-400 mb-4">
+            <i class="fas fa-globe mr-2"></i>Public Leagues - Join Instantly!
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for league in public_leagues %}
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-green-400 transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-white">{{ league.name }}</h3>
                         <span class="bg-green-600 text-white px-2 py-1 rounded text-xs font-bold">PUBLIC</span>
-                    {% endif %}
-                </div>
+                    </div>
 
-                <p class="text-gray-300 mb-4">{{ league.description|default:"No description provided." }}</p>
-                
-                <div class="text-sm text-gray-400 mb-4">
-                    <p>Commissioner: {{ league.commissioner.username }}</p>
-                    <p>Sport: {{ league.sport }}</p>
-                    <p>Members: {{ league.member_count }}</p>
-                </div>
-
-                {% if user.is_authenticated %}
-                    {% if league.user_is_member %}
-                        <a href="{% url 'league_detail' league.id %}" class="w-full bg-neon text-black py-2 px-4 rounded-lg font-bold hover:bg-green-400 transition text-center block">
-                            View League
-                        </a>
-                    {% elif league.has_pending_request %}
-                        <button disabled class="w-full bg-gray-600 text-gray-400 py-2 px-4 rounded-lg font-bold cursor-not-allowed">
-                            Request Pending
-                        </button>
+                    {% if league.description %}
+                        <p class="text-gray-300 mb-4">{{ league.description|truncatewords:20 }}</p>
                     {% else %}
-                        {% if league.is_private %}
-                            <form method="post" action="{% url 'request_join_league' league.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="w-full bg-yellow-600 text-black py-2 px-4 rounded-lg font-bold hover:bg-yellow-500 transition">
-                                    Request to Join
-                                </button>
-                            </form>
+                        <p class="text-gray-500 italic mb-4">No description provided</p>
+                    {% endif %}
+                    
+                    <div class="text-sm text-gray-400 mb-4 space-y-1">
+                        <p><i class="fas fa-user mr-2"></i>Commissioner: {{ league.commissioner.username }}</p>
+                        <p><i class="fas fa-football-ball mr-2"></i>Sport: {{ league.sport }}</p>
+                        <p><i class="fas fa-users mr-2"></i>Members: {{ league.member_count }}</p>
+                        <p><i class="fas fa-calendar mr-2"></i>Created: {{ league.created_at|date:"M d, Y" }}</p>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        {% if league.user_is_member %}
+                            <a href="{% url 'league_detail' league.id %}" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-blue-500 transition text-center block">
+                                <i class="fas fa-chart-line mr-2"></i>View Standings
+                            </a>
                         {% else %}
-                            <form method="post" action="{% url 'join_league' league.id %}">
+                            <form method="post" action="{% url 'join_league_instant' league.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-green-500 transition">
-                                    Join League
+                                    <i class="fas fa-sign-in-alt mr-2"></i>Join Instantly
                                 </button>
                             </form>
                         {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="w-full bg-gray-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-gray-500 transition text-center block">
+                            Login to Join
+                        </a>
                     {% endif %}
-                {% else %}
-                    <a href="{% url 'login' %}" class="w-full bg-gray-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-gray-500 transition text-center block">
-                        Login to Join
-                    </a>
-                {% endif %}
-            </div>
-        {% empty %}
-            <div class="col-span-full text-center py-8">
-                <p class="text-gray-400 text-lg">No leagues available yet.</p>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'create_league' %}" class="mt-4 inline-block bg-neon text-black px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition">
-                        Create the First League
-                    </a>
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
-
-    {% if user.is_authenticated and user.league_set.exists %}
-        <div class="mt-8 text-center">
-            <a href="{% url 'my_league_requests' %}" class="text-neon hover:text-green-400 underline">
-                Manage Join Requests for My Leagues
-            </a>
+                </div>
+            {% endfor %}
         </div>
+    </div>
+    {% endif %}
+
+    <!-- Private Leagues Section -->
+    {% if private_leagues %}
+    <div>
+        <h2 class="text-2xl font-bold text-yellow-400 mb-4">
+            <i class="fas fa-lock mr-2"></i>Private Leagues - Request Required
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for league in private_leagues %}
+                <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-yellow-400 transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold text-white">{{ league.name }}</h3>
+                        <span class="bg-yellow-600 text-black px-2 py-1 rounded text-xs font-bold">PRIVATE</span>
+                    </div>
+
+                    {% if league.description %}
+                        <p class="text-gray-300 mb-4">{{ league.description|truncatewords:20 }}</p>
+                    {% else %}
+                        <p class="text-gray-500 italic mb-4">No description provided</p>
+                    {% endif %}
+                    
+                    <div class="text-sm text-gray-400 mb-4 space-y-1">
+                        <p><i class="fas fa-user mr-2"></i>Commissioner: {{ league.commissioner.username }}</p>
+                        <p><i class="fas fa-football-ball mr-2"></i>Sport: {{ league.sport }}</p>
+                        <p><i class="fas fa-users mr-2"></i>Members: {{ league.member_count }}</p>
+                        <p><i class="fas fa-calendar mr-2"></i>Created: {{ league.created_at|date:"M d, Y" }}</p>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        {% if league.user_is_member %}
+                            <a href="{% url 'league_detail' league.id %}" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-blue-500 transition text-center block">
+                                <i class="fas fa-chart-line mr-2"></i>View Standings
+                            </a>
+                        {% elif league.has_pending_request %}
+                            <button disabled class="w-full bg-gray-600 text-gray-400 py-2 px-4 rounded-lg font-bold cursor-not-allowed">
+                                <i class="fas fa-clock mr-2"></i>Request Pending
+                            </button>
+                        {% else %}
+                            <form method="post" action="{% url 'join_league_instant' league.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full bg-yellow-600 text-black py-2 px-4 rounded-lg font-bold hover:bg-yellow-500 transition">
+                                    <i class="fas fa-paper-plane mr-2"></i>Request to Join
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="w-full bg-gray-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-gray-500 transition text-center block">
+                            Login to Request
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not leagues %}
+    <div class="text-center py-16">
+        <div class="text-6xl mb-4">🏈</div>
+        <h3 class="text-2xl font-bold text-gray-300 mb-4">No Leagues Available Yet</h3>
+        <p class="text-gray-400 mb-8">Be the first to create a league!</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'create_league' %}" class="bg-neon text-black px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition">
+                <i class="fas fa-plus mr-2"></i>Create the First League
+            </a>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
 {% endblock %}

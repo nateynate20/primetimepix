@@ -26,24 +26,26 @@ services:
         value: 3.11.0
       - key: WEB_CONCURRENCY
         value: 2
+      
+      # SendGrid Configuration
+      - key: SENDGRID_API_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: DEFAULT_FROM_EMAIL
+        value: evansna05@gmail.com  # Must be verified in SendGrid
+      - key: SERVER_EMAIL
+        value: evansna05@gmail.com
+      
+      # Site Configuration
+      - key: SITE_URL
+        value: https://primetimepix.onrender.com
+      - key: SITE_NAME
+        value: PrimeTimePix
+      
+      # NFL API (if needed)
       - key: NFL_API_KEY
         value: 053d1b002a634a8fb710d954011ce148
       - key: NFL_SEASON
-        value: 2025
-      - key: EMAIL_HOST
-        value: smtp.gmail.com
-      - key: EMAIL_PORT
-        value: 587
-      - key: EMAIL_USE_TLS
-        value: true
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
-      - key: DEFAULT_FROM_EMAIL
-        value: noreply@primetimepix.com
-      - key: SITE_URL
-        value: https://primetimepix.onrender.com
+        value: 2024
 
 crons:
   - name: update-scores
@@ -59,5 +61,3 @@ crons:
           property: connectionString
       - key: DJANGO_SETTINGS_MODULE
         value: primetimepix.settings.production
-      - key: NFL_API_KEY
-        value: 053d1b002a634a8fb710d954011ce148

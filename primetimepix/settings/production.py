@@ -24,16 +24,27 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Email configuration for production
+# Email configuration for production with SendGrid
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "apikey"        # literally "apikey"
-EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")
-DEFAULT_FROM_EMAIL = "PrimeTimePix <evansna05@gmail.com>"  # must match verified sender
+EMAIL_HOST_USER = "apikey"  # This must be literally "apikey" for SendGrid
+EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY", "")  # Your actual API key
+
+# CRITICAL FIX: The FROM email must be a verified sender in SendGrid
+# You need to verify this email address in SendGrid dashboard first!
+DEFAULT_FROM_EMAIL = "evansna05@gmail.com"  # Change this to your verified sender
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
+# Add this for debugging
+if not EMAIL_HOST_PASSWORD:
+    print("[WARNING] SENDGRID_API_KEY is not set!")
+else:
+    print(f"[SUCCESS] SendGrid configured with key starting with: {EMAIL_HOST_PASSWORD[:10]}...")
+
+# Optional: For testing, you can temporarily use console backend
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # Uncomment for testing
 
 EMAIL_DEBUG = True 
 EMAIL_TIMEOUT = 10
