@@ -105,14 +105,8 @@ else:
 # --------------------------------------
 # Generate one-time password reset emails for new users
 # --------------------------------------
-echo "=== SENDING PASSWORD RESET EMAILS FOR FIRST-TIME USERS ==="
-python manage.py shell -c "
-import requests
-from django.test import Client
-c = Client()
-response = c.get('/send-pending-password-resets/')
-print(response.content.decode())
-"
+echo "=== GENERATING PASSWORD RESET LINKS & SENDING EMAILS FOR FIRST-TIME USERS ==="
+python manage.py generate_password_links
 
 # Only sync NFL schedule if games are missing
 echo "=== CHECKING NFL SCHEDULE ==="
