@@ -210,7 +210,7 @@ def logout_user(request):
 def send_pending_password_resets(request):
     """
     Sends password reset emails to users who haven't logged in yet.
-    Marks each user as 'reset_sent' to avoid resending.
+    Marks each user as 'reset_sent' in Profile to avoid resending.
     """
     if request.method not in ['GET', 'POST']:
         return HttpResponse("Only GET/POST allowed.", status=405)
@@ -218,17 +218,20 @@ def send_pending_password_resets(request):
     from django.contrib.auth.models import User
 
     users = User.objects.filter(is_active=True, last_login__isnull=True)
-    sent_emails = []
-    failed_emails = []
+    sent_emails, failed_emails = [], []
 
     for user in users:
         try:
             profile, _ = Profile.objects.get_or_create(user=user)
-            if getattr(profile, 'password_reset_sent', False):
-                continue  # Skip users already sent
+
+            # Skip if already sent (only if the field exists)
+            if hasattr(profile, "password_reset_sent") and profile.password_reset_sent:
+                print(f"[SKIP] Already sent to {user.email}")
+                continue
 
             if not user.email:
                 failed_emails.append({'email': None, 'reason': 'No email'})
+                print(f"[FAIL] User {user.username} has no email")
                 continue
 
             form = PasswordResetForm({'email': user.email})
@@ -239,19 +242,28 @@ def send_pending_password_resets(request):
                     email_template_name='registration/password_reset_email.html',
                     subject_template_name='registration/password_reset_subject.txt',
                 )
-                # Mark as sent
-                profile.password_reset_sent = True
-                profile.save()
+                # Mark as sent (if field exists)
+                if hasattr(profile, "password_reset_sent"):
+                    profile.password_reset_sent = True
+                    profile.save()
+
                 sent_emails.append(user.email)
+                print(f"[EMAIL SENT] Reset email sent to: {user.email}")
             else:
                 failed_emails.append({'email': user.email, 'error': form.errors})
+                print(f"[FAIL] Form invalid for {user.email}: {form.errors}")
         except Exception as e:
             failed_emails.append({'email': user.email, 'error': str(e)})
+            print(f"[ERROR] Failed for {user.email}: {e}")
 
-    return JsonResponse({
+    summary = {
         'total_users': users.count(),
         'total_sent': len(sent_emails),
         'total_failed': len(failed_emails),
         'sent_emails': sent_emails,
-        'failed_emails': failed_emails
-    }, json_dumps_params={'indent': 2})
+        'failed_emails': failed_emails,
+    }
+
+    print(f"=== SUMMARY === {summary}")  # 👈 visible in Render logs
+
+    return JsonResponse(summary, json_dumps_params={'indent': 2})
