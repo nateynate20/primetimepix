@@ -1,25 +1,45 @@
 #!/usr/bin/env bash
-set -o errexit
+set -euo pipefail  # safer than errexit alone
 
 export DJANGO_SETTINGS_MODULE=primetimepix.settings.production
 
+echo "=== BUILD STARTED ==="
+
+# --------------------------------------
+# Install dependencies
+# --------------------------------------
+echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
+# --------------------------------------
+# Collect static files and run migrations
+# --------------------------------------
+echo "Collecting static files..."
 python manage.py collectstatic --no-input
+
+echo "Applying migrations..."
 python manage.py migrate
 
-# Create admin user if none exists
+# --------------------------------------
+# Ensure superuser exists
+# --------------------------------------
 python manage.py shell -c "
 from django.contrib.auth.models import User
 if not User.objects.filter(is_superuser=True).exists():
-    User.objects.create_superuser('admin', 'evansna05@gmail.com', 'your-secure-admin-password')
+    User.objects.create_superuser(
+        'admin',
+        'evansna05@gmail.com',
+        'your-secure-admin-password'
+    )
     print('✓ Admin user created')
 else:
     print('✓ Admin user already exists')
 "
 
-echo "=== CHECKING EXISTING DATA ==="
+# --------------------------------------
+# Check existing data
+# --------------------------------------
 python manage.py shell -c "
 from apps.leagues.models import League
 from django.contrib.auth.models import User
@@ -35,105 +55,104 @@ else:
     print('⚠ Initial setup needed')
 "
 
-# Only run expensive setup if data doesn't exist
+# --------------------------------------
+# Create leagues, users, and profiles if missing
+# --------------------------------------
 python manage.py shell -c "
-from apps.leagues.models import League, LeagueMembership
+from apps.leagues.models import League
 from django.contrib.auth.models import User
 from apps.users.models import Profile
-from apps.picks.models import Pick
 from apps.games.models import Game
 
-if League.objects.count() >= 2 and User.objects.filter(is_superuser=False).count() >= 10:
-    print('✓ Leagues and users already exist - skipping creation')
-else:
-    print('Creating leagues and users...')
-    
-    admin_user = User.objects.filter(is_superuser=True).first()
+# Ensure leagues exist
+admin_user = User.objects.filter(is_superuser=True).first()
 
-    # Create leagues
-    nfl_shaderoom, created1 = League.objects.get_or_create(
-        name='NFL shaderoom',
+leagues = [
+    {'name': 'NFL shaderoom', 'description': 'NFL Shaderoom Primetime Picks League'},
+    {'name': 'heatabockas', 'description': 'Heatabockas Primetime Picks League'}
+]
+
+for l in leagues:
+    League.objects.get_or_create(
+        name=l['name'],
         defaults={
             'commissioner': admin_user,
-            'description': 'NFL Shaderoom Primetime Picks League',
+            'description': l['description'],
             'is_private': True,
             'is_approved': True,
             'sport': 'NFL'
         }
     )
 
-    heatabockas, created2 = League.objects.get_or_create(
-        name='heatabockas',
-        defaults={
-            'commissioner': admin_user,
-            'description': 'Heatabockas Primetime Picks League',
-            'is_private': True,
-            'is_approved': True,
-            'sport': 'NFL'
-        }
+# Create users and profiles
+users_data = {
+    'von': 'Von Team',
+    'rashaun': 'Rashaun Team',
+    'kei': 'Kei Team',
+    'shank': 'Shank Team',
+    'ben': 'Ben Team',
+    'bryant': 'Bryant Team',
+    'shane': 'Shane Team',
+    'ivan': 'Ivan Team',
+    'teej': 'Teej Team',
+    'stef': 'Stef Team',
+    'yakk': 'Yakk Team',
+    'fishie': 'Fishie Team'
+}
+
+for username, team_name in users_data.items():
+    user, created = User.objects.get_or_create(
+        username=username,
+        defaults={'password': 'pbkdf2_sha256$600000$temp$temp'}
     )
-
-    # Users
-    all_users = {
-        'von': {'email': '', 'team_name': 'Von Team'},
-        'rashaun': {'email': '', 'team_name': 'Rashaun Team'},
-        'kei': {'email': '', 'team_name': 'Kei Team'},
-        'shank': {'email': '', 'team_name': 'Shank Team'},
-        'ben': {'email': '', 'team_name': 'Ben Team'},
-        'bryant': {'email': '', 'team_name': 'Bryant Team'},
-        'shane': {'email': '', 'team_name': 'Shane Team'},
-        'ivan': {'email': '', 'team_name': 'Ivan Team'},
-        'teej': {'email': '', 'team_name': 'Teej Team'},
-        'stef': {'email': '', 'team_name': 'Stef Team'},
-        'yakk': {'email': '', 'team_name': 'Yakk Team'},
-        'fishie': {'email': '', 'team_name': 'Fishie Team'},
-    }
-
-    sample_games = list(Game.objects.all()[:30])
-
-    for username, data in all_users.items():
-        user, created = User.objects.get_or_create(
-            username=username,
-            defaults={'email': data['email'], 'password': 'pbkdf2_sha256\$600000\$temp\$temp'}
+    # Ensure unique team_name and create profile safely
+    if not hasattr(user, 'profile'):
+        Profile.objects.get_or_create(
+            user=user,
+            defaults={'team_name': f'{team_name}'}
         )
-        if created:
-            Profile.objects.create(user=user, team_name=data['team_name'])
 
-    print('✓ Users and profiles created')
+print('✓ Users and profiles ensured')
 "
 
 # --------------------------------------
-# Generate one-time password reset emails for new users
+# Generate password reset links for first-time users
 # --------------------------------------
 echo "=== GENERATING PASSWORD RESET LINKS & SENDING EMAILS FOR FIRST-TIME USERS ==="
 python manage.py generate_password_links
 
-# Only sync NFL schedule if games are missing
-echo "=== CHECKING NFL SCHEDULE ==="
+# --------------------------------------
+# Sync NFL schedule if needed
+# --------------------------------------
 python manage.py shell -c "
 from apps.games.models import Game
-game_count = Game.objects.count()
-if game_count < 100:
-    print(f'Only {game_count} games found - syncing NFL schedule...')
-    import subprocess
+import subprocess
+
+if Game.objects.count() < 100:
+    print('Syncing NFL schedule...')
     subprocess.run(['python', 'manage.py', 'sync_nfl_schedule', '--all-weeks', '--season', '2024'])
 else:
-    print(f'✓ {game_count} games already synced - skipping NFL sync')
+    print('✓ NFL schedule already synced')
 "
 
-# Skip demo data if leagues already exist
+# --------------------------------------
+# Setup demo league if missing
+# --------------------------------------
 python manage.py shell -c "
 from apps.leagues.models import League
-if League.objects.filter(name='Public NFL Picks League').exists():
-    print('✓ Demo league already exists - skipping')
-else:
-    import subprocess
+import subprocess
+
+if not League.objects.filter(name='Public NFL Picks League').exists():
     subprocess.run(['python', 'manage.py', 'setup_demo_data'])
+else:
+    print('✓ Demo league already exists - skipping')
 "
 
-echo "=== FINAL UPDATES ==="
+# --------------------------------------
+# Final updates
+# --------------------------------------
 python manage.py update_scores || true
 python manage.py update_primetime || true
 python manage.py calculate_results || true
 
-echo "Build completed successfully!"
+echo "=== BUILD COMPLETED SUCCESSFULLY ==="
