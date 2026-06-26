@@ -12,7 +12,7 @@ class League(models.Model):
     sport = models.CharField(max_length=10, choices=[('NFL', 'NFL'), ('NBA', 'NBA')], default='NFL')
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_private = models.BooleanField(default=True)
+    is_private = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=True)
 
     members = models.ManyToManyField(

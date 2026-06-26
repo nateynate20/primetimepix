@@ -10,33 +10,34 @@ def get_current_nfl_week():
     """
     Calculate the current NFL week number based on actual NFL schedule.
     NFL season typically starts first Thursday after Labor Day.
+    Falls back to the latest week with games in the database during off-season.
     """
     try:
         now = timezone.now()
         current_date = now.date()
         year = current_date.year
-        
-        # NFL season typically starts in early September
-        # For simplicity, we'll use September 5th as approximate season start
-        # You can adjust this based on actual NFL calendar
+
         season_start = datetime(year, 9, 5).date()
-        
-        # If we're before the season starts, check previous year
+
         if current_date < season_start:
             season_start = datetime(year - 1, 9, 5).date()
-        
-        # Calculate weeks since season start
+
         days_since_start = (current_date - season_start).days
         week_number = (days_since_start // 7) + 1
-        
-        # NFL regular season is typically 18 weeks
+
         if week_number > 18:
-            return 18  # Playoffs
-        
+            # Off-season: find the latest week with scheduled primetime games
+            from apps.games.models import Game
+            latest = Game.objects.filter(
+                status='scheduled'
+            ).order_by('-week').values_list('week', flat=True).first()
+            if latest:
+                return latest
+            return 1
+
         return max(1, week_number)
-    
+
     except Exception:
-        # Fallback to week 1 if calculation fails
         return 1
 
 
@@ -44,36 +45,42 @@ def get_nfl_week_dates(week_number=None):
     """
     Get the start and end dates for a specific NFL week.
     NFL weeks typically run Thursday to Wednesday.
+    For off-season/playoffs, queries the database for actual game dates.
     """
     if week_number is None:
         week_number = get_current_nfl_week()
-    
+
+    try:
+        from apps.games.models import Game
+        games_in_week = Game.objects.filter(week=week_number).order_by('start_time')
+        if games_in_week.exists():
+            first_game = games_in_week.first()
+            last_game = games_in_week.last()
+            week_start = first_game.start_time.date() - timedelta(days=1)
+            week_end = last_game.start_time.date() + timedelta(days=1)
+            return week_start, week_end
+    except Exception:
+        pass
+
     try:
         now = timezone.now()
         year = now.year
-        
-        # Approximate season start (first Thursday in September)
+
         season_start = datetime(year, 9, 5).date()
-        
-        # If we're before the season starts, use previous year
+
         if now.date() < season_start:
             season_start = datetime(year - 1, 9, 5).date()
-        
-        # Calculate the start of the specified week
-        # NFL weeks start on Thursday
+
         week_start = season_start + timedelta(weeks=week_number - 1)
-        
-        # Adjust to Thursday if season_start isn't a Thursday
+
         days_to_thursday = (3 - week_start.weekday()) % 7
         week_start = week_start + timedelta(days=days_to_thursday)
-        
-        # NFL week ends on Wednesday (6 days later)
+
         week_end = week_start + timedelta(days=6)
-        
+
         return week_start, week_end
-    
+
     except Exception:
-        # Fallback to current calendar week
         today = timezone.now().date()
         week_start = today - timedelta(days=today.weekday())
         week_end = week_start + timedelta(days=6)

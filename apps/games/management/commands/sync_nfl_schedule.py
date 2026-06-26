@@ -264,6 +264,32 @@ class Command(BaseCommand):
             if dry_run:
                 return 'created'  # Simulate creation for dry run
 
+            # Extract spread/odds data from ESPN
+            spread_value = None
+            spread_fav = None
+            odds_data = comp.get('odds', [])
+            if odds_data:
+                try:
+                    primary_odds = odds_data[0]
+                    home_odds = primary_odds.get('homeTeamOdds', {})
+                    away_odds = primary_odds.get('awayTeamOdds', {})
+                    if home_odds.get('favorite'):
+                        spread_fav = 'home'
+                        spread_line = home_odds.get('spreadOdds') or primary_odds.get('spread', 0)
+                        try:
+                            spread_value = float(spread_line)
+                        except (ValueError, TypeError):
+                            spread_value = None
+                    elif away_odds.get('favorite'):
+                        spread_fav = 'away'
+                        spread_line = away_odds.get('spreadOdds') or primary_odds.get('spread', 0)
+                        try:
+                            spread_value = float(spread_line)
+                        except (ValueError, TypeError):
+                            spread_value = None
+                except (IndexError, KeyError, TypeError):
+                    pass
+
             # Create or update the game
             obj, was_created = Game.objects.update_or_create(
                 game_id=str(game_id),
@@ -277,6 +303,8 @@ class Command(BaseCommand):
                     'home_score': home_score,
                     'away_score': away_score,
                     'status': status,
+                    'spread': spread_value,
+                    'spread_favorite': spread_fav,
                 }
             )
 
@@ -284,7 +312,15 @@ class Command(BaseCommand):
                 self.stdout.write(f"  ✓ Created game {obj.id}")
                 return 'created'
             else:
-                self.stdout.write(f"  ✓ Updated game {obj.id}")
+                # Resolve pick results if game just went final
+                if status == 'final' and obj.home_score is not None:
+                    resolved = obj.update_pick_results()
+                    if resolved:
+                        self.stdout.write(f"  ✓ Updated game {obj.id} + resolved {resolved} pick(s)")
+                    else:
+                        self.stdout.write(f"  ✓ Updated game {obj.id}")
+                else:
+                    self.stdout.write(f"  ✓ Updated game {obj.id}")
                 return 'updated'
                 
         except Exception as e:

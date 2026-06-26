@@ -61,3 +61,45 @@ crons:
           property: connectionString
       - key: DJANGO_SETTINGS_MODULE
         value: primetimepix.settings.production
+
+  - name: reminder-day-before
+    schedule: "0 18 * * 3"  # Wednesday 6 PM UTC (day before Thursday games)
+    command: python manage.py send_pick_reminders --type day_before
+    runtime: python
+    repo: https://github.com/YOUR_USERNAME/primetimepix
+    branch: main
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: primetimepix-db
+          property: connectionString
+      - key: DJANGO_SETTINGS_MODULE
+        value: primetimepix.settings.production
+
+  - name: reminder-morning-of
+    schedule: "0 14 * * 0"  # Sunday 10 AM ET (14:00 UTC)
+    command: python manage.py send_pick_reminders --type morning_of
+    runtime: python
+    repo: https://github.com/YOUR_USERNAME/primetimepix
+    branch: main
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: primetimepix-db
+          property: connectionString
+      - key: DJANGO_SETTINGS_MODULE
+        value: primetimepix.settings.production
+
+  - name: reminder-hours-before
+    schedule: "0 21 * * 0"  # Sunday 5 PM ET (21:00 UTC) - few hours before SNF
+    command: python manage.py send_pick_reminders --type hours_before
+    runtime: python
+    repo: https://github.com/YOUR_USERNAME/primetimepix
+    branch: main
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: primetimepix-db
+          property: connectionString
+      - key: DJANGO_SETTINGS_MODULE
+        value: primetimepix.settings.production

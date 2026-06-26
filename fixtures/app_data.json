@@ -1,0 +1,5308 @@
+[
+{
+  "model": "games.game",
+  "pk": 366,
+  "fields": {
+    "game_id": "401772510",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-05T00:20:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "Dallas Cowboys",
+    "home_score": 24,
+    "away_score": 20,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.361Z",
+    "updated_at": "2025-09-11T02:48:52.639Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 367,
+  "fields": {
+    "game_id": "401772714",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-06T00:00:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 27,
+    "away_score": 21,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.363Z",
+    "updated_at": "2025-09-11T02:48:53.366Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 368,
+  "fields": {
+    "game_id": "401772830",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 20,
+    "away_score": 23,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.365Z",
+    "updated_at": "2025-09-11T02:48:54.851Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 369,
+  "fields": {
+    "game_id": "401772829",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 16,
+    "away_score": 17,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.366Z",
+    "updated_at": "2025-09-11T02:48:54.855Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 370,
+  "fields": {
+    "game_id": "401772719",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Miami Dolphins",
+    "home_score": 33,
+    "away_score": 8,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.368Z",
+    "updated_at": "2025-09-11T02:48:54.858Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 371,
+  "fields": {
+    "game_id": "401772720",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 13,
+    "away_score": 20,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.369Z",
+    "updated_at": "2025-09-11T02:48:54.861Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 372,
+  "fields": {
+    "game_id": "401772718",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "Arizona Cardinals",
+    "home_score": 13,
+    "away_score": 20,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.370Z",
+    "updated_at": "2025-09-11T02:48:54.863Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 373,
+  "fields": {
+    "game_id": "401772721",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 32,
+    "away_score": 34,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.372Z",
+    "updated_at": "2025-09-11T02:48:54.865Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 374,
+  "fields": {
+    "game_id": "401772827",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "New York Giants",
+    "home_score": 21,
+    "away_score": 6,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.373Z",
+    "updated_at": "2025-09-11T02:48:54.867Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 375,
+  "fields": {
+    "game_id": "401772828",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T17:00:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Carolina Panthers",
+    "home_score": 26,
+    "away_score": 10,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.374Z",
+    "updated_at": "2025-09-11T02:48:54.869Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 376,
+  "fields": {
+    "game_id": "401772832",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T20:05:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Tennessee Titans",
+    "home_score": 20,
+    "away_score": 12,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.375Z",
+    "updated_at": "2025-09-11T02:48:54.871Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 377,
+  "fields": {
+    "game_id": "401772831",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T20:05:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "San Francisco 49ers",
+    "home_score": 13,
+    "away_score": 17,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.376Z",
+    "updated_at": "2025-09-11T02:48:54.873Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 378,
+  "fields": {
+    "game_id": "401772722",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T20:25:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Detroit Lions",
+    "home_score": 27,
+    "away_score": 13,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.377Z",
+    "updated_at": "2025-09-11T02:48:54.876Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 379,
+  "fields": {
+    "game_id": "401772723",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-07T20:25:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "Houston Texans",
+    "home_score": 14,
+    "away_score": 9,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.378Z",
+    "updated_at": "2025-09-11T02:48:54.878Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 380,
+  "fields": {
+    "game_id": "401772918",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-08T00:20:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "Baltimore Ravens",
+    "home_score": 41,
+    "away_score": 40,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.379Z",
+    "updated_at": "2025-09-11T02:48:54.879Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 381,
+  "fields": {
+    "game_id": "401772810",
+    "season": 2025,
+    "week": 1,
+    "game_type": "regular",
+    "start_time": "2025-09-09T00:15:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "Minnesota Vikings",
+    "home_score": 24,
+    "away_score": 27,
+    "status": "final",
+    "created_at": "2025-09-10T01:40:55.381Z",
+    "updated_at": "2025-09-11T02:48:55.601Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 382,
+  "fields": {
+    "game_id": "401772936",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-12T00:15:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.441Z",
+    "updated_at": "2025-09-11T02:48:57.979Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 383,
+  "fields": {
+    "game_id": "401772725",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.445Z",
+    "updated_at": "2025-09-11T02:49:00.116Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 384,
+  "fields": {
+    "game_id": "401772834",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.448Z",
+    "updated_at": "2025-09-11T02:49:00.119Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 385,
+  "fields": {
+    "game_id": "401772835",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.450Z",
+    "updated_at": "2025-09-11T02:49:00.122Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 386,
+  "fields": {
+    "game_id": "401772724",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.453Z",
+    "updated_at": "2025-09-11T02:49:00.136Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 387,
+  "fields": {
+    "game_id": "401772728",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.455Z",
+    "updated_at": "2025-09-11T02:49:00.146Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 388,
+  "fields": {
+    "game_id": "401772833",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.457Z",
+    "updated_at": "2025-09-11T02:49:00.162Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 389,
+  "fields": {
+    "game_id": "401772727",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.460Z",
+    "updated_at": "2025-09-11T02:49:00.163Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 390,
+  "fields": {
+    "game_id": "401772836",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.462Z",
+    "updated_at": "2025-09-11T02:49:00.164Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 391,
+  "fields": {
+    "game_id": "401772726",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T17:00:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.464Z",
+    "updated_at": "2025-09-11T02:49:00.167Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 392,
+  "fields": {
+    "game_id": "401772729",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T20:05:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.466Z",
+    "updated_at": "2025-09-11T02:49:00.173Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 393,
+  "fields": {
+    "game_id": "401772730",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T20:05:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.468Z",
+    "updated_at": "2025-09-11T02:49:00.176Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 394,
+  "fields": {
+    "game_id": "401772837",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-14T20:25:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.470Z",
+    "updated_at": "2025-09-11T02:49:00.177Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 395,
+  "fields": {
+    "game_id": "401772919",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-15T00:20:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.472Z",
+    "updated_at": "2025-09-11T02:49:00.178Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 396,
+  "fields": {
+    "game_id": "401772715",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-15T23:00:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.474Z",
+    "updated_at": "2025-09-11T02:49:00.852Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 397,
+  "fields": {
+    "game_id": "401772811",
+    "season": 2025,
+    "week": 2,
+    "game_type": "regular",
+    "start_time": "2025-09-16T02:00:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:56.475Z",
+    "updated_at": "2025-09-11T02:49:00.853Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 398,
+  "fields": {
+    "game_id": "401772937",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-19T00:15:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "Miami Dolphins",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.218Z",
+    "updated_at": "2025-09-11T02:48:35.581Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 399,
+  "fields": {
+    "game_id": "401772842",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.222Z",
+    "updated_at": "2025-09-11T02:48:35.585Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 400,
+  "fields": {
+    "game_id": "401772733",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.226Z",
+    "updated_at": "2025-09-11T02:48:35.588Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 401,
+  "fields": {
+    "game_id": "401772731",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.229Z",
+    "updated_at": "2025-09-11T02:48:35.590Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 402,
+  "fields": {
+    "game_id": "401772732",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.231Z",
+    "updated_at": "2025-09-11T02:48:35.593Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 403,
+  "fields": {
+    "game_id": "401772839",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.234Z",
+    "updated_at": "2025-09-11T02:48:35.596Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 404,
+  "fields": {
+    "game_id": "401772840",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.237Z",
+    "updated_at": "2025-09-11T02:48:35.598Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 405,
+  "fields": {
+    "game_id": "401772841",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.240Z",
+    "updated_at": "2025-09-11T02:48:35.600Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 406,
+  "fields": {
+    "game_id": "401772838",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.243Z",
+    "updated_at": "2025-09-11T02:48:35.601Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 407,
+  "fields": {
+    "game_id": "401772734",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T17:00:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Houston Texans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.245Z",
+    "updated_at": "2025-09-11T02:48:35.603Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 408,
+  "fields": {
+    "game_id": "401772735",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T20:05:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.247Z",
+    "updated_at": "2025-09-11T02:48:35.605Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 409,
+  "fields": {
+    "game_id": "401772736",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T20:05:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.249Z",
+    "updated_at": "2025-09-11T02:48:35.607Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 410,
+  "fields": {
+    "game_id": "401772844",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T20:25:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.251Z",
+    "updated_at": "2025-09-11T02:48:35.610Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 411,
+  "fields": {
+    "game_id": "401772843",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-21T20:25:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.253Z",
+    "updated_at": "2025-09-11T02:48:35.612Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 412,
+  "fields": {
+    "game_id": "401772920",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-22T00:20:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.256Z",
+    "updated_at": "2025-09-11T02:48:35.614Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 413,
+  "fields": {
+    "game_id": "401772812",
+    "season": 2025,
+    "week": 3,
+    "game_type": "regular",
+    "start_time": "2025-09-23T00:15:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.257Z",
+    "updated_at": "2025-09-11T02:48:35.615Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 414,
+  "fields": {
+    "game_id": "401772938",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-26T00:15:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.988Z",
+    "updated_at": "2025-09-11T02:48:36.343Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 415,
+  "fields": {
+    "game_id": "401772632",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T13:30:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.992Z",
+    "updated_at": "2025-09-11T02:48:36.348Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 416,
+  "fields": {
+    "game_id": "401772739",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T17:00:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.995Z",
+    "updated_at": "2025-09-11T02:48:36.351Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 417,
+  "fields": {
+    "game_id": "401772740",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T17:00:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:57.998Z",
+    "updated_at": "2025-09-11T02:48:36.354Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 418,
+  "fields": {
+    "game_id": "401772846",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T17:00:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.000Z",
+    "updated_at": "2025-09-11T02:48:36.356Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 419,
+  "fields": {
+    "game_id": "401772847",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T17:00:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.003Z",
+    "updated_at": "2025-09-11T02:48:36.359Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 420,
+  "fields": {
+    "game_id": "401772737",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T17:00:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.005Z",
+    "updated_at": "2025-09-11T02:48:36.361Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 421,
+  "fields": {
+    "game_id": "401772845",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T17:00:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.008Z",
+    "updated_at": "2025-09-11T02:48:36.363Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 422,
+  "fields": {
+    "game_id": "401772738",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T17:00:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Tennessee Titans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.009Z",
+    "updated_at": "2025-09-11T02:48:36.365Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 423,
+  "fields": {
+    "game_id": "401772849",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T20:05:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.011Z",
+    "updated_at": "2025-09-11T02:48:36.367Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 424,
+  "fields": {
+    "game_id": "401772848",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T20:05:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.013Z",
+    "updated_at": "2025-09-11T02:48:36.369Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 425,
+  "fields": {
+    "game_id": "401772741",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T20:25:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Baltimore Ravens",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.015Z",
+    "updated_at": "2025-09-11T02:48:36.371Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 426,
+  "fields": {
+    "game_id": "401772742",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-28T20:25:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.017Z",
+    "updated_at": "2025-09-11T02:48:36.372Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 427,
+  "fields": {
+    "game_id": "401772921",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-29T00:20:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.019Z",
+    "updated_at": "2025-09-11T02:48:36.374Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 428,
+  "fields": {
+    "game_id": "401772813",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-29T23:15:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.021Z",
+    "updated_at": "2025-09-11T02:48:36.377Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 429,
+  "fields": {
+    "game_id": "401772716",
+    "season": 2025,
+    "week": 4,
+    "game_type": "regular",
+    "start_time": "2025-09-30T00:15:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.023Z",
+    "updated_at": "2025-09-11T02:48:36.378Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 430,
+  "fields": {
+    "game_id": "401772939",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-03T00:15:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.768Z",
+    "updated_at": "2025-09-11T02:48:37.132Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 431,
+  "fields": {
+    "game_id": "401772633",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T13:30:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.772Z",
+    "updated_at": "2025-09-11T02:48:37.135Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 432,
+  "fields": {
+    "game_id": "401772851",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T17:00:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.775Z",
+    "updated_at": "2025-09-11T02:48:37.137Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 433,
+  "fields": {
+    "game_id": "401772744",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T17:00:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.777Z",
+    "updated_at": "2025-09-11T02:48:37.140Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 434,
+  "fields": {
+    "game_id": "401772850",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T17:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.779Z",
+    "updated_at": "2025-09-11T02:48:37.142Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 435,
+  "fields": {
+    "game_id": "401772745",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T17:00:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.781Z",
+    "updated_at": "2025-09-11T02:48:37.144Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 436,
+  "fields": {
+    "game_id": "401772852",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T17:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "Miami Dolphins",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.783Z",
+    "updated_at": "2025-09-11T02:48:37.146Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 437,
+  "fields": {
+    "game_id": "401772743",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T17:00:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "Houston Texans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.785Z",
+    "updated_at": "2025-09-11T02:48:37.147Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 438,
+  "fields": {
+    "game_id": "401772747",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T20:05:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "Tennessee Titans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.788Z",
+    "updated_at": "2025-09-11T02:48:37.149Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 439,
+  "fields": {
+    "game_id": "401772746",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T20:05:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.789Z",
+    "updated_at": "2025-09-11T02:48:37.151Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 440,
+  "fields": {
+    "game_id": "401772854",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T20:25:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.791Z",
+    "updated_at": "2025-09-11T02:48:37.152Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 441,
+  "fields": {
+    "game_id": "401772853",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-05T20:25:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.793Z",
+    "updated_at": "2025-09-11T02:48:37.154Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 442,
+  "fields": {
+    "game_id": "401772922",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-06T00:20:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.795Z",
+    "updated_at": "2025-09-11T02:48:37.156Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 443,
+  "fields": {
+    "game_id": "401772814",
+    "season": 2025,
+    "week": 5,
+    "game_type": "regular",
+    "start_time": "2025-10-07T00:15:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:58.797Z",
+    "updated_at": "2025-09-11T02:48:37.157Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 444,
+  "fields": {
+    "game_id": "401772940",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-10T00:15:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.511Z",
+    "updated_at": "2025-09-11T02:48:37.905Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 445,
+  "fields": {
+    "game_id": "401772634",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T13:30:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.514Z",
+    "updated_at": "2025-09-11T02:48:37.908Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 446,
+  "fields": {
+    "game_id": "401772856",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T17:00:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.517Z",
+    "updated_at": "2025-09-11T02:48:37.911Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 447,
+  "fields": {
+    "game_id": "401772750",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T17:00:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.520Z",
+    "updated_at": "2025-09-11T02:48:37.914Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 448,
+  "fields": {
+    "game_id": "401772748",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T17:00:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.522Z",
+    "updated_at": "2025-09-11T02:48:37.916Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 449,
+  "fields": {
+    "game_id": "401772749",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T17:00:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.523Z",
+    "updated_at": "2025-09-11T02:48:37.918Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 450,
+  "fields": {
+    "game_id": "401772858",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T17:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.525Z",
+    "updated_at": "2025-09-11T02:48:37.920Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 451,
+  "fields": {
+    "game_id": "401772857",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T17:00:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.527Z",
+    "updated_at": "2025-09-11T02:48:37.922Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 452,
+  "fields": {
+    "game_id": "401772855",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T17:00:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.529Z",
+    "updated_at": "2025-09-11T02:48:37.924Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 453,
+  "fields": {
+    "game_id": "401772859",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T20:05:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Tennessee Titans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.530Z",
+    "updated_at": "2025-09-11T02:48:37.927Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 454,
+  "fields": {
+    "game_id": "401772752",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T20:25:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.532Z",
+    "updated_at": "2025-09-11T02:48:37.929Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 455,
+  "fields": {
+    "game_id": "401772751",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-12T20:25:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.533Z",
+    "updated_at": "2025-09-11T02:48:37.930Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 456,
+  "fields": {
+    "game_id": "401772923",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-13T00:20:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.535Z",
+    "updated_at": "2025-09-11T02:48:37.932Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 457,
+  "fields": {
+    "game_id": "401772815",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-13T23:15:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.537Z",
+    "updated_at": "2025-09-11T02:48:37.934Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 458,
+  "fields": {
+    "game_id": "401772717",
+    "season": 2025,
+    "week": 6,
+    "game_type": "regular",
+    "start_time": "2025-10-14T00:15:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:40:59.539Z",
+    "updated_at": "2025-09-11T02:48:37.936Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 459,
+  "fields": {
+    "game_id": "401772941",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-17T00:15:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.262Z",
+    "updated_at": "2025-09-11T02:48:38.640Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 460,
+  "fields": {
+    "game_id": "401772635",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T13:30:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.265Z",
+    "updated_at": "2025-09-11T02:48:38.643Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 461,
+  "fields": {
+    "game_id": "401772861",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T17:00:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.268Z",
+    "updated_at": "2025-09-11T02:48:38.647Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 462,
+  "fields": {
+    "game_id": "401772754",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T17:00:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Miami Dolphins",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.271Z",
+    "updated_at": "2025-09-11T02:48:38.649Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 463,
+  "fields": {
+    "game_id": "401772755",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T17:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.273Z",
+    "updated_at": "2025-09-11T02:48:38.652Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 464,
+  "fields": {
+    "game_id": "401772753",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T17:00:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.275Z",
+    "updated_at": "2025-09-11T02:48:38.654Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 465,
+  "fields": {
+    "game_id": "401772862",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T17:00:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.277Z",
+    "updated_at": "2025-09-11T02:48:38.656Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 466,
+  "fields": {
+    "game_id": "401772860",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T17:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.279Z",
+    "updated_at": "2025-09-11T02:48:38.658Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 467,
+  "fields": {
+    "game_id": "401772757",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T20:05:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.281Z",
+    "updated_at": "2025-09-11T02:48:38.661Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 468,
+  "fields": {
+    "game_id": "401772756",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T20:05:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.283Z",
+    "updated_at": "2025-09-11T02:48:38.663Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 469,
+  "fields": {
+    "game_id": "401772864",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T20:25:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.285Z",
+    "updated_at": "2025-09-11T02:48:38.664Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 470,
+  "fields": {
+    "game_id": "401772863",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-19T20:25:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.287Z",
+    "updated_at": "2025-09-11T02:48:38.666Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 471,
+  "fields": {
+    "game_id": "401772924",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-20T00:20:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.289Z",
+    "updated_at": "2025-09-11T02:48:38.668Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 472,
+  "fields": {
+    "game_id": "401772816",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-20T23:00:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.290Z",
+    "updated_at": "2025-09-11T02:48:38.670Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 473,
+  "fields": {
+    "game_id": "401772826",
+    "season": 2025,
+    "week": 7,
+    "game_type": "regular",
+    "start_time": "2025-10-21T02:00:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "Houston Texans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:00.292Z",
+    "updated_at": "2025-09-11T02:48:38.672Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 474,
+  "fields": {
+    "game_id": "401772942",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-24T00:15:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.020Z",
+    "updated_at": "2025-09-11T02:48:39.358Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 475,
+  "fields": {
+    "game_id": "401772760",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T17:00:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "Miami Dolphins",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.025Z",
+    "updated_at": "2025-09-11T02:48:39.361Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 476,
+  "fields": {
+    "game_id": "401772758",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T17:00:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.028Z",
+    "updated_at": "2025-09-11T02:48:39.364Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 477,
+  "fields": {
+    "game_id": "401772868",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T17:00:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.031Z",
+    "updated_at": "2025-09-11T02:48:39.366Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 478,
+  "fields": {
+    "game_id": "401772867",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T17:00:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.033Z",
+    "updated_at": "2025-09-11T02:48:39.368Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 479,
+  "fields": {
+    "game_id": "401772865",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T17:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.036Z",
+    "updated_at": "2025-09-11T02:48:39.370Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 480,
+  "fields": {
+    "game_id": "401772759",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T17:00:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.038Z",
+    "updated_at": "2025-09-11T02:48:39.372Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 481,
+  "fields": {
+    "game_id": "401772866",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T17:00:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.041Z",
+    "updated_at": "2025-09-11T02:48:39.374Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 482,
+  "fields": {
+    "game_id": "401772869",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T20:05:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.043Z",
+    "updated_at": "2025-09-11T02:48:39.376Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 483,
+  "fields": {
+    "game_id": "401772762",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T20:25:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.044Z",
+    "updated_at": "2025-09-11T02:48:39.378Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 484,
+  "fields": {
+    "game_id": "401772761",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-26T20:25:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Tennessee Titans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.047Z",
+    "updated_at": "2025-09-11T02:48:39.379Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 485,
+  "fields": {
+    "game_id": "401772925",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-27T00:20:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.048Z",
+    "updated_at": "2025-09-11T02:48:39.381Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 486,
+  "fields": {
+    "game_id": "401772817",
+    "season": 2025,
+    "week": 8,
+    "game_type": "regular",
+    "start_time": "2025-10-28T00:15:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.050Z",
+    "updated_at": "2025-09-11T02:48:39.382Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 487,
+  "fields": {
+    "game_id": "401772943",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-10-31T00:15:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "Baltimore Ravens",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.791Z",
+    "updated_at": "2025-09-11T02:48:40.491Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 488,
+  "fields": {
+    "game_id": "401772765",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.793Z",
+    "updated_at": "2025-09-11T02:48:40.493Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 489,
+  "fields": {
+    "game_id": "401772871",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.794Z",
+    "updated_at": "2025-09-11T02:48:40.496Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 490,
+  "fields": {
+    "game_id": "401772872",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.796Z",
+    "updated_at": "2025-09-11T02:48:40.498Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 491,
+  "fields": {
+    "game_id": "401772764",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.798Z",
+    "updated_at": "2025-09-11T02:48:40.500Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 492,
+  "fields": {
+    "game_id": "401772763",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.799Z",
+    "updated_at": "2025-09-11T02:48:40.502Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 493,
+  "fields": {
+    "game_id": "401772767",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "New York Giants",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.800Z",
+    "updated_at": "2025-09-11T02:48:40.503Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 494,
+  "fields": {
+    "game_id": "401772766",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.802Z",
+    "updated_at": "2025-09-11T02:48:40.505Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 495,
+  "fields": {
+    "game_id": "401772870",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T18:00:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.804Z",
+    "updated_at": "2025-09-11T02:48:40.507Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 496,
+  "fields": {
+    "game_id": "401772873",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T21:05:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.805Z",
+    "updated_at": "2025-09-11T02:48:40.509Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 497,
+  "fields": {
+    "game_id": "401772874",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T21:05:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.806Z",
+    "updated_at": "2025-09-11T02:48:40.511Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 498,
+  "fields": {
+    "game_id": "401772768",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-02T21:25:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.807Z",
+    "updated_at": "2025-09-11T02:48:40.513Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 499,
+  "fields": {
+    "game_id": "401772926",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-03T01:20:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.808Z",
+    "updated_at": "2025-09-11T02:48:40.514Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 500,
+  "fields": {
+    "game_id": "401772818",
+    "season": 2025,
+    "week": 9,
+    "game_type": "regular",
+    "start_time": "2025-11-04T01:15:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:01.809Z",
+    "updated_at": "2025-09-11T02:48:40.516Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 501,
+  "fields": {
+    "game_id": "401772944",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-07T01:15:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.509Z",
+    "updated_at": "2025-09-11T02:48:41.312Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 502,
+  "fields": {
+    "game_id": "401772636",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T14:30:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.512Z",
+    "updated_at": "2025-09-11T02:48:41.316Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 503,
+  "fields": {
+    "game_id": "401772875",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T18:00:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.515Z",
+    "updated_at": "2025-09-11T02:48:41.319Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 504,
+  "fields": {
+    "game_id": "401772771",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T18:00:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.518Z",
+    "updated_at": "2025-09-11T02:48:41.322Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 505,
+  "fields": {
+    "game_id": "401772876",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T18:00:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Baltimore Ravens",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.521Z",
+    "updated_at": "2025-09-11T02:48:41.324Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 506,
+  "fields": {
+    "game_id": "401772769",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T18:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.523Z",
+    "updated_at": "2025-09-11T02:48:41.327Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 507,
+  "fields": {
+    "game_id": "401772772",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T18:00:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.525Z",
+    "updated_at": "2025-09-11T02:48:41.329Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 508,
+  "fields": {
+    "game_id": "401772877",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T18:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.527Z",
+    "updated_at": "2025-09-11T02:48:41.331Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 509,
+  "fields": {
+    "game_id": "401772770",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T18:00:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.529Z",
+    "updated_at": "2025-09-11T02:48:41.333Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 510,
+  "fields": {
+    "game_id": "401772773",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T21:05:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.530Z",
+    "updated_at": "2025-09-11T02:48:41.335Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 511,
+  "fields": {
+    "game_id": "401772879",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T21:25:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.533Z",
+    "updated_at": "2025-09-11T02:48:41.337Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 512,
+  "fields": {
+    "game_id": "401772878",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-09T21:25:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.534Z",
+    "updated_at": "2025-09-11T02:48:41.339Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 513,
+  "fields": {
+    "game_id": "401772927",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-10T01:20:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.536Z",
+    "updated_at": "2025-09-11T02:48:41.341Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 514,
+  "fields": {
+    "game_id": "401772630",
+    "season": 2025,
+    "week": 10,
+    "game_type": "regular",
+    "start_time": "2025-11-11T01:15:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:02.538Z",
+    "updated_at": "2025-09-11T02:48:41.343Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 515,
+  "fields": {
+    "game_id": "401772945",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-14T01:15:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.264Z",
+    "updated_at": "2025-09-11T02:48:42.036Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 516,
+  "fields": {
+    "game_id": "401772631",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T14:30:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.269Z",
+    "updated_at": "2025-09-11T02:48:42.039Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 517,
+  "fields": {
+    "game_id": "401772882",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T18:00:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.272Z",
+    "updated_at": "2025-09-11T02:48:42.041Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 518,
+  "fields": {
+    "game_id": "401772776",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T18:00:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.276Z",
+    "updated_at": "2025-09-11T02:48:42.044Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 519,
+  "fields": {
+    "game_id": "401772881",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T18:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "Houston Texans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.278Z",
+    "updated_at": "2025-09-11T02:48:42.046Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 520,
+  "fields": {
+    "game_id": "401772880",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T18:00:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.280Z",
+    "updated_at": "2025-09-11T02:48:42.048Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 521,
+  "fields": {
+    "game_id": "401772883",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T18:00:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.283Z",
+    "updated_at": "2025-09-11T02:48:42.050Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 522,
+  "fields": {
+    "game_id": "401772774",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T18:00:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.285Z",
+    "updated_at": "2025-09-11T02:48:42.052Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 523,
+  "fields": {
+    "game_id": "401772775",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T18:00:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.288Z",
+    "updated_at": "2025-09-11T02:48:42.054Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 524,
+  "fields": {
+    "game_id": "401772884",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T21:05:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.290Z",
+    "updated_at": "2025-09-11T02:48:42.055Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 525,
+  "fields": {
+    "game_id": "401772885",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T21:05:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.292Z",
+    "updated_at": "2025-09-11T02:48:42.057Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 526,
+  "fields": {
+    "game_id": "401772777",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T21:25:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Baltimore Ravens",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.294Z",
+    "updated_at": "2025-09-11T02:48:42.058Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 527,
+  "fields": {
+    "game_id": "401772778",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-16T21:25:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.295Z",
+    "updated_at": "2025-09-11T02:48:42.060Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 528,
+  "fields": {
+    "game_id": "401772928",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-17T01:20:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.297Z",
+    "updated_at": "2025-09-11T02:48:42.062Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 529,
+  "fields": {
+    "game_id": "401772819",
+    "season": 2025,
+    "week": 11,
+    "game_type": "regular",
+    "start_time": "2025-11-18T01:15:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:03.299Z",
+    "updated_at": "2025-09-11T02:48:42.063Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 530,
+  "fields": {
+    "game_id": "401772946",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-21T01:15:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.013Z",
+    "updated_at": "2025-09-11T02:48:42.751Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 531,
+  "fields": {
+    "game_id": "401772780",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T18:00:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.016Z",
+    "updated_at": "2025-09-11T02:48:42.754Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 532,
+  "fields": {
+    "game_id": "401772781",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T18:00:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.019Z",
+    "updated_at": "2025-09-11T02:48:42.757Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 533,
+  "fields": {
+    "game_id": "401772888",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T18:00:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.021Z",
+    "updated_at": "2025-09-11T02:48:42.760Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 534,
+  "fields": {
+    "game_id": "401772887",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T18:00:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.023Z",
+    "updated_at": "2025-09-11T02:48:42.763Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 535,
+  "fields": {
+    "game_id": "401772886",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T18:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.024Z",
+    "updated_at": "2025-09-11T02:48:42.765Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 536,
+  "fields": {
+    "game_id": "401772779",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T18:00:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.026Z",
+    "updated_at": "2025-09-11T02:48:42.767Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 537,
+  "fields": {
+    "game_id": "401772782",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T18:00:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.028Z",
+    "updated_at": "2025-09-11T02:48:42.770Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 538,
+  "fields": {
+    "game_id": "401772784",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T21:05:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.030Z",
+    "updated_at": "2025-09-11T02:48:42.772Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 539,
+  "fields": {
+    "game_id": "401772783",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T21:05:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.031Z",
+    "updated_at": "2025-09-11T02:48:42.773Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 540,
+  "fields": {
+    "game_id": "401772890",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T21:25:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.033Z",
+    "updated_at": "2025-09-11T02:48:42.776Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 541,
+  "fields": {
+    "game_id": "401772889",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-23T21:25:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.034Z",
+    "updated_at": "2025-09-11T02:48:42.778Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 542,
+  "fields": {
+    "game_id": "401772929",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-24T01:20:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.036Z",
+    "updated_at": "2025-09-11T02:48:42.780Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 543,
+  "fields": {
+    "game_id": "401772820",
+    "season": 2025,
+    "week": 12,
+    "game_type": "regular",
+    "start_time": "2025-11-25T01:15:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.039Z",
+    "updated_at": "2025-09-11T02:48:42.781Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 544,
+  "fields": {
+    "game_id": "401772891",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-27T18:00:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.778Z",
+    "updated_at": "2025-09-11T02:48:43.807Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 545,
+  "fields": {
+    "game_id": "401772694",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-27T21:30:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.782Z",
+    "updated_at": "2025-09-11T02:48:43.810Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 546,
+  "fields": {
+    "game_id": "401772930",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-28T01:20:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.786Z",
+    "updated_at": "2025-09-11T02:48:43.813Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 547,
+  "fields": {
+    "game_id": "401772621",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-28T20:00:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.789Z",
+    "updated_at": "2025-09-11T02:48:43.816Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 548,
+  "fields": {
+    "game_id": "401772785",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T18:00:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.791Z",
+    "updated_at": "2025-09-11T02:48:43.818Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 549,
+  "fields": {
+    "game_id": "401772786",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T18:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.793Z",
+    "updated_at": "2025-09-11T02:48:43.820Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 550,
+  "fields": {
+    "game_id": "401772787",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T18:00:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Houston Texans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.796Z",
+    "updated_at": "2025-09-11T02:48:43.822Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 551,
+  "fields": {
+    "game_id": "401772892",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T18:00:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.798Z",
+    "updated_at": "2025-09-11T02:48:43.825Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 552,
+  "fields": {
+    "game_id": "401772893",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T18:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.800Z",
+    "updated_at": "2025-09-11T02:48:43.827Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 553,
+  "fields": {
+    "game_id": "401772895",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T18:00:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.802Z",
+    "updated_at": "2025-09-11T02:48:43.829Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 554,
+  "fields": {
+    "game_id": "401772894",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T18:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.804Z",
+    "updated_at": "2025-09-11T02:48:43.831Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 555,
+  "fields": {
+    "game_id": "401772896",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T21:05:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.806Z",
+    "updated_at": "2025-09-11T02:48:43.833Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 556,
+  "fields": {
+    "game_id": "401772789",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T21:25:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.808Z",
+    "updated_at": "2025-09-11T02:48:43.834Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 557,
+  "fields": {
+    "game_id": "401772788",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-11-30T21:25:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.809Z",
+    "updated_at": "2025-09-11T02:48:43.836Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 558,
+  "fields": {
+    "game_id": "401772931",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-12-01T01:20:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.811Z",
+    "updated_at": "2025-09-11T02:48:43.838Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 559,
+  "fields": {
+    "game_id": "401772821",
+    "season": 2025,
+    "week": 13,
+    "game_type": "regular",
+    "start_time": "2025-12-02T01:15:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:04.813Z",
+    "updated_at": "2025-09-11T02:48:43.839Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 560,
+  "fields": {
+    "game_id": "401772947",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-05T01:15:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.504Z",
+    "updated_at": "2025-09-11T02:48:44.527Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 561,
+  "fields": {
+    "game_id": "401772900",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.508Z",
+    "updated_at": "2025-09-11T02:48:44.530Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 562,
+  "fields": {
+    "game_id": "401772898",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Tennessee Titans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.511Z",
+    "updated_at": "2025-09-11T02:48:44.533Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 563,
+  "fields": {
+    "game_id": "401772897",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.514Z",
+    "updated_at": "2025-09-11T02:48:44.536Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 564,
+  "fields": {
+    "game_id": "401772899",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.516Z",
+    "updated_at": "2025-09-11T02:48:44.538Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 565,
+  "fields": {
+    "game_id": "401772790",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "Miami Dolphins",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.519Z",
+    "updated_at": "2025-09-11T02:48:44.540Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 566,
+  "fields": {
+    "game_id": "401772792",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.522Z",
+    "updated_at": "2025-09-11T02:48:44.543Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 567,
+  "fields": {
+    "game_id": "401772793",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.524Z",
+    "updated_at": "2025-09-11T02:48:44.545Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 568,
+  "fields": {
+    "game_id": "401772791",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T18:00:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.526Z",
+    "updated_at": "2025-09-11T02:48:44.546Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 569,
+  "fields": {
+    "game_id": "401772794",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T21:05:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.528Z",
+    "updated_at": "2025-09-11T02:48:44.548Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 570,
+  "fields": {
+    "game_id": "401772902",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T21:25:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.530Z",
+    "updated_at": "2025-09-11T02:48:44.550Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 571,
+  "fields": {
+    "game_id": "401772901",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-07T21:25:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.532Z",
+    "updated_at": "2025-09-11T02:48:44.552Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 572,
+  "fields": {
+    "game_id": "401772932",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-08T01:20:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Houston Texans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.534Z",
+    "updated_at": "2025-09-11T02:48:44.554Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 573,
+  "fields": {
+    "game_id": "401772822",
+    "season": 2025,
+    "week": 14,
+    "game_type": "regular",
+    "start_time": "2025-12-09T01:15:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:05.536Z",
+    "updated_at": "2025-09-11T02:48:44.555Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 574,
+  "fields": {
+    "game_id": "401772948",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-12T01:15:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.535Z",
+    "updated_at": "2025-09-11T02:48:45.267Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 575,
+  "fields": {
+    "game_id": "401772904",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.539Z",
+    "updated_at": "2025-09-11T02:48:45.270Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 576,
+  "fields": {
+    "game_id": "401772796",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "Baltimore Ravens",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.543Z",
+    "updated_at": "2025-09-11T02:48:45.273Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 577,
+  "fields": {
+    "game_id": "401772798",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.546Z",
+    "updated_at": "2025-09-11T02:48:45.275Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 578,
+  "fields": {
+    "game_id": "401772795",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.548Z",
+    "updated_at": "2025-09-11T02:48:45.277Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 579,
+  "fields": {
+    "game_id": "401772905",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.550Z",
+    "updated_at": "2025-09-11T02:48:45.280Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 580,
+  "fields": {
+    "game_id": "401772906",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.553Z",
+    "updated_at": "2025-09-11T02:48:45.282Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 581,
+  "fields": {
+    "game_id": "401772797",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.555Z",
+    "updated_at": "2025-09-11T02:48:45.283Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 582,
+  "fields": {
+    "game_id": "401772903",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T18:00:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.557Z",
+    "updated_at": "2025-09-11T02:48:45.285Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 583,
+  "fields": {
+    "game_id": "401772800",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T21:25:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.559Z",
+    "updated_at": "2025-09-11T02:48:45.287Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 584,
+  "fields": {
+    "game_id": "401772909",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T21:25:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.561Z",
+    "updated_at": "2025-09-11T02:48:45.288Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 585,
+  "fields": {
+    "game_id": "401772908",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T21:25:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.563Z",
+    "updated_at": "2025-09-11T02:48:45.290Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 586,
+  "fields": {
+    "game_id": "401772907",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T21:25:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Tennessee Titans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.565Z",
+    "updated_at": "2025-09-11T02:48:45.292Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 587,
+  "fields": {
+    "game_id": "401772799",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-14T21:25:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.566Z",
+    "updated_at": "2025-09-11T02:48:45.294Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 588,
+  "fields": {
+    "game_id": "401772933",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-15T01:20:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.568Z",
+    "updated_at": "2025-09-11T02:48:45.295Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 589,
+  "fields": {
+    "game_id": "401772823",
+    "season": 2025,
+    "week": 15,
+    "game_type": "regular",
+    "start_time": "2025-12-16T01:15:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Miami Dolphins",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:06.571Z",
+    "updated_at": "2025-09-11T02:48:45.297Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 590,
+  "fields": {
+    "game_id": "401772949",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-19T01:15:00Z",
+    "home_team": "Seattle Seahawks",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.339Z",
+    "updated_at": "2025-09-11T02:48:46.266Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 591,
+  "fields": {
+    "game_id": "401772613",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-20T05:00:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.343Z",
+    "updated_at": "2025-09-11T02:48:46.269Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 592,
+  "fields": {
+    "game_id": "401772612",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-20T05:00:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.346Z",
+    "updated_at": "2025-09-11T02:48:46.271Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 593,
+  "fields": {
+    "game_id": "401772802",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T18:00:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Buffalo Bills",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.350Z",
+    "updated_at": "2025-09-11T02:48:46.274Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 594,
+  "fields": {
+    "game_id": "401772910",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T18:00:00Z",
+    "home_team": "Dallas Cowboys",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.352Z",
+    "updated_at": "2025-09-11T02:48:46.276Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 595,
+  "fields": {
+    "game_id": "401772803",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T18:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.355Z",
+    "updated_at": "2025-09-11T02:48:46.278Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 596,
+  "fields": {
+    "game_id": "401772801",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T18:00:00Z",
+    "home_team": "New Orleans Saints",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.357Z",
+    "updated_at": "2025-09-11T02:48:46.280Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 597,
+  "fields": {
+    "game_id": "401772911",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T18:00:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Minnesota Vikings",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.360Z",
+    "updated_at": "2025-09-11T02:48:46.282Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 598,
+  "fields": {
+    "game_id": "401772912",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T18:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.362Z",
+    "updated_at": "2025-09-11T02:48:46.284Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 599,
+  "fields": {
+    "game_id": "401772804",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T18:00:00Z",
+    "home_team": "Baltimore Ravens",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.363Z",
+    "updated_at": "2025-09-11T02:48:46.286Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 600,
+  "fields": {
+    "game_id": "401772913",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T21:05:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.365Z",
+    "updated_at": "2025-09-11T02:48:46.287Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 601,
+  "fields": {
+    "game_id": "401772914",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T21:05:00Z",
+    "home_team": "Arizona Cardinals",
+    "away_team": "Atlanta Falcons",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.367Z",
+    "updated_at": "2025-09-11T02:48:46.289Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 602,
+  "fields": {
+    "game_id": "401772806",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T21:25:00Z",
+    "home_team": "Detroit Lions",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.369Z",
+    "updated_at": "2025-09-11T02:48:46.291Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 603,
+  "fields": {
+    "game_id": "401772805",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-21T21:25:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Las Vegas Raiders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.372Z",
+    "updated_at": "2025-09-11T02:48:46.293Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 604,
+  "fields": {
+    "game_id": "401772934",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-22T01:20:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "Cincinnati Bengals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.373Z",
+    "updated_at": "2025-09-11T02:48:46.294Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 605,
+  "fields": {
+    "game_id": "401772824",
+    "season": 2025,
+    "week": 16,
+    "game_type": "regular",
+    "start_time": "2025-12-23T01:15:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "San Francisco 49ers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:07.375Z",
+    "updated_at": "2025-09-11T02:48:46.296Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 606,
+  "fields": {
+    "game_id": "401772710",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-25T18:00:00Z",
+    "home_team": "Washington Commanders",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.104Z",
+    "updated_at": "2025-09-11T02:48:47.289Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 607,
+  "fields": {
+    "game_id": "401772711",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-25T21:30:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.108Z",
+    "updated_at": "2025-09-11T02:48:47.292Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 608,
+  "fields": {
+    "game_id": "401772622",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-26T01:15:00Z",
+    "home_team": "Kansas City Chiefs",
+    "away_team": "Denver Broncos",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.111Z",
+    "updated_at": "2025-09-11T02:48:47.296Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 609,
+  "fields": {
+    "game_id": "401772954",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-27T05:00:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.114Z",
+    "updated_at": "2025-09-11T02:48:47.298Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 610,
+  "fields": {
+    "game_id": "401772953",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-27T05:00:00Z",
+    "home_team": "Green Bay Packers",
+    "away_team": "Baltimore Ravens",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.117Z",
+    "updated_at": "2025-09-11T02:48:47.301Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 611,
+  "fields": {
+    "game_id": "401772950",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-27T05:00:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "New York Giants",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.119Z",
+    "updated_at": "2025-09-11T02:48:47.303Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 612,
+  "fields": {
+    "game_id": "401772951",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-27T05:00:00Z",
+    "home_team": "Los Angeles Chargers",
+    "away_team": "Houston Texans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.121Z",
+    "updated_at": "2025-09-11T02:48:47.305Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 613,
+  "fields": {
+    "game_id": "401772952",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-27T05:00:00Z",
+    "home_team": "Carolina Panthers",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.123Z",
+    "updated_at": "2025-09-11T02:48:47.307Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 614,
+  "fields": {
+    "game_id": "401772807",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-28T18:00:00Z",
+    "home_team": "Cleveland Browns",
+    "away_team": "Pittsburgh Steelers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.125Z",
+    "updated_at": "2025-09-11T02:48:47.310Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 615,
+  "fields": {
+    "game_id": "401772809",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-28T18:00:00Z",
+    "home_team": "Tennessee Titans",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.127Z",
+    "updated_at": "2025-09-11T02:48:47.312Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 616,
+  "fields": {
+    "game_id": "401772915",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-28T18:00:00Z",
+    "home_team": "Indianapolis Colts",
+    "away_team": "Jacksonville Jaguars",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.129Z",
+    "updated_at": "2025-09-11T02:48:47.313Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 617,
+  "fields": {
+    "game_id": "401772916",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-28T18:00:00Z",
+    "home_team": "Miami Dolphins",
+    "away_team": "Tampa Bay Buccaneers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.131Z",
+    "updated_at": "2025-09-11T02:48:47.315Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 618,
+  "fields": {
+    "game_id": "401772808",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-28T18:00:00Z",
+    "home_team": "New York Jets",
+    "away_team": "New England Patriots",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.133Z",
+    "updated_at": "2025-09-11T02:48:47.317Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 619,
+  "fields": {
+    "game_id": "401772917",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-28T21:25:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "Philadelphia Eagles",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.135Z",
+    "updated_at": "2025-09-11T02:48:47.319Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 620,
+  "fields": {
+    "game_id": "401772935",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-29T01:20:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Chicago Bears",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.137Z",
+    "updated_at": "2025-09-11T02:48:47.320Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 621,
+  "fields": {
+    "game_id": "401772825",
+    "season": 2025,
+    "week": 17,
+    "game_type": "regular",
+    "start_time": "2025-12-30T01:15:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "Los Angeles Rams",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.138Z",
+    "updated_at": "2025-09-11T02:48:47.322Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 622,
+  "fields": {
+    "game_id": "401772966",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Atlanta Falcons",
+    "away_team": "New Orleans Saints",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.841Z",
+    "updated_at": "2025-09-11T02:48:48.036Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 623,
+  "fields": {
+    "game_id": "401772967",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Buffalo Bills",
+    "away_team": "New York Jets",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.844Z",
+    "updated_at": "2025-09-11T02:48:48.039Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 624,
+  "fields": {
+    "game_id": "401772965",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Chicago Bears",
+    "away_team": "Detroit Lions",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.848Z",
+    "updated_at": "2025-09-11T02:48:48.042Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 625,
+  "fields": {
+    "game_id": "401772964",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Cincinnati Bengals",
+    "away_team": "Cleveland Browns",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.851Z",
+    "updated_at": "2025-09-11T02:48:48.044Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 626,
+  "fields": {
+    "game_id": "401772956",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Denver Broncos",
+    "away_team": "Los Angeles Chargers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.854Z",
+    "updated_at": "2025-09-11T02:48:48.047Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 627,
+  "fields": {
+    "game_id": "401772957",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Las Vegas Raiders",
+    "away_team": "Kansas City Chiefs",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.856Z",
+    "updated_at": "2025-09-11T02:48:48.049Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 628,
+  "fields": {
+    "game_id": "401772955",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Los Angeles Rams",
+    "away_team": "Arizona Cardinals",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.858Z",
+    "updated_at": "2025-09-11T02:48:48.051Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 629,
+  "fields": {
+    "game_id": "401772968",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Minnesota Vikings",
+    "away_team": "Green Bay Packers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.860Z",
+    "updated_at": "2025-09-11T02:48:48.053Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 630,
+  "fields": {
+    "game_id": "401772958",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "New England Patriots",
+    "away_team": "Miami Dolphins",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.862Z",
+    "updated_at": "2025-09-11T02:48:48.054Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 631,
+  "fields": {
+    "game_id": "401772963",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "New York Giants",
+    "away_team": "Dallas Cowboys",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.864Z",
+    "updated_at": "2025-09-11T02:48:48.056Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 632,
+  "fields": {
+    "game_id": "401772959",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Philadelphia Eagles",
+    "away_team": "Washington Commanders",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.866Z",
+    "updated_at": "2025-09-11T02:48:48.058Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 633,
+  "fields": {
+    "game_id": "401772960",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Pittsburgh Steelers",
+    "away_team": "Baltimore Ravens",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.868Z",
+    "updated_at": "2025-09-11T02:48:48.060Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 634,
+  "fields": {
+    "game_id": "401772961",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "San Francisco 49ers",
+    "away_team": "Seattle Seahawks",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.870Z",
+    "updated_at": "2025-09-11T02:48:48.062Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 635,
+  "fields": {
+    "game_id": "401772969",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Tampa Bay Buccaneers",
+    "away_team": "Carolina Panthers",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.872Z",
+    "updated_at": "2025-09-11T02:48:48.064Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 636,
+  "fields": {
+    "game_id": "401772970",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Jacksonville Jaguars",
+    "away_team": "Tennessee Titans",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.874Z",
+    "updated_at": "2025-09-11T02:48:48.065Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 637,
+  "fields": {
+    "game_id": "401772962",
+    "season": 2025,
+    "week": 18,
+    "game_type": "regular",
+    "start_time": "2026-01-04T05:00:00Z",
+    "home_team": "Houston Texans",
+    "away_team": "Indianapolis Colts",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:08.875Z",
+    "updated_at": "2025-09-11T02:48:48.067Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 638,
+  "fields": {
+    "game_id": "401772976",
+    "season": 2025,
+    "week": 1,
+    "game_type": "playoff",
+    "start_time": "2026-01-10T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:09.609Z",
+    "updated_at": "2025-09-11T02:48:48.745Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 639,
+  "fields": {
+    "game_id": "401772977",
+    "season": 2025,
+    "week": 1,
+    "game_type": "playoff",
+    "start_time": "2026-01-10T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:09.615Z",
+    "updated_at": "2025-09-11T02:48:48.750Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 640,
+  "fields": {
+    "game_id": "401772978",
+    "season": 2025,
+    "week": 1,
+    "game_type": "playoff",
+    "start_time": "2026-01-11T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:09.618Z",
+    "updated_at": "2025-09-11T02:48:48.753Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 641,
+  "fields": {
+    "game_id": "401772979",
+    "season": 2025,
+    "week": 1,
+    "game_type": "playoff",
+    "start_time": "2026-01-11T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:09.621Z",
+    "updated_at": "2025-09-11T02:48:48.755Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 642,
+  "fields": {
+    "game_id": "401772980",
+    "season": 2025,
+    "week": 1,
+    "game_type": "playoff",
+    "start_time": "2026-01-11T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:09.624Z",
+    "updated_at": "2025-09-11T02:48:48.757Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 643,
+  "fields": {
+    "game_id": "401772981",
+    "season": 2025,
+    "week": 1,
+    "game_type": "playoff",
+    "start_time": "2026-01-13T01:15:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:09.626Z",
+    "updated_at": "2025-09-11T02:48:48.760Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 644,
+  "fields": {
+    "game_id": "401772982",
+    "season": 2025,
+    "week": 2,
+    "game_type": "playoff",
+    "start_time": "2026-01-17T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:10.332Z",
+    "updated_at": "2025-09-11T02:48:49.419Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 645,
+  "fields": {
+    "game_id": "401772983",
+    "season": 2025,
+    "week": 2,
+    "game_type": "playoff",
+    "start_time": "2026-01-17T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:10.338Z",
+    "updated_at": "2025-09-11T02:48:49.425Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 646,
+  "fields": {
+    "game_id": "401772984",
+    "season": 2025,
+    "week": 2,
+    "game_type": "playoff",
+    "start_time": "2026-01-18T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:10.341Z",
+    "updated_at": "2025-09-11T02:48:49.428Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 647,
+  "fields": {
+    "game_id": "401772985",
+    "season": 2025,
+    "week": 2,
+    "game_type": "playoff",
+    "start_time": "2026-01-18T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:10.343Z",
+    "updated_at": "2025-09-11T02:48:49.430Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 648,
+  "fields": {
+    "game_id": "401772986",
+    "season": 2025,
+    "week": 3,
+    "game_type": "playoff",
+    "start_time": "2026-01-25T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:11.064Z",
+    "updated_at": "2025-09-11T02:48:50.113Z"
+  }
+},
+{
+  "model": "games.game",
+  "pk": 649,
+  "fields": {
+    "game_id": "401772987",
+    "season": 2025,
+    "week": 3,
+    "game_type": "playoff",
+    "start_time": "2026-01-25T05:00:00Z",
+    "home_team": "TBD",
+    "away_team": "TBD",
+    "home_score": 0,
+    "away_score": 0,
+    "status": "scheduled",
+    "created_at": "2025-09-10T01:41:11.068Z",
+    "updated_at": "2025-09-11T02:48:50.118Z"
+  }
+},
+{
+  "model": "leagues.league",
+  "pk": 1,
+  "fields": {
+    "name": "Heatabockas",
+    "commissioner": 2,
+    "sport": "NFL",
+    "description": null,
+    "created_at": "2025-09-10T16:47:29.360Z",
+    "is_private": true,
+    "is_approved": true
+  }
+},
+{
+  "model": "leagues.league",
+  "pk": 2,
+  "fields": {
+    "name": "NFL ShadeRoom",
+    "commissioner": 2,
+    "sport": "NFL",
+    "description": null,
+    "created_at": "2025-09-10T16:48:18.004Z",
+    "is_private": true,
+    "is_approved": true
+  }
+},
+{
+  "model": "leagues.leaguemembership",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "league": 2,
+    "joined_at": "2025-09-10T17:05:32.074Z"
+  }
+},
+{
+  "model": "leagues.leaguemembership",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "league": 1,
+    "joined_at": "2025-09-10T17:05:32.076Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 5,
+  "fields": {
+    "user": 3,
+    "game": 382,
+    "league": null,
+    "picked_team": "Washington Commanders",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T03:38:54.375Z",
+    "updated_at": "2025-09-10T03:40:23.638Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 6,
+  "fields": {
+    "user": 3,
+    "game": 395,
+    "league": null,
+    "picked_team": "Atlanta Falcons",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T03:39:12.090Z",
+    "updated_at": "2025-09-10T03:39:12.090Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 7,
+  "fields": {
+    "user": 3,
+    "game": 396,
+    "league": null,
+    "picked_team": "Houston Texans",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T03:39:17.186Z",
+    "updated_at": "2025-09-10T03:39:17.186Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 8,
+  "fields": {
+    "user": 3,
+    "game": 397,
+    "league": null,
+    "picked_team": "Los Angeles Chargers",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T03:39:22.636Z",
+    "updated_at": "2025-09-10T03:39:22.636Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 9,
+  "fields": {
+    "user": 3,
+    "game": 413,
+    "league": null,
+    "picked_team": "Detroit Lions",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T03:40:46.124Z",
+    "updated_at": "2025-09-10T03:40:46.124Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 10,
+  "fields": {
+    "user": 3,
+    "game": 398,
+    "league": null,
+    "picked_team": "Miami Dolphins",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T03:40:48.071Z",
+    "updated_at": "2025-09-10T03:40:48.071Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 11,
+  "fields": {
+    "user": 3,
+    "game": 412,
+    "league": null,
+    "picked_team": "Kansas City Chiefs",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T03:40:50.327Z",
+    "updated_at": "2025-09-10T03:40:50.327Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 12,
+  "fields": {
+    "user": 2,
+    "game": 382,
+    "league": 2,
+    "picked_team": "Washington Commanders",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T17:46:53.758Z",
+    "updated_at": "2025-09-10T17:46:53.758Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 13,
+  "fields": {
+    "user": 2,
+    "game": 395,
+    "league": 2,
+    "picked_team": "Minnesota Vikings",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T17:46:58.336Z",
+    "updated_at": "2025-09-10T17:46:58.336Z"
+  }
+},
+{
+  "model": "picks.pick",
+  "pk": 14,
+  "fields": {
+    "user": 2,
+    "game": 396,
+    "league": 2,
+    "picked_team": "Houston Texans",
+    "confidence": 1,
+    "is_correct": null,
+    "points": 1,
+    "created_at": "2025-09-10T17:47:01.672Z",
+    "updated_at": "2025-09-10T17:47:01.672Z"
+  }
+}
+]

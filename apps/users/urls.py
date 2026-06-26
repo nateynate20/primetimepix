@@ -40,4 +40,6 @@ urlpatterns = [
     
     path('debug-password-reset/', views.debug_password_reset, name='debug_password_reset'),
     path('send-pending-password-resets/', views.send_pending_password_resets, name='send_pending_password_resets'),
+    path('dismiss-notifications/', views.dismiss_notifications, name='dismiss_notifications'),
+    path('toggle-reminders/', views.toggle_reminders, name='toggle_reminders'),
 ]

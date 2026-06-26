@@ -1,0 +1,133 @@
+<div class="bg-white dark:bg-surface-800 rounded-xl p-6 border-2 border-amber-200 dark:border-yellow-400/60 shadow-card dark:shadow-card-dark relative hover:border-amber-400 dark:hover:border-yellow-300 hover:-translate-y-1 transition-all
+            {% if game.status == 'in_progress' %}!border-green-400{% endif %}
+            {% if game.status == 'final' %}!border-red-400 dark:!border-red-600{% endif %}">
+
+    <!-- Status Badge -->
+    {% if game.status == 'in_progress' %}
+        <span role="status" class="absolute top-3 left-3 bg-green-500 text-white text-xs font-black px-2.5 py-1 rounded-full animate-pulse uppercase tracking-wide">LIVE</span>
+    {% elif game.status == 'final' %}
+        <span class="absolute top-3 left-3 bg-red-600 text-white text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-wide">FINAL</span>
+    {% elif not game.is_pickable %}
+        <span class="absolute top-3 left-3 bg-orange-500 text-white text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-wide">LOCKED</span>
+    {% endif %}
+
+    <!-- Primetime Badge -->
+    <span class="absolute top-3 right-3 bg-amber-100 dark:bg-yellow-400 text-amber-700 dark:text-black text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-wide">
+        &#11088; {{ game.primetime_type|default:"Primetime" }}
+    </span>
+
+    <!-- Teams -->
+    <div class="flex justify-between items-center mb-4 mt-10">
+        <div class="flex items-center space-x-2">
+            <img src="{{ game.away_logo|default:'/static/images/default_team.png' }}" alt="{{ game.away_team }}" class="w-8 h-8">
+            <span class="text-lg font-bold
+                        {% if game.away_is_winner %}text-green-600 dark:text-green-400{% endif %}
+                        {% if game.user_pick and game.user_pick.picked_team == game.away_team %}text-blue-600 dark:text-blue-400 underline{% endif %}
+                        text-gray-900 dark:text-white">
+                {{ game.away_team }}
+            </span>
+        </div>
+        <div class="text-gray-400 font-black text-sm">vs</div>
+        <div class="flex items-center space-x-2">
+            <span class="text-lg font-bold
+                        {% if game.home_is_winner %}text-green-600 dark:text-green-400{% endif %}
+                        {% if game.user_pick and game.user_pick.picked_team == game.home_team %}text-blue-600 dark:text-blue-400 underline{% endif %}
+                        text-gray-900 dark:text-white">
+                {{ game.home_team }}
+            </span>
+            <img src="{{ game.home_logo|default:'/static/images/default_team.png' }}" alt="{{ game.home_team }}" class="w-8 h-8">
+        </div>
+    </div>
+
+    <!-- Game Info -->
+    <div class="text-gray-500 dark:text-gray-400 text-sm mb-4 text-center font-semibold">
+        Week {{ game.week }} &bull; {{ game.primetime_type|default:"Primetime" }}<br>
+        {% if game.display_time_et %}
+            <time datetime="{{ game.start_time|date:'c' }}">{{ game.display_time_et|date:"l, F j, g:i A" }} ET</time>
+        {% else %}
+            Time TBD
+        {% endif %}
+    </div>
+
+    <!-- Scores -->
+    {% if game.has_score %}
+        <div class="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 mb-4 border border-gray-200 dark:border-gray-600">
+            <div class="flex justify-between text-lg font-black">
+                <span class="{% if game.away_is_winner %}text-green-600 dark:text-green-400{% else %}text-gray-900 dark:text-white{% endif %}">
+                    {{ game.away_team }}: {{ game.away_score|default:"-" }}
+                </span>
+                <span class="{% if game.home_is_winner %}text-green-600 dark:text-green-400{% else %}text-gray-900 dark:text-white{% endif %}">
+                    {{ game.home_team }}: {{ game.home_score|default:"-" }}
+                </span>
+            </div>
+            {% if game.status == 'final' %}
+                {% if game.winner and game.winner != 'tie' %}
+                    <div class="text-center mt-2 text-green-600 dark:text-green-400 text-sm font-bold">&#127942; {{ game.winner }} Wins!</div>
+                {% elif game.winner == 'tie' %}
+                    <div class="text-center mt-2 text-amber-600 dark:text-yellow-400 text-sm font-bold">&#9878;&#65039; Tie Game</div>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- User Pick Status -->
+    {% if game.user_pick %}
+        <div class="mb-4 p-3 rounded-lg border-2 {% if game.status == 'final' %}{% if game.user_pick.picked_team == game.winner %}bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-600{% elif game.winner == 'tie' %}bg-amber-50 dark:bg-yellow-900/30 border-amber-300 dark:border-yellow-600{% else %}bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-600{% endif %}{% else %}bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-600{% endif %}">
+            <div class="text-center">
+                <div class="font-bold text-xs uppercase tracking-wide text-gray-600 dark:text-gray-300 mb-1">
+                    {% if league %}Your {{ league.name }} Pick{% else %}Your Pick{% endif %}:
+                </div>
+                <div class="font-black text-lg text-gray-900 dark:text-white">{{ game.user_pick.picked_team }}</div>
+                {% if game.status == 'final' and game.winner %}
+                    {% if game.user_pick.picked_team == game.winner %}
+                        <div class="text-green-600 dark:text-green-400 font-bold mt-1 text-sm">&#9989; Correct! (+{{ game.user_pick.confidence }} pts)</div>
+                    {% elif game.winner == 'tie' %}
+                        <div class="text-amber-600 dark:text-yellow-400 font-bold mt-1 text-sm">&#10134; Push (Tie Game)</div>
+                    {% else %}
+                        <div class="text-red-600 dark:text-red-400 font-bold mt-1 text-sm">&#10060; Incorrect</div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Pick Buttons (pickable until individual game kickoff) -->
+    {% if game.is_pickable %}
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            {% if league %}
+                <input type="hidden" name="league" value="{{ league.id }}">
+            {% endif %}
+            <div class="space-y-2">
+                <button type="submit" name="pick_{{ game.id }}" value="away"
+                        class="w-full py-3 px-4 rounded-lg font-bold transition-all text-center
+                               {% if game.user_pick and game.user_pick.picked_team == game.away_team %}
+                                   bg-blue-600 hover:bg-blue-500 text-white ring-2 ring-blue-400
+                               {% else %}
+                                   bg-gray-100 dark:bg-gray-700 hover:bg-blue-600 hover:text-white text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-600 hover:border-blue-600
+                               {% endif %}">
+                    <i class="fas fa-hand-pointer mr-2"></i>Pick {{ game.away_team }}
+                </button>
+                <button type="submit" name="pick_{{ game.id }}" value="home"
+                        class="w-full py-3 px-4 rounded-lg font-bold transition-all text-center
+                               {% if game.user_pick and game.user_pick.picked_team == game.home_team %}
+                                   bg-blue-600 hover:bg-blue-500 text-white ring-2 ring-blue-400
+                               {% else %}
+                                   bg-gray-100 dark:bg-gray-700 hover:bg-blue-600 hover:text-white text-gray-900 dark:text-white border-2 border-gray-200 dark:border-gray-600 hover:border-blue-600
+                               {% endif %}">
+                    <i class="fas fa-hand-pointer mr-2"></i>Pick {{ game.home_team }}
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <div class="text-center text-gray-500 dark:text-gray-400 font-bold mt-4 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+            {% if game.status == 'final' %}
+                <i class="fas fa-flag-checkered mr-2"></i>Game Complete
+            {% elif game.status == 'in_progress' %}
+                <i class="fas fa-play mr-2"></i>Game in Progress
+            {% else %}
+                <i class="fas fa-lock mr-2"></i>Picks Closed
+            {% endif %}
+        </div>
+    {% endif %}
+</div>

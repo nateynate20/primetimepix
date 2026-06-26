@@ -1,135 +1,137 @@
 {% extends 'nflpix/base.html' %}
 
-{% block title %}My Leagues - NFL Pick'em{% endblock %}
+{% block title %}My Leagues - PrimeTimePix{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 py-8">
-    
-    <div class="flex justify-between items-center mb-8">
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-neon mb-2">
-                <i class="fas fa-users mr-2"></i>My Leagues
+            <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
+                My Leagues
             </h1>
-            <p class="text-gray-400">Manage your leagues, view standings, and track your performance</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Manage your leagues, view standings, and track your performance</p>
         </div>
-        <div class="flex gap-3">
-            <a href="{% url 'request_join_league' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
-                <i class="fas fa-user-plus mr-2"></i>Join League
+        <div class="flex gap-2">
+            <a href="{% url 'request_join_league' %}" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
+                <i class="fas fa-user-plus mr-1"></i>Join League
             </a>
-            <a href="{% url 'league_create_request' %}" class="bg-neon hover:bg-green-400 text-black px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
-                <i class="fas fa-plus mr-2"></i>Create League
+            <a href="{% url 'league_create_request' %}" class="px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
+                <i class="fas fa-plus mr-1"></i>Create League
             </a>
         </div>
     </div>
 
     {% if leagues %}
-        <!-- League Stats Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-gray-800 rounded-lg p-6 text-center">
-                <div class="text-3xl font-bold text-neon">{{ leagues.count }}</div>
-                <div class="text-gray-400">Total Leagues</div>
+    <!-- Stats Bar -->
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div>
+                <div class="text-2xl font-black font-display text-accent-600 dark:text-neon">{{ leagues|length }}</div>
+                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Total Leagues</div>
             </div>
-            <div class="bg-gray-800 rounded-lg p-6 text-center">
-                <div class="text-3xl font-bold text-blue-400">
-                    {% for league in leagues %}{{ league.member_count|add:0 }}{% if not forloop.last %}+{% endif %}{% endfor %}
-                </div>
-                <div class="text-gray-400">Total Members</div>
+            <div class="border-x border-gray-200 dark:border-gray-700">
+                <div class="text-2xl font-black font-display text-gray-900 dark:text-white">{{ total_members }}</div>
+                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Total Members</div>
             </div>
-            <div class="bg-gray-800 rounded-lg p-6 text-center">
-                <div class="text-3xl font-bold text-yellow-400">
-                    {{ leagues|length }}
-                </div>
-                <div class="text-gray-400">Active Leagues</div>
+            <div>
+                <div class="text-2xl font-black font-display text-accent-600 dark:text-neon">{{ leagues|length }}</div>
+                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Active Leagues</div>
             </div>
         </div>
+    </div>
 
-        <!-- Leagues Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for league in leagues %}
-                <div class="bg-gray-800 rounded-lg p-6 hover:bg-gray-750 transition-colors border border-gray-700 hover:border-neon">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <h3 class="text-xl font-bold text-neon mb-1">{{ league.name }}</h3>
-                            <div class="flex items-center text-sm text-gray-400">
-                                <i class="fas fa-football-ball mr-1"></i>
-                                <span>{{ league.sport }}</span>
-                                <span class="mx-2">•</span>
-                                <i class="fas fa-users mr-1"></i>
-                                <span>{{ league.member_count }} members</span>
-                            </div>
-                        </div>
+    <!-- Leagues List -->
+    <div class="space-y-4">
+        {% for league in leagues %}
+        <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:border-accent-500 dark:hover:border-neon transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <!-- League Info -->
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="text-lg font-black font-display text-gray-900 dark:text-white">{{ league.name }}</h3>
                         {% if league.commissioner == user %}
-                            <span class="bg-yellow-500 text-black text-xs px-2 py-1 rounded font-medium">
-                                Commissioner
-                            </span>
+                        <span class="text-xs font-bold bg-amber-100 dark:bg-yellow-400/10 text-amber-700 dark:text-yellow-300 px-2 py-0.5 rounded-full uppercase">Commissioner</span>
+                        {% else %}
+                        <span class="text-xs font-bold bg-blue-100 dark:bg-blue-400/10 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full uppercase">Member</span>
                         {% endif %}
                     </div>
-                    
+                    <div class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                        <span><i class="fas fa-football-ball mr-1"></i>{{ league.sport }}</span>
+                        <span><i class="fas fa-users mr-1"></i>{{ league.member_count }} member{{ league.member_count|pluralize }}</span>
+                        <span>{% if league.is_private %}<i class="fas fa-lock mr-1"></i>Private{% else %}<i class="fas fa-globe mr-1"></i>Public{% endif %}</span>
+                    </div>
                     {% if league.description %}
-                        <p class="text-gray-300 text-sm mb-4 line-clamp-2">{{ league.description }}</p>
-                    {% else %}
-                        <p class="text-gray-500 text-sm mb-4 italic">No description provided</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">{{ league.description }}</p>
                     {% endif %}
-                    
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <span>Created {{ league.created_at|date:"M j, Y" }}</span>
-                        <span class="{% if league.is_private %}text-orange-400{% else %}text-green-400{% endif %}">
-                            <i class="fas {% if league.is_private %}fa-lock{% else %}fa-globe{% endif %} mr-1"></i>
-                            {% if league.is_private %}Private{% else %}Public{% endif %}
-                        </span>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <a href="{% url 'league_detail' league.id %}" 
-                           class="flex-1 bg-neon hover:bg-green-400 text-black text-center py-2 px-3 rounded font-medium transition-colors">
-                            <i class="fas fa-chart-line mr-1"></i>View Standings
-                        </a>
-                        <a href="{% url 'schedule' %}?league={{ league.id }}" 
-                           class="flex-1 bg-gray-600 hover:bg-gray-500 text-white text-center py-2 px-3 rounded font-medium transition-colors">
-                            <i class="fas fa-hand-paper mr-1"></i>Make Picks
-                        </a>
-                    </div>
                 </div>
-            {% endfor %}
-        </div>
-
-    {% else %}
-        <!-- Empty State -->
-        <div class="text-center py-16">
-            <div class="max-w-md mx-auto">
-                <div class="mb-6">
-                    <i class="fas fa-users-slash text-6xl text-gray-600"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-300 mb-4">No Leagues Yet</h3>
-                <p class="text-gray-400 mb-8">
-                    You're not currently a member of any leagues. Join an existing league or create your own to start competing with friends!
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{% url 'request_join_league' %}" 
-                       class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center">
-                        <i class="fas fa-user-plus mr-2"></i>Join Existing League
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <a href="{% url 'league_detail' league.id %}" class="px-4 py-2 text-xs font-bold bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-chart-line mr-1"></i>View Standings
                     </a>
-                    <a href="{% url 'league_create_request' %}" 
-                       class="bg-neon hover:bg-green-400 text-black px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center">
-                        <i class="fas fa-plus mr-2"></i>Create New League
+                    <a href="{% url 'schedule' %}?league={{ league.id }}" class="px-4 py-2 text-xs font-bold bg-gray-900 dark:bg-white text-white dark:text-black rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-hand-pointer mr-1"></i>Make Picks
                     </a>
                 </div>
             </div>
         </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center p-8 bg-white dark:bg-surface-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl mb-6">
+        <div class="text-5xl mb-4">&#127944;</div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">No Leagues Yet</h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Join a league below to compete with friends!</p>
+    </div>
+
+    {% if available_leagues %}
+    <h2 class="text-sm font-black uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Available Public Leagues</h2>
+    <div class="space-y-3 mb-6">
+        {% for league in available_leagues %}
+        <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center justify-between hover:border-accent-500 dark:hover:border-neon transition-all">
+            <div>
+                <h3 class="font-bold text-gray-900 dark:text-white">{{ league.name }}</h3>
+                <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <span><i class="fas fa-football-ball mr-1"></i>{{ league.sport }}</span>
+                    <span><i class="fas fa-users mr-1"></i>{{ league.member_count }} member{{ league.member_count|pluralize }}</span>
+                    <span><i class="fas fa-globe mr-1"></i>Public</span>
+                </div>
+            </div>
+            <form method="post" action="{% url 'request_join_league' %}">
+                {% csrf_token %}
+                <input type="hidden" name="league" value="{{ league.id }}">
+                <button type="submit" class="px-4 py-2 text-xs font-bold bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg hover:opacity-90 transition">
+                    <i class="fas fa-sign-in-alt mr-1"></i>Join
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="flex justify-center gap-3">
+        <a href="{% url 'request_join_league' %}" class="px-6 py-3 bg-accent-600 dark:bg-neon text-white dark:text-black font-bold rounded-lg hover:opacity-90 transition text-sm">
+            <i class="fas fa-user-plus mr-2"></i>Browse Leagues
+        </a>
+    </div>
+    {% endif %}
     {% endif %}
 
-    <!-- Pending Requests Info -->
-    <div class="mt-8 bg-blue-900 border-l-4 border-blue-400 p-4 rounded">
-        <div class="flex items-center">
-            <i class="fas fa-info-circle text-blue-400 mr-3"></i>
+    <!-- League Management Info -->
+    <div class="mt-8 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 p-4 rounded-r-lg">
+        <div class="flex items-start gap-3">
+            <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
             <div>
-                <h4 class="font-semibold text-blue-300">League Management</h4>
-                <p class="text-blue-100 text-sm mt-1">
-                    League creation and join requests require admin approval. 
+                <h4 class="font-bold text-gray-900 dark:text-blue-200 text-sm">League Management</h4>
+                <p class="text-gray-600 dark:text-blue-100/70 text-sm mt-1">
+                    League creation and join requests require admin approval.
                     {% if user.is_staff %}
-                        <a href="{% url 'admin:index' %}" class="text-blue-300 hover:underline">Go to admin panel</a> to manage requests.
+                    <a href="{% url 'admin:index' %}" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Go to admin panel</a> to manage requests.
                     {% else %}
-                        You'll be notified when your requests are approved.
+                    You'll be notified when your requests are approved.
                     {% endif %}
                 </p>
             </div>

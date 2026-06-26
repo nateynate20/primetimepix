@@ -1,55 +1,102 @@
 {% extends 'nflpix/base.html' %}
 
-{% block title %}Login - NFL Pick'em{% endblock %}
+{% block title %}Sign In - PrimeTimePix{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-12 col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <i class="fas fa-football-ball fa-3x text-neon mb-3"></i>
-                    <h2 class="text-neon">Welcome Back</h2>
-                    <p class="text-muted-custom">Sign in to your account</p>
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4">
+    <div class="max-w-sm w-full">
+
+        <!-- Card -->
+        <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-card dark:shadow-card-dark overflow-hidden">
+
+            <!-- Header -->
+            <div class="px-6 pt-8 pb-4 text-center">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent-100 dark:bg-neon/10 mb-4">
+                    <i class="fas fa-football-ball text-2xl text-accent-600 dark:text-neon"></i>
                 </div>
-                
-                <form method="POST">
-                    {% csrf_token %}
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors }}
-                        </div>
-                    {% endif %}
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input type="text" name="username" class="form-control" required>
-                        {% if form.username.errors %}
-                            <div class="text-danger">{{ form.username.errors }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                        {% if form.password.errors %}
-                            <div class="text-danger">{{ form.password.errors }}</div>
-                        {% endif %}
-                    </div>
-                    <button type="submit" class="btn-neon-fill w-100 mb-3">
-                        <i class="fas fa-sign-in-alt me-2"></i>Log In
-                    </button>
-                </form>
-                
-                <div class="text-center">
-                    <a href="{% url 'password_reset' %}" class="text-neon">Forgot Password?</a>
-                </div>
+                <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">Welcome Back</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to your account</p>
             </div>
-            <div class="card-footer bg-transparent border-top border-secondary text-center">
-                <p class="mb-0 text-muted-custom">
-                    Don't have an account? 
-                    <a href="{% url 'signup' %}" class="text-neon">Sign Up</a>
+
+            <!-- Error Messages -->
+            {% if form.non_field_errors %}
+            <div class="mx-6 mb-4 p-3 rounded-lg text-sm font-medium bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
+                <i class="fas fa-exclamation-circle mr-2"></i>{{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <!-- Form -->
+            <form method="POST" class="px-6 pb-6 space-y-4">
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div>
+                    <label for="id_username" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Username</label>
+                    <div class="relative">
+                        <input type="text" name="username" id="id_username" required
+                               placeholder="Enter your username"
+                               class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-accent-500 dark:focus:border-neon focus:ring-2 focus:ring-accent-500/20 dark:focus:ring-neon/20">
+                        <i class="fas fa-user absolute right-3 top-3 text-gray-400 dark:text-gray-500 text-sm"></i>
+                    </div>
+                    {% if form.username.errors %}
+                    <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="id_password" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" name="password" id="id_password" required
+                               placeholder="Enter your password"
+                               class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-accent-500 dark:focus:border-neon focus:ring-2 focus:ring-accent-500/20 dark:focus:ring-neon/20">
+                        <i class="fas fa-lock absolute right-3 top-3 text-gray-400 dark:text-gray-500 text-sm cursor-pointer hover:text-accent-600 dark:hover:text-neon transition"></i>
+                    </div>
+                    {% if form.password.errors %}
+                    <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Forgot Password -->
+                <div class="flex justify-end">
+                    <a href="{% url 'password_reset' %}" class="text-xs font-bold text-accent-600 dark:text-neon hover:underline">Forgot Password?</a>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="w-full bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition flex items-center justify-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                </button>
+            </form>
+
+            <!-- Sign Up Link -->
+            <div class="text-center px-6 pb-6 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400 pt-4">
+                    Don't have an account?
+                    <a href="{% url 'signup' %}" class="text-accent-600 dark:text-neon font-bold hover:underline">
+                        Sign Up <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
                 </p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.querySelectorAll('input[type="password"]').forEach(input => {
+    const icon = input.parentElement.querySelector('.fa-lock');
+    if (icon) {
+        icon.addEventListener('click', function() {
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-lock');
+                icon.classList.add('fa-lock-open');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-lock-open');
+                icon.classList.add('fa-lock');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

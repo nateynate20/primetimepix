@@ -1,6 +1,6 @@
 from datetime import timedelta
 from django.utils import timezone
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -42,31 +42,8 @@ def get_teams_dropdown(games_queryset):
 
 @login_required
 def weekly_primetime_view(request):
-    """Display weekly primetime schedule."""
-    week_start, week_end = get_current_week_dates()
-
-    base_games = Game.objects.filter(
-        start_time__date__gte=week_start,
-        start_time__date__lte=week_end,
-    ).order_by('start_time')
-
-    games, selected_team, show_primetime_only = get_filtered_games(request, base_games)
-
-    paginator = Paginator(games, 12)
-    page_obj = paginator.get_page(request.GET.get('page', 1))
-
-    context = {
-        'games': page_obj,
-        'teams': get_teams_dropdown(base_games),
-        'selected_team': selected_team,
-        'show_primetime_only': show_primetime_only,
-        'total_games': len(base_games),
-        'primetime_count': sum(1 for g in base_games if g.is_primetime),
-        'completed_games': sum(1 for g in games if g.is_finished),
-        'week_start': week_start,
-        'week_end': week_end,
-    }
-    return render(request, 'schedule.html', context)
+    """Redirect to the main picks schedule page."""
+    return redirect('schedule')
 
 
 @login_required

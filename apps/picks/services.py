@@ -91,10 +91,9 @@ class PickService:
                 pick__is_correct__isnull=False
             ).distinct()
         else:
-            # Overall leaderboard
-            picks_filter = Pick.objects.filter(league__isnull=True, is_correct__isnull=False)
+            # Global leaderboard - includes ALL picks from all users regardless of league
+            picks_filter = Pick.objects.filter(is_correct__isnull=False)
             users = User.objects.filter(
-                pick__league__isnull=True,
                 pick__is_correct__isnull=False
             ).distinct()
         

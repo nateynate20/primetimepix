@@ -41,12 +41,12 @@ class LeagueJoinRequestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        
+        self.user = user
+
         if user:
-            # Show only approved, public leagues where user is NOT already a member
+            # Show approved leagues where user is NOT already a member
             self.fields['league'].queryset = League.objects.filter(
                 is_approved=True,
-                is_private=False
             ).exclude(members=user).order_by('name')
 
     def clean_league(self):

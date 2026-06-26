@@ -1,20 +1,21 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full dark">
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}PrimeTimePix{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="{% block meta_description %}Make your picks for NFL primetime games. Compete with friends, climb the leaderboard!{% endblock %}">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0a0a0a">
 
-  <!-- Preload critical fonts -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" as="style">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- Fonts: Orbitron for headlines, Inter for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <!-- FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
-        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
 
   <!-- Tailwind CDN -->
@@ -24,21 +25,49 @@
       script.src = 'https://cdn.tailwindcss.com';
       script.onload = function() {
         tailwind.config = {
+          darkMode: 'class',
           theme: {
             extend: {
               colors: {
                 'neon': '#39ff14',
-                'dark': { 100: '#1f2937', 200: '#374151', 300: '#4b5563' }
+                'neon-dark': '#2dd60f',
+                'accent': { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                'surface': { 50: '#fafafa', 100: '#f5f5f5', 200: '#e5e5e5', 300: '#d4d4d4', 700: '#1a1a2e', 800: '#0f0f1a', 900: '#0a0a0f' },
               },
-              fontFamily: { 'orbitron': ['Orbitron', 'system-ui', 'sans-serif'] },
-              boxShadow: { 'neon': '0 0 20px rgba(57, 255, 20, 0.5)', 'glow': '0 0 40px rgba(57, 255, 20, 0.3)' },
-              animation: { 'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite' }
+              fontFamily: {
+                'display': ['Orbitron', 'system-ui', 'sans-serif'],
+                'body': ['Inter', 'system-ui', 'sans-serif'],
+              },
+              boxShadow: {
+                'neon': '0 0 20px rgba(57, 255, 20, 0.4)',
+                'glow': '0 0 40px rgba(57, 255, 20, 0.2)',
+                'card': '0 4px 24px rgba(0,0,0,0.08)',
+                'card-dark': '0 4px 24px rgba(0,0,0,0.4)',
+              },
+              animation: {
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+              }
             }
-          },
-          darkMode: 'class'
+          }
         };
       };
       document.head.appendChild(script);
+    })();
+  </script>
+
+  <!-- Theme init (prevents flash) -->
+  <script>
+    (function() {
+      var theme = localStorage.getItem('ptp-theme');
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+          document.documentElement.classList.remove('dark');
+        }
+      }
     })();
   </script>
 
@@ -48,8 +77,8 @@
   {% block extra_head %}{% endblock %}
 </head>
 
-<body class="bg-black text-white font-orbitron min-h-screen flex flex-col antialiased">
-  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-neon text-black px-4 py-2 rounded-md font-medium z-50">
+<body class="bg-surface-100 dark:bg-surface-900 text-gray-900 dark:text-white font-body min-h-screen flex flex-col antialiased transition-colors duration-300">
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-neon text-black px-4 py-2 rounded-md font-bold z-50">
     Skip to main content
   </a>
 
@@ -64,38 +93,53 @@
     </div>
   </main>
 
-  <footer class="bg-gray-900/50 border-t border-gray-800 mt-auto backdrop-blur-sm" role="contentinfo">
+  <footer class="bg-white/80 dark:bg-surface-800/80 border-t border-gray-200 dark:border-gray-800 mt-auto backdrop-blur-sm" role="contentinfo">
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
       <div class="text-center md:text-left">
-        <h3 class="text-lg font-bold text-neon mb-2">PrimeTimePix</h3>
-        <p class="text-gray-400 text-sm">The ultimate NFL primetime prediction platform</p>
+        <h3 class="text-lg font-black font-display text-accent-700 dark:text-neon mb-2 uppercase tracking-wide">PrimeTimePix</h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">The ultimate NFL primetime prediction platform</p>
       </div>
       <div class="text-center">
-        <h4 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Quick Links</h4>
+        <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300 mb-3 uppercase tracking-widest">Quick Links</h4>
         <nav class="space-y-2">
           {% if user.is_authenticated %}
-            <a href="/users/dashboard/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Dashboard</a>
-            <a href="/leagues/league/" class="block text-gray-400 hover:text-neon transition-colors text-sm">My Leagues</a>
+            <a href="/users/dashboard/" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">Dashboard</a>
+            <a href="/leagues/league/" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">My Leagues</a>
           {% else %}
-            <a href="/users/login_user/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Login</a>
-            <a href="/users/register_user/" class="block text-gray-400 hover:text-neon transition-colors text-sm">Register</a>
+            <a href="/users/login_user/" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">Login</a>
+            <a href="{% url 'signup' %}" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">Register</a>
           {% endif %}
-          <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Leaderboard</a>
+          <a href="#" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">Leaderboard</a>
         </nav>
       </div>
       <div class="text-center md:text-right">
-        <h4 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wide">Legal</h4>
+        <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300 mb-3 uppercase tracking-widest">Legal</h4>
         <nav class="space-y-2">
-          <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Privacy Policy</a>
-          <a href="#" class="block text-gray-400 hover:text-neon transition-colors text-sm">Terms of Service</a>
-          <a href="mailto:support@primetimepix.com" class="block text-gray-400 hover:text-neon transition-colors text-sm">Contact</a>
+          <a href="#" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">Privacy Policy</a>
+          <a href="#" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">Terms of Service</a>
+          <a href="mailto:support@primetimepix.com" class="block text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon transition-colors text-sm font-semibold">Contact</a>
         </nav>
       </div>
     </div>
-    <div class="border-t border-gray-800 mt-8 pt-6 text-center">
-      <p class="text-gray-500 text-sm">&copy; {% now "Y" %} PrimeTimePix. All rights reserved.</p>
+    <div class="border-t border-gray-200 dark:border-gray-800 mt-8 pt-6 text-center">
+      <p class="text-gray-400 dark:text-gray-500 text-sm font-medium">&copy; {% now "Y" %} PrimeTimePix. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- Theme toggle logic -->
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        html.classList.remove('dark');
+        localStorage.setItem('ptp-theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('ptp-theme', 'dark');
+      }
+    }
+  </script>
 
   {% block extra_scripts %}{% endblock %}
 </body>

@@ -163,10 +163,15 @@ def dashboard(request):
     for game in primetime_games:
         game.user_pick = picks_dict.get(game.id)
 
+    # Get unread notifications
+    from apps.users.models import Notification
+    notifications = Notification.objects.filter(user=user, is_read=False)[:5]
+
     context = {
         'user': user,
         'league': league,
         'primetime_games': primetime_games,
+        'notifications': notifications,
     }
     return render(request, 'user_dashboard.html', context)
 
@@ -267,3 +272,23 @@ def send_pending_password_resets(request):
     print(f"=== SUMMARY === {summary}")  # 👈 visible in Render logs
 
     return JsonResponse(summary, json_dumps_params={'indent': 2})
+
+
+@login_required
+def dismiss_notifications(request):
+    """Mark all notifications as read for the current user."""
+    from apps.users.models import Notification
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    messages.info(request, "All notifications dismissed.")
+    return redirect('dashboard')
+
+
+@login_required
+def toggle_reminders(request):
+    """Toggle email reminders on/off."""
+    profile = request.user.profile
+    profile.email_reminders_enabled = not profile.email_reminders_enabled
+    profile.save()
+    status = "enabled" if profile.email_reminders_enabled else "disabled"
+    messages.success(request, f"Email reminders {status}.")
+    return redirect('dashboard')

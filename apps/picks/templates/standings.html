@@ -6,25 +6,25 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-neon">
+    <div class="flex flex-wrap justify-between items-center mb-6 gap-4">
+        <h1 class="text-2xl sm:text-3xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
             {% if league %}
                 {{ league.name }} Standings
             {% else %}
                 League Standings
             {% endif %}
         </h1>
-        
+
         <!-- League Navigation -->
         {% if user_leagues %}
-        <div class="flex gap-4">
-            <a href="{% url 'general_standings' %}" 
-               class="px-4 py-2 rounded {% if is_overall %}bg-neon text-black{% else %}bg-gray-700 text-neon hover:bg-gray-600{% endif %}">
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'general_standings' %}"
+               class="px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide transition-all {% if is_overall %}bg-accent-600 dark:bg-neon text-white dark:text-black{% else %}bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-2 border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon{% endif %}">
                 Overall
             </a>
             {% for user_league in user_leagues %}
-            <a href="{% url 'standings' %}?league={{ user_league.id }}" 
-               class="px-4 py-2 rounded {% if league and league.id == user_league.id %}bg-neon text-black{% else %}bg-gray-700 text-neon hover:bg-gray-600{% endif %}">
+            <a href="{% url 'standings' %}?league={{ user_league.id }}"
+               class="px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide transition-all {% if league and league.id == user_league.id %}bg-accent-600 dark:bg-neon text-white dark:text-black{% else %}bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-2 border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon{% endif %}">
                 {{ user_league.name }}
             </a>
             {% endfor %}
@@ -33,87 +33,89 @@
     </div>
 
     {% if page_obj %}
-    <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-        <table class="min-w-full">
-            <thead>
-                <tr class="bg-gray-700">
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Rank
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        User
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Points
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Correct
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Total
-                    </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Accuracy
-                    </th>
-                    {% if not league %}
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                        Primetime
-                    </th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-600">
-                {% for standing in page_obj %}
-                <tr class="{% if standing.user == user %}bg-gray-700{% endif %}">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">
-                        {% if forloop.counter == 1 %}
-                            🏆 1st
-                        {% elif forloop.counter == 2 %}
-                            🥈 2nd
-                        {% elif forloop.counter == 3 %}
-                            🥉 3rd
-                        {% else %}
-                            {{ forloop.counter }}
+    <div class="bg-white dark:bg-surface-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl shadow-card dark:shadow-card-dark overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-700/50 border-b-2 border-gray-200 dark:border-gray-600">
+                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            Rank
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            User
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            Points
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            Correct
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            Total
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            Accuracy
+                        </th>
+                        {% if not league %}
+                        <th class="px-6 py-4 text-left text-xs font-black text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            Primetime
+                        </th>
                         {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-neon">
-                        {{ standing.user.username }}
-                        {% if standing.user == user %}
-                            <span class="ml-2 px-2 py-1 bg-blue-600 text-white text-xs rounded">You</span>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                    {% for standing in page_obj %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors {% if standing.user == user %}bg-accent-50 dark:bg-neon/5{% endif %}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-gray-900 dark:text-white">
+                            {% if forloop.counter == 1 %}
+                                &#127942; 1st
+                            {% elif forloop.counter == 2 %}
+                                &#129351; 2nd
+                            {% elif forloop.counter == 3 %}
+                                &#129352; 3rd
+                            {% else %}
+                                {{ forloop.counter }}
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-accent-700 dark:text-neon">
+                            {{ standing.user.username }}
+                            {% if standing.user == user %}
+                                <span class="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-600 text-blue-700 dark:text-white text-xs font-bold rounded">You</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-amber-600 dark:text-yellow-400">
+                            {{ standing.total_points }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 dark:text-green-400">
+                            {{ standing.correct_predictions }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            {{ standing.total_predictions }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="px-2.5 py-1 bg-gray-100 dark:bg-gray-600 rounded-full text-gray-700 dark:text-white font-bold text-xs">
+                                {{ standing.accuracy }}%
+                            </span>
+                        </td>
+                        {% if not league %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <span class="text-amber-600 dark:text-yellow-300 font-bold">{{ standing.primetime_correct }}/{{ standing.primetime_picks }}</span>
+                            {% if standing.primetime_picks > 0 %}
+                                <br><span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">({{ standing.primetime_percentage }}%)</span>
+                            {% endif %}
+                        </td>
                         {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-yellow-400">
-                        {{ standing.total_points }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-400">
-                        {{ standing.correct_predictions }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        {{ standing.total_predictions }}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <span class="px-2 py-1 bg-gray-600 rounded text-white">
-                            {{ standing.accuracy }}%
-                        </span>
-                    </td>
-                    {% if not league %}
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <span class="text-yellow-300">{{ standing.primetime_correct }}/{{ standing.primetime_picks }}</span>
-                        {% if standing.primetime_picks > 0 %}
-                            <br><span class="text-xs text-gray-400">({{ standing.primetime_percentage }}%)</span>
-                        {% endif %}
-                    </td>
-                    {% endif %}
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="{% if league %}6{% else %}7{% endif %}" class="px-6 py-4 text-center text-gray-400">
-                        No picks have been made yet.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if league %}6{% else %}7{% endif %}" class="px-6 py-8 text-center text-gray-400 dark:text-gray-500 font-semibold">
+                            No picks have been made yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Pagination -->
@@ -122,18 +124,18 @@
         <div class="flex space-x-2">
             {% if page_obj.has_previous %}
                 <a href="?page={{ page_obj.previous_page_number }}{% if league %}&league={{ league.id }}{% endif %}"
-                   class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                   class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-bold border-2 border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
                     Previous
                 </a>
             {% endif %}
-            
-            <span class="px-4 py-2 bg-gray-800 text-white rounded">
+
+            <span class="px-4 py-2 bg-accent-600 dark:bg-neon/20 text-white dark:text-neon rounded-lg font-bold border-2 border-accent-600 dark:border-neon">
                 Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
             </span>
-            
+
             {% if page_obj.has_next %}
                 <a href="?page={{ page_obj.next_page_number }}{% if league %}&league={{ league.id }}{% endif %}"
-                   class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600">
+                   class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-bold border-2 border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
                     Next
                 </a>
             {% endif %}
@@ -142,9 +144,9 @@
     {% endif %}
 
     {% else %}
-    <div class="text-center text-gray-400 mt-8">
-        <p class="text-xl">No standings available.</p>
-        <p class="text-sm mt-2">Standings will appear once users start making picks.</p>
+    <div class="text-center mt-8 p-12 bg-white dark:bg-surface-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl">
+        <p class="text-xl font-bold text-gray-700 dark:text-gray-300">No standings available.</p>
+        <p class="text-sm mt-2 text-gray-500 dark:text-gray-400 font-medium">Standings will appear once users start making picks.</p>
     </div>
     {% endif %}
 </div>

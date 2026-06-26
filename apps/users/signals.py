@@ -6,6 +6,11 @@ from .models import Profile
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        # Only create if one doesn't already exist (signup form may have created it)
+        Profile.objects.get_or_create(
+            user=instance,
+            defaults={'team_name': instance.username}
+        )
     else:
-        instance.profile.save()
+        if hasattr(instance, 'profile'):
+            instance.profile.save()

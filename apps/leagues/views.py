@@ -26,9 +26,21 @@ def select_league(request):
     ).annotate(
         member_count=Count('members')
     ).select_related('commissioner')
-    
+
+    total_members = sum(l.member_count for l in leagues)
+
+    # Show available public leagues for users who aren't in any yet
+    available_leagues = League.objects.filter(
+        is_approved=True,
+        is_private=False
+    ).exclude(members=request.user).annotate(
+        member_count=Count('members')
+    ).order_by('name')
+
     context = {
         'leagues': leagues,
+        'total_members': total_members,
+        'available_leagues': available_leagues,
     }
     return render(request, 'select_league.html', context)
 
@@ -125,19 +137,27 @@ def request_join_league(request, league_id=None):
         form = LeagueJoinRequestForm(request.POST, user=request.user)
         if form.is_valid():
             league = form.cleaned_data['league']
-            
+
             if league.members.filter(id=request.user.id).exists():
                 messages.warning(request, 'You are already a member of this league.')
                 return redirect('league_detail_no_id')
-            
+
+            # Public leagues: instant join, no approval needed
+            if not league.is_private:
+                from apps.leagues.models import LeagueMembership
+                LeagueMembership.objects.get_or_create(user=request.user, league=league)
+                messages.success(request, f'Successfully joined {league.name}!')
+                return redirect('league_detail', league_id=league.id)
+
+            # Private leagues: create a join request for commissioner approval
             if LeagueJoinRequest.objects.filter(user=request.user, league=league).exists():
                 messages.warning(request, 'You have already requested to join this league.')
                 return redirect('league_detail_no_id')
-            
+
             obj = form.save(commit=False)
             obj.user = request.user
             obj.save()
-            messages.success(request, f'Your request to join "{league.name}" has been submitted.')
+            messages.success(request, f'Your request to join "{league.name}" has been submitted for approval.')
             return redirect('league_detail_no_id')
     else:
         form = LeagueJoinRequestForm(user=request.user)
@@ -169,7 +189,7 @@ def review_league_creation_requests(request):
                 commissioner=req.user,
                 description=getattr(req, 'description', '') or '',
                 is_approved=True,
-                is_private=True
+                is_private=False
             )
             req.approved = True
             req.save()
@@ -384,29 +404,34 @@ def create_league(request):
 @login_required
 def my_leagues(request):
     """Show all leagues where user is a member or commissioner"""
-    # Get leagues where user is a member
+    from django.db.models import Sum
+
     member_leagues = League.objects.filter(
         members=request.user,
         is_approved=True
     ).annotate(member_count=Count('members'))
-    
-    # Get leagues where user is commissioner
+
     commissioner_leagues = League.objects.filter(
         commissioner=request.user,
         is_approved=True
     ).annotate(member_count=Count('members'))
-    
-    # Get pending join requests for user's leagues
+
     pending_requests = LeagueJoinRequest.objects.filter(
         league__commissioner=request.user,
         approved=False
     ).select_related('user', 'league')
-    
+
+    # Combine all unique leagues for stats
+    all_leagues = (member_leagues | commissioner_leagues).distinct()
+    total_members = sum(l.member_count for l in all_leagues)
+
     context = {
         'member_leagues': member_leagues,
         'commissioner_leagues': commissioner_leagues,
         'pending_requests': pending_requests,
-        'total_leagues': member_leagues.count(),
+        'total_leagues': all_leagues.count(),
+        'total_members': total_members,
+        'active_leagues': all_leagues.count(),
     }
     return render(request, 'leagues/my_leagues.html', context)
 

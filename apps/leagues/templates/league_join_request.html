@@ -1,43 +1,112 @@
 {% extends 'nflpix/base.html' %}
 
-{% block title %}Join League Request - NFL Pick'em{% endblock %}
+{% block title %}Join a League - PrimeTimePix{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-header bg-transparent border-bottom border-secondary">
-                <h3 class="text-neon mb-0">
-                    <i class="fas fa-user-plus me-2"></i>Request to Join League
-                </h3>
-            </div>
-            <div class="card-body">
-                <p class="text-muted-custom mb-4">
-                    Submit a request to join an existing league. The league admin will review and approve it.
-                </p>
-                <form method="post">
+<div class="max-w-2xl mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
+            <i class="fas fa-user-plus text-accent-600 dark:text-neon mr-2"></i>Join a League
+        </h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Submit a request to join an existing league. The commissioner will review and approve it.</p>
+    </div>
+
+    <!-- Available Public Leagues -->
+    {% if available_leagues %}
+    <div class="mb-8">
+        <h2 class="text-sm font-black uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Available Public Leagues</h2>
+        <div class="space-y-3">
+            {% for league in available_leagues %}
+            <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center justify-between hover:border-accent-500 dark:hover:border-neon transition-all">
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white">{{ league.name }}</h3>
+                    <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span><i class="fas fa-football-ball mr-1"></i>{{ league.sport }}</span>
+                        <span><i class="fas fa-globe mr-1"></i>Public</span>
+                        {% if league.description %}<span>{{ league.description|truncatewords:6 }}</span>{% endif %}
+                    </div>
+                </div>
+                <form method="post" action="{% url 'request_join_league' %}">
                     {% csrf_token %}
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label_tag }}</label>
-                            {{ field }}
-                            {% if field.help_text %}
-                                <div class="form-text">{{ field.help_text }}</div>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div class="text-danger">{{ field.errors }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn-neon-fill">
-                        <i class="fas fa-paper-plane me-2"></i>Submit Request
+                    <input type="hidden" name="league" value="{{ league.id }}">
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-sign-in-alt mr-1"></i>Join
                     </button>
-                    <a href="{% url 'dashboard' %}" class="btn-neon ms-2">
-                        <i class="fas fa-times me-2"></i>Cancel
-                    </a>
                 </form>
             </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Request Form for Private Leagues -->
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-sm font-black uppercase tracking-wide text-gray-900 dark:text-white">Request to Join a Private League</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Select a league below and submit your request for approval.</p>
+        </div>
+        <div class="p-5">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">{{ field.label }}</label>
+                    <div class="league-form-field">{{ field }}</div>
+                    {% if field.help_text %}
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% if field.errors %}
+                    <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ field.errors }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="px-5 py-2.5 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Request
+                    </button>
+                    <a href="{% url 'league_detail_no_id' %}" class="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
+                        Cancel
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<style>
+.league-form-field select,
+.league-form-field input,
+.league-form-field textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid #e5e7eb;
+    background-color: #fff;
+    color: #111827;
+}
+.dark .league-form-field select,
+.dark .league-form-field input,
+.dark .league-form-field textarea {
+    border-color: #374151;
+    background-color: #1f2937;
+    color: #f3f4f6;
+}
+.league-form-field select:focus,
+.league-form-field input:focus,
+.league-form-field textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+.dark .league-form-field select:focus,
+.dark .league-form-field input:focus,
+.dark .league-form-field textarea:focus {
+    border-color: #39ff14;
+    box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.15);
+}
+</style>
 {% endblock %}

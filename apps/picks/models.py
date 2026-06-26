@@ -129,18 +129,18 @@ class UserStats(models.Model):
             total=Sum('points')
         )['total'] or 0
         
-        # Update primetime stats using the game's is_primetime property
+        # Update primetime stats - is_primetime is a Python property, not a DB field
         try:
-            primetime_picks = user_picks.filter(game__is_primetime=True)
-            self.primetime_picks = primetime_picks.count()
-            self.primetime_correct = primetime_picks.filter(is_correct=True).count()
+            all_user_picks = list(user_picks.select_related('game'))
+            primetime_pick_list = [p for p in all_user_picks if p.game.is_primetime]
+            self.primetime_picks = len(primetime_pick_list)
+            self.primetime_correct = sum(1 for p in primetime_pick_list if p.is_correct)
             
             if self.primetime_picks > 0:
                 self.primetime_win_percentage = (self.primetime_correct / self.primetime_picks) * 100
             else:
                 self.primetime_win_percentage = 0.0
         except Exception:
-            # Fallback if primetime filtering fails
             self.primetime_picks = 0
             self.primetime_correct = 0
             self.primetime_win_percentage = 0.0
@@ -232,6 +232,35 @@ class UserStats(models.Model):
             total_picks__gte=5  # Minimum picks to be ranked
         ).count()
         return better_users + 1
+
+
+class CPUPick(models.Model):
+    """CPU opponent picks based on spread favorites from ESPN."""
+    game = models.OneToOneField(Game, on_delete=models.CASCADE, related_name='cpu_pick')
+    picked_team = models.CharField(max_length=50)
+    is_correct = models.BooleanField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['is_correct']),
+        ]
+
+    def __str__(self):
+        return f"CPU picked {self.picked_team} ({self.game})"
+
+    def resolve(self):
+        """Resolve this CPU pick based on game result."""
+        if not self.game.is_finished:
+            return None
+        winner = self.game.winner
+        if winner is None or winner == 'tie':
+            self.is_correct = None
+        else:
+            self.is_correct = (winner == self.picked_team)
+        self.save()
+        return self.is_correct
 
 
 class LeagueStats(models.Model):

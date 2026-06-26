@@ -1,0 +1,162 @@
+{% extends 'nflpix/base.html' %}
+
+{% block title %}vs CPU Challenge - PrimeTimePix{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
+                <i class="fas fa-robot text-purple-500 mr-2"></i>You vs CPU
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">The CPU picks the spread favorite every week. Can you beat the line?</p>
+        </div>
+        <a href="{% url 'toggle_cpu_challenge' %}" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-xs border border-gray-200 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition">
+            <i class="fas fa-power-off mr-1"></i>Deactivate
+        </a>
+    </div>
+
+    <!-- Head-to-Head Record -->
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 mb-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <!-- You -->
+            <div>
+                <div class="text-3xl font-black font-display text-accent-600 dark:text-neon">{{ user_wins }}</div>
+                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Your Wins</div>
+                <div class="text-sm font-bold text-gray-700 dark:text-gray-300 mt-2">{{ user_accuracy }}%</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Accuracy ({{ user_correct_count }}/{{ user_total_picks }})</div>
+            </div>
+            <!-- VS -->
+            <div class="flex flex-col items-center justify-center border-x border-gray-200 dark:border-gray-700">
+                <div class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1">Record</div>
+                <div class="text-lg font-black text-gray-900 dark:text-white">
+                    {{ user_wins }} - {{ ties }} - {{ cpu_wins }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ total_matchups }} matchups</div>
+            </div>
+            <!-- CPU -->
+            <div>
+                <div class="text-3xl font-black font-display text-purple-500">{{ cpu_wins }}</div>
+                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">CPU Wins</div>
+                <div class="text-sm font-bold text-gray-700 dark:text-gray-300 mt-2">{{ cpu_accuracy }}%</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">Accuracy ({{ cpu_correct_count }}/{{ total_cpu_picks }})</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Week Navigation -->
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        <a href="{% url 'vs_cpu' %}"
+           class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition {% if not selected_week %}bg-accent-600 dark:bg-neon text-white dark:text-black{% else %}bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon{% endif %}">
+            All Weeks
+        </a>
+        {% for week_key, games in weeks_data.items %}
+        <a href="{% url 'vs_cpu' %}?week={{ week_key }}"
+           class="flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition {% if selected_week == week_key|stringformat:'s' %}bg-accent-600 dark:bg-neon text-white dark:text-black{% else %}bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon{% endif %}">
+            {% if week_key == 'playoffs' %}POST{% else %}WK {{ week_key }}{% endif %}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Weekly Matchups -->
+    {% for week_key, matchups in weeks_data.items %}
+    <div class="mb-6">
+        <h2 class="text-sm font-black uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+            {% if week_key == 'playoffs' %}Playoffs{% else %}Week {{ week_key }}{% endif %}
+        </h2>
+        <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-800/50">
+                        <th class="px-4 py-2.5 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Game</th>
+                        <th class="px-4 py-2.5 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Your Pick</th>
+                        <th class="px-4 py-2.5 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">CPU Pick</th>
+                        <th class="px-4 py-2.5 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Result</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    {% for m in matchups %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                        <!-- Game -->
+                        <td class="px-4 py-3">
+                            <div class="text-sm font-bold text-gray-900 dark:text-white">{{ m.game.away_team }} @ {{ m.game.home_team }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                {% if m.game.display_time_et %}{{ m.game.display_time_et|date:"D, M j" }}{% endif %}
+                                {% if m.game.spread_favorite %}
+                                &bull; <span class="text-purple-500 dark:text-purple-400">
+                                    {% if m.game.spread_favorite == 'home' %}{{ m.game.home_team }}{% else %}{{ m.game.away_team }}{% endif %} {{ m.game.spread|floatformat:1 }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <!-- User Pick -->
+                        <td class="px-4 py-3 text-center">
+                            {% if m.user_pick %}
+                            <span class="text-sm font-bold {% if m.game_final %}{% if m.winner == m.user_pick %}text-green-600 dark:text-green-400{% else %}text-red-500 dark:text-red-400{% endif %}{% else %}text-gray-900 dark:text-white{% endif %}">
+                                {{ m.user_pick }}
+                            </span>
+                            {% else %}
+                            <span class="text-xs text-gray-400 dark:text-gray-500 italic">No pick</span>
+                            {% endif %}
+                        </td>
+                        <!-- CPU Pick -->
+                        <td class="px-4 py-3 text-center">
+                            {% if m.game.has_started %}
+                            <span class="text-sm font-bold {% if m.game_final %}{% if m.winner == m.cpu_pick %}text-green-600 dark:text-green-400{% else %}text-red-500 dark:text-red-400{% endif %}{% else %}text-purple-600 dark:text-purple-400{% endif %}">
+                                {{ m.cpu_pick }}
+                            </span>
+                            {% else %}
+                            <span class="text-xs text-gray-400 dark:text-gray-500 italic">Hidden until kickoff</span>
+                            {% endif %}
+                        </td>
+                        <!-- Result -->
+                        <td class="px-4 py-3 text-center">
+                            {% if m.result == 'user_win' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">YOU WIN</span>
+                            {% elif m.result == 'cpu_win' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">CPU WINS</span>
+                            {% elif m.result == 'both_correct' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">PUSH</span>
+                            {% elif m.result == 'both_wrong' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">BOTH WRONG</span>
+                            {% elif m.game_final and not m.user_pick %}
+                            <span class="text-xs text-gray-400 dark:text-gray-500">-</span>
+                            {% else %}
+                            <span class="text-xs text-gray-400 dark:text-gray-500">Pending</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% empty %}
+    <!-- Empty State -->
+    <div class="text-center p-12 bg-white dark:bg-surface-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl">
+        <div class="text-5xl mb-4">&#129302;</div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">No CPU Picks Yet</h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">CPU picks are generated each week based on the spread. Check back once games are scheduled!</p>
+        <a href="{% url 'schedule' %}" class="inline-flex items-center px-5 py-2.5 bg-accent-600 dark:bg-neon text-white dark:text-black font-bold rounded-lg text-sm hover:opacity-90 transition">
+            <i class="fas fa-hand-pointer mr-2"></i>Make Your Picks
+        </a>
+    </div>
+    {% endfor %}
+
+    <!-- Info -->
+    <div class="mt-6 bg-purple-50 dark:bg-purple-900/20 border-l-4 border-purple-400 dark:border-purple-500 p-4 rounded-r-lg">
+        <div class="flex items-start gap-3">
+            <i class="fas fa-robot text-purple-500 mt-0.5"></i>
+            <div>
+                <h4 class="font-bold text-gray-900 dark:text-purple-200 text-sm">How the CPU Picks</h4>
+                <p class="text-gray-600 dark:text-purple-100/70 text-sm mt-1">
+                    The CPU always picks the spread favorite based on ESPN odds data. If no spread is available, it defaults to the home team.
+                    CPU picks are hidden until kickoff so you can't peek. Only games where both you and the CPU made picks count toward the head-to-head record.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

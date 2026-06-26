@@ -1,50 +1,172 @@
 {% extends 'nflpix/base.html' %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-7xl mx-auto text-center">
-    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-orbitron text-neon drop-shadow-lg">
-      Welcome to <span class="text-neon">PrimetimePix</span>
-    </h1>
-    <p class="mt-6 max-w-3xl mx-auto text-lg leading-8 text-gray-300">
-      Make your picks for NFL and NBA primetime games.<br>
-      Compete with friends or the public, climb the leaderboard, and dominate your league!
-    </p>
-    <div class="mt-10 flex flex-col sm:flex-row justify-center gap-6">
-      {% if not user.is_authenticated %}
-        <a href="{% url 'signup' %}" class="bg-neon text-black text-lg font-bold px-8 py-3 rounded-lg shadow-lg hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-neon focus:ring-offset-2 transition">
-          Sign Up
-        </a>
-        <a href="{% url 'login' %}" class="bg-gray-800 border border-neon text-neon text-lg font-bold px-8 py-3 rounded-lg shadow-lg hover:bg-neon hover:text-black focus:outline-none focus:ring-2 focus:ring-neon focus:ring-offset-2 transition">
-          Log In
-        </a>
-      {% else %}
-        <span class="text-neon text-lg font-bold px-8 py-3 rounded-lg shadow-lg bg-gray-900 border border-neon">
-          Welcome, {{ user.username }}!
+<div class="min-h-[85vh] py-16 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Hero Section -->
+    <div class="text-center mb-20">
+      <div class="inline-block mb-6">
+        <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-accent-100 text-accent-700 dark:bg-neon/10 dark:text-neon border border-accent-200 dark:border-neon/30">
+          <i class="fas fa-football-ball mr-2"></i> NFL 2026 Season
         </span>
-      {% endif %}
-      <a href="{% url 'league_detail_no_id' %}" class="bg-gray-900 border border-gray-700 text-gray-100 text-lg font-bold px-8 py-3 rounded-lg shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-neon focus:ring-offset-2 transition">
-        Explore Leagues
-      </a>
+      </div>
+
+      <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black font-display uppercase tracking-tight leading-none">
+        <span class="text-gray-900 dark:text-white">Primetime</span><br>
+        <span class="text-accent-600 dark:text-neon">Pix</span>
+      </h1>
+
+      <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl font-semibold text-gray-600 dark:text-gray-300 leading-relaxed">
+        Make your picks for NFL and NBA primetime games.
+        Compete with friends or the public, climb the leaderboard, and dominate your league.
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+        {% if not user.is_authenticated %}
+          <a href="{% url 'signup' %}" class="btn-neon-fill text-lg px-10 py-4">
+            <i class="fas fa-rocket mr-2"></i> Sign Up Free
+          </a>
+          <a href="{% url 'login' %}" class="btn-neon text-lg px-10 py-4">
+            Log In
+          </a>
+        {% else %}
+          <a href="{% url 'dashboard' %}" class="btn-neon-fill text-lg px-10 py-4">
+            <i class="fas fa-tachometer-alt mr-2"></i> My Dashboard
+          </a>
+        {% endif %}
+        <a href="{% url 'league_detail_no_id' %}" class="inline-flex items-center justify-center text-lg font-bold px-10 py-4 rounded-md border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-accent-500 dark:hover:border-neon hover:text-accent-600 dark:hover:text-neon transition-all">
+          Explore Leagues
+        </a>
+      </div>
     </div>
 
-    <div class="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-5xl mx-auto">
-      <section class="bg-gray-900 shadow-lg rounded-xl p-8 hover:shadow-neon hover:bg-gray-800 cursor-pointer transition duration-200">
-        <h3 class="text-2xl font-semibold text-neon mb-3">Create or Join Leagues</h3>
-        <p class="text-gray-300">Form private leagues with friends or join public ones to test your skills against others.</p>
-        <a href="{% url 'league_detail_no_id' %}" class="inline-block mt-4 text-neon font-bold underline hover:text-green-400 transition">Find a League</a>
-      </section>
-      <section class="bg-gray-900 shadow-lg rounded-xl p-8 hover:shadow-neon hover:bg-gray-800 cursor-pointer transition duration-200">
-        <h3 class="text-2xl font-semibold text-neon mb-3">Track Standings</h3>
-        <p class="text-gray-300">Check live leaderboards for your leagues and the global rankings.</p>
-        <a href="{% url 'dashboard' %}" class="inline-block mt-4 text-neon font-bold underline hover:text-green-400 transition">View Standings</a>
-      </section>
-      <section class="bg-gray-900 shadow-lg rounded-xl p-8 hover:shadow-neon hover:bg-gray-800 cursor-pointer transition duration-200">
-        <h3 class="text-2xl font-semibold text-neon mb-3">Weekly Picks</h3>
-        <p class="text-gray-300">Make picks for NFL and NBA primetime games before kickoff or tip-off.</p>
-        <a href="{% url 'schedule' %}" class="inline-block mt-4 text-neon font-bold underline hover:text-green-400 transition">Make Picks</a>
-      </section>
+    <!-- Feature Cards - ESPN Bracket Style -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      <div class="feature-card group">
+        <div class="feature-icon">
+          <i class="fas fa-trophy text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">
+          Create or Join Leagues
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed mb-4">
+          Form private leagues with friends or join public ones to test your skills against others.
+        </p>
+        <a href="{% url 'league_detail_no_id' %}" class="inline-flex items-center text-sm font-bold text-accent-600 dark:text-neon group-hover:underline">
+          Find a League <i class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
+        </a>
+      </div>
+
+      <div class="feature-card group">
+        <div class="feature-icon">
+          <i class="fas fa-chart-line text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">
+          Track Standings
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed mb-4">
+          Check live leaderboards for your leagues and the global rankings.
+        </p>
+        <a href="{% url 'general_standings' %}" class="inline-flex items-center text-sm font-bold text-accent-600 dark:text-neon group-hover:underline">
+          View Standings <i class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
+        </a>
+      </div>
+
+      <div class="feature-card group">
+        <div class="feature-icon">
+          <i class="fas fa-football-ball text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">
+          Weekly Picks
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed mb-4">
+          Make picks for NFL and NBA primetime games before kickoff or tip-off.
+        </p>
+        <a href="{% url 'schedule' %}" class="inline-flex items-center text-sm font-bold text-accent-600 dark:text-neon group-hover:underline">
+          Make Picks <i class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
+        </a>
+      </div>
     </div>
+
+    <!-- Bottom Stats Bar -->
+    <div class="mt-16 max-w-3xl mx-auto">
+      <div class="grid grid-cols-3 gap-4 bg-white dark:bg-surface-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-card dark:shadow-card-dark">
+        <div class="text-center">
+          <div class="text-2xl sm:text-3xl font-black font-display text-accent-600 dark:text-neon">284</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-1">Games</div>
+        </div>
+        <div class="text-center border-x border-gray-200 dark:border-gray-700">
+          <div class="text-2xl sm:text-3xl font-black font-display text-accent-600 dark:text-neon">LIVE</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-1">Standings</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl sm:text-3xl font-black font-display text-accent-600 dark:text-neon">FREE</div>
+          <div class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mt-1">To Play</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
+
+<style>
+  .feature-card {
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .dark .feature-card {
+    background: #1a1a2e;
+    border-color: #374151;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #22c55e;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .dark .feature-card::before {
+    background: #39ff14;
+  }
+  .feature-card:hover::before {
+    transform: scaleX(1);
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    border-color: #22c55e;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+  }
+  .dark .feature-card:hover {
+    border-color: #39ff14;
+    box-shadow: 0 12px 32px rgba(57,255,20,0.1);
+  }
+  .feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 2px solid #dcfce7;
+  }
+  .dark .feature-icon {
+    background: rgba(57, 255, 20, 0.08);
+    color: #39ff14;
+    border-color: rgba(57, 255, 20, 0.2);
+  }
+</style>
 {% endblock %}

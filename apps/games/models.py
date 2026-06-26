@@ -71,6 +71,8 @@ class Game(models.Model):
     away_team = models.CharField(max_length=50)
     home_score = models.IntegerField(null=True, blank=True)
     away_score = models.IntegerField(null=True, blank=True)
+    spread = models.FloatField(null=True, blank=True, help_text="Point spread (negative = home favored)")
+    spread_favorite = models.CharField(max_length=10, null=True, blank=True, choices=[('home', 'Home'), ('away', 'Away')])
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -119,6 +121,8 @@ class Game(models.Model):
             return True
         if weekday == 3 and game_time >= time(19, 0):  # Thursday Night
             return True
+        if weekday == 2 and game_time >= time(19, 0):  # Wednesday Night (season opener)
+            return True
         if weekday == 5:  # Saturday
             if self.week >= 17 or self.game_type != 'regular' or game_time >= time(19, 0):
                 return True
@@ -154,6 +158,8 @@ class Game(models.Model):
                 return "Monday Night"
             elif weekday == 3:
                 return "Thursday Night"
+            elif weekday == 2:
+                return "Opening Night"
             elif weekday == 5:
                 return "Saturday Night"
 
@@ -215,7 +221,7 @@ class Game(models.Model):
     # Pick Results
     # --------------------------
     def update_pick_results(self):
-        from apps.picks.models import Pick
+        from apps.picks.models import Pick, CPUPick
         if self.status == 'final' and self.winner is not None:
             picks = Pick.objects.filter(game=self)
             updated_count = 0
@@ -224,6 +230,12 @@ class Game(models.Model):
                 pick.calculate_result()
                 if old_correct != pick.is_correct:
                     updated_count += 1
+            # Resolve CPU pick for this game
+            try:
+                cpu_pick = CPUPick.objects.get(game=self)
+                cpu_pick.resolve()
+            except CPUPick.DoesNotExist:
+                pass
             return updated_count
         return 0
 
