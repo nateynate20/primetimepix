@@ -1,1 +1,1 @@
-web: gunicorn primetimepix.wsgi:application
+web: python manage.py migrate --noinput && gunicorn primetimepix.wsgi:application

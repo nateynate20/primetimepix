@@ -1,8 +1,8 @@
 [build]
 builder = "nixpacks"
-buildCommand = "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput"
+buildCommand = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
 
 [deploy]
-startCommand = "gunicorn primetimepix.wsgi:application"
+startCommand = "python manage.py migrate --noinput && gunicorn primetimepix.wsgi:application"
 healthcheckPath = "/"
 restartPolicyType = "on_failure"
