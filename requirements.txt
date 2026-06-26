@@ -42,6 +42,9 @@ diff-match-patch==20241021
 redis==5.0.1
 celery==5.3.4
 
+# Email (Brevo HTTP API - bypasses SMTP port blocking)
+django-anymail[brevo]==12.0
+
 # Monitoring (optional but recommended for production)
 sentry-sdk==1.39.1
 

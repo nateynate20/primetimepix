@@ -36,20 +36,16 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Email configuration - uses env vars so you can swap providers easily
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp-relay.brevo.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@primetimepixsports.com")
+# Email via Brevo HTTP API (SMTP ports blocked on Railway)
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+ANYMAIL = {
+    "BREVO_API_KEY": os.getenv("BREVO_API_KEY", ""),
+}
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "picks@primetimepixsports.com")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-if not EMAIL_HOST_PASSWORD:
-    print("[WARNING] EMAIL_HOST_PASSWORD is not set! Emails will not send.")
-
-EMAIL_TIMEOUT = 10
+if not ANYMAIL["BREVO_API_KEY"]:
+    print("[WARNING] BREVO_API_KEY is not set! Emails will not send.")
 # Security settings - Railway handles SSL at the proxy level
 SECURE_SSL_REDIRECT = False  # Railway's proxy handles HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
