@@ -7,11 +7,15 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '.up.railway.app',
     '.railway.app',
+    'primetimepixsports.com',
+    'www.primetimepixsports.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.up.railway.app',
     'https://*.railway.app',
+    'https://primetimepixsports.com',
+    'https://www.primetimepixsports.com',
 ]
 
 # Database
@@ -56,8 +60,8 @@ else:
 
 EMAIL_DEBUG = True 
 EMAIL_TIMEOUT = 10
-# Security settings
-SECURE_SSL_REDIRECT = True
+# Security settings - Railway handles SSL at the proxy level
+SECURE_SSL_REDIRECT = False  # Railway's proxy handles HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
