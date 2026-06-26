@@ -5,14 +5,13 @@ from .base import *
 # SECURITY
 DEBUG = False
 ALLOWED_HOSTS = [
-    'primetimepix.up.railway.app',
+    '.up.railway.app',
     '.railway.app',
-    'primetimepix.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://primetimepix.up.railway.app',
-    'https://primetimepix.onrender.com',
+    'https://*.up.railway.app',
+    'https://*.railway.app',
 ]
 
 # Database
