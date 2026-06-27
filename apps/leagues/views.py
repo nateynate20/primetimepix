@@ -341,64 +341,41 @@ def join_league_instant(request, league_id):
 @login_required
 def create_league(request):
     """Create a new league (instant creation for verified users)"""
+    from .forms import LeagueCreateForm
+
     if request.method == 'POST':
-        # Get form data
-        name = request.POST.get('name')
-        description = request.POST.get('description', '')
-        sport = request.POST.get('sport', 'NFL')
-        is_private = request.POST.get('is_private') == 'on'
-        
-        # Validate
-        if not name:
-            messages.error(request, "League name is required.")
-            return redirect('create_league')
-        
-        # Check for duplicate names
-        if League.objects.filter(name=name).exists():
-            messages.error(request, f"A league named '{name}' already exists.")
-            return redirect('create_league')
-        
-        # Create the league instantly
-        league = League.objects.create(
-            name=name,
-            commissioner=request.user,
-            description=description,
-            sport=sport,
-            is_private=is_private,
-            is_approved=True  # Auto-approve for now
-        )
-        
-        messages.success(request, f"League '{name}' created successfully! You are now the commissioner.")
-        
-        # Send confirmation email
-        try:
-            if request.user.email:
-                send_mail(
-                    f'League Created: {league.name}',
-                    f'Your league "{league.name}" has been created successfully!\n\n'
-                    f'League Settings:\n'
-                    f'- Type: {"Private" if is_private else "Public"}\n'
-                    f'- Sport: {sport}\n\n'
-                    f'Invite others to join at: {settings.SITE_URL}/leagues/{league.id}/',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [request.user.email],
-                    fail_silently=True,
-                )
-        except Exception as e:
-            print(f"League creation email failed: {e}")
-        
-        return redirect('league_detail', league_id=league.id)
-    
-    # GET request - show form
-    context = {
-        'form': {
-            'name': '',
-            'description': '',
-            'sport': 'NFL',
-            'is_private': False,
-        }
-    }
-    return render(request, 'create_league.html', context)
+        form = LeagueCreateForm(request.POST)
+        if form.is_valid():
+            league = form.save(commit=False)
+            league.commissioner = request.user
+            league.is_approved = True
+            league.save()
+
+            messages.success(request, f"League '{league.name}' created successfully! You are now the commissioner.")
+
+            try:
+                if request.user.email:
+                    send_mail(
+                        f'League Created: {league.name}',
+                        f'Your league "{league.name}" has been created successfully!\n\n'
+                        f'League Settings:\n'
+                        f'- Type: {"Private" if league.is_private else "Public"}\n'
+                        f'- Sport: {league.sport}\n\n'
+                        f'Invite others to join at: {settings.SITE_URL}/leagues/league/{league.id}/',
+                        settings.DEFAULT_FROM_EMAIL,
+                        [request.user.email],
+                        fail_silently=True,
+                    )
+            except Exception as e:
+                print(f"League creation email failed: {e}")
+
+            return redirect('league_detail', league_id=league.id)
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = LeagueCreateForm()
+
+    return render(request, 'create_league.html', {'form': form})
 
 
 @login_required

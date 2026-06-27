@@ -179,7 +179,7 @@ class Command(BaseCommand):
                 f"You have {unpicked} of {total} primetime picks still to make for Week {week}.\n\n"
                 f"First game kicks off {game_day} at {game_time} — "
                 f"make sure you get your picks in before lockout!\n\n"
-                f"Make picks: https://primetimepix.onrender.com/picks/?week={week}\n\n"
+                f"Make picks: {settings.SITE_URL}/picks/?week={week}\n\n"
                 f"Good luck!\nPrimeTimePix"
             )
         elif reminder_type == 'morning_of':
@@ -188,7 +188,7 @@ class Command(BaseCommand):
                 f"Hey {user.username},\n\n"
                 f"It's game day! You still have {unpicked} primetime pick(s) to make for Week {week}.\n\n"
                 f"Kickoff at {game_time} — don't miss out!\n\n"
-                f"Make picks: https://primetimepix.onrender.com/picks/?week={week}\n\n"
+                f"Make picks: {settings.SITE_URL}/picks/?week={week}\n\n"
                 f"Good luck!\nPrimeTimePix"
             )
         else:  # hours_before
@@ -197,7 +197,7 @@ class Command(BaseCommand):
                 f"Hey {user.username},\n\n"
                 f"Last chance! You have {unpicked} pick(s) that lock soon for Week {week}.\n\n"
                 f"Kickoff at {game_time} — make your picks NOW!\n\n"
-                f"Make picks: https://primetimepix.onrender.com/picks/?week={week}\n\n"
+                f"Make picks: {settings.SITE_URL}/picks/?week={week}\n\n"
                 f"PrimeTimePix"
             )
 

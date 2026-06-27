@@ -46,11 +46,19 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 if not ANYMAIL["BREVO_API_KEY"]:
     print("[WARNING] BREVO_API_KEY is not set! Emails will not send.")
+
+# Site URL for emails and deep links
+SITE_URL = os.getenv('SITE_URL', 'https://primetimepixsports.com')
+
 # Security settings - Railway handles SSL at the proxy level
 SECURE_SSL_REDIRECT = False  # Railway's proxy handles HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
 
 SITE_ID = 1

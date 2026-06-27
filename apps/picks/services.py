@@ -135,9 +135,9 @@ class PickService:
                 'primetime_percentage': round(primetime_percentage, 1),
             })
         
-        # Sort by accuracy (desc), then by total points (desc), then by total picks (desc)
+        # Sort by total points (desc), then accuracy (desc), then total picks (desc)
         leaderboard.sort(
-            key=lambda x: (x['accuracy'], x['total_points'], x['total_predictions']),
+            key=lambda x: (x['total_points'], x['accuracy'], x['total_predictions']),
             reverse=True
         )
         

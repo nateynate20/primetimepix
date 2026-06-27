@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 # Generate reset link for logging
                 token = default_token_generator.make_token(user)
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
-                reset_link = f"https://primetimepix.onrender.com/users/reset/{uid}/{token}/"
+                reset_link = f"{settings.SITE_URL}/users/reset/{uid}/{token}/"
 
                 self.stdout.write(f"User: {user.username}")
                 self.stdout.write(f"Email: {user.email}")
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                         email_template_name='registration/password_reset_email.html',
                         subject_template_name='registration/password_reset_subject.txt',
                         request=None,
-                        domain_override='primetimepix.onrender.com',  # avoids get_host() error
+                        domain_override=settings.SITE_URL.replace('https://', '').replace('http://', ''),
                     )
 
                     # Mark as sent

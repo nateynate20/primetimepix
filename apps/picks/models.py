@@ -20,7 +20,18 @@ class Pick(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ['user', 'game', 'league']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'game', 'league'],
+                name='unique_pick_with_league',
+                condition=models.Q(league__isnull=False),
+            ),
+            models.UniqueConstraint(
+                fields=['user', 'game'],
+                name='unique_pick_without_league',
+                condition=models.Q(league__isnull=True),
+            ),
+        ]
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['user', 'created_at']),

@@ -67,7 +67,7 @@ def signup(request):
             try:
                 send_mail(
                     'Welcome to PrimeTimePix!',
-                    f'Hi {user.username},\n\nWelcome! You can now make picks for NFL primetime games.\n\nGet started: https://primetimepix.onrender.com/picks/\n\nGood luck!\nThe PrimeTimePix Team',
+                    f'Hi {user.username},\n\nWelcome! You can now make picks for NFL primetime games.\n\nGet started: {settings.SITE_URL}/picks/\n\nGood luck!\nThe PrimeTimePix Team',
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email],
                     fail_silently=True,

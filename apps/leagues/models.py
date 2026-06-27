@@ -37,16 +37,16 @@ class League(models.Model):
     def get_standings(self):
         """Get league standings with user statistics"""
         from apps.picks.models import Pick
-        from django.db.models import Count, Sum, Case, When, F, FloatField
-        
-        # Get all members and their pick statistics for this league
+        from django.db.models import Sum
+
         standings = []
-        
+
         for member in self.members.all():
-            # Get picks for this user in this league
-            user_picks = Pick.objects.filter(user=member, league=self)
-            total_picks = user_picks.count()
-            
+            resolved_picks = Pick.objects.filter(
+                user=member, league=self, is_correct__isnull=False
+            )
+            total_picks = resolved_picks.count()
+
             if total_picks == 0:
                 standings.append({
                     'user': member,
@@ -56,15 +56,14 @@ class League(models.Model):
                     'total_points': 0,
                 })
                 continue
-            
-            # Calculate statistics
-            correct_picks = user_picks.filter(is_correct=True).count()
-            total_points = user_picks.aggregate(
+
+            correct_picks = resolved_picks.filter(is_correct=True).count()
+            total_points = resolved_picks.filter(is_correct=True).aggregate(
                 total=Sum('points')
             )['total'] or 0
-            
-            accuracy = round((correct_picks / total_picks) * 100, 1) if total_picks > 0 else 0
-            
+
+            accuracy = round((correct_picks / total_picks) * 100, 1)
+
             standings.append({
                 'user': member,
                 'total_predictions': total_picks,
