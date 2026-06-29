@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Sum, Count, Q
 from django.core.mail import send_mail
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from .models import League, LeagueMembership, LeagueCreationRequest, LeagueJoinRequest
 from .forms import LeagueCreationRequestForm, LeagueJoinRequestForm
@@ -319,15 +320,20 @@ def join_league_instant(request, league_id):
         if created:
             messages.success(request, f"Successfully joined {league.name}!")
             
-            # Optional: Send welcome email
+            # Send welcome email
             try:
                 if request.user.email:
+                    html_message = render_to_string('emails/league_joined.html', {
+                        'username': request.user.username,
+                        'league_name': league.name,
+                        'site_url': settings.SITE_URL,
+                    })
                     send_mail(
                         f'Welcome to {league.name}!',
-                        f'You have successfully joined the league "{league.name}".\n\n'
-                        f'Start making your picks at: {settings.SITE_URL}/picks/?league={league.id}',
+                        f'You have joined "{league.name}". Make picks at: {settings.SITE_URL}/picks/',
                         settings.DEFAULT_FROM_EMAIL,
                         [request.user.email],
+                        html_message=html_message,
                         fail_silently=True,
                     )
             except Exception as e:
@@ -355,15 +361,19 @@ def create_league(request):
 
             try:
                 if request.user.email:
+                    html_message = render_to_string('emails/league_created.html', {
+                        'username': request.user.username,
+                        'league_name': league.name,
+                        'league_type': 'Private' if league.is_private else 'Public',
+                        'league_sport': league.sport,
+                        'site_url': settings.SITE_URL,
+                    })
                     send_mail(
                         f'League Created: {league.name}',
-                        f'Your league "{league.name}" has been created successfully!\n\n'
-                        f'League Settings:\n'
-                        f'- Type: {"Private" if league.is_private else "Public"}\n'
-                        f'- Sport: {league.sport}\n\n'
-                        f'Invite others to join at: {settings.SITE_URL}/leagues/league/{league.id}/',
+                        f'Your league "{league.name}" has been created! View it at: {settings.SITE_URL}/leagues/league/{league.id}/',
                         settings.DEFAULT_FROM_EMAIL,
                         [request.user.email],
+                        html_message=html_message,
                         fail_silently=True,
                     )
             except Exception as e:
@@ -449,11 +459,17 @@ def approve_join_request(request, request_id):
     # Send approval email
     if join_request.user.email:
         try:
+            html_message = render_to_string('emails/league_joined.html', {
+                'username': join_request.user.username,
+                'league_name': join_request.league.name,
+                'site_url': settings.SITE_URL,
+            })
             send_mail(
                 f'Welcome to {join_request.league.name}!',
-                f'Your request to join "{join_request.league.name}" has been approved! You can now make picks and compete with other members.',
+                f'Your request to join "{join_request.league.name}" has been approved! Make picks at: {settings.SITE_URL}/picks/',
                 settings.DEFAULT_FROM_EMAIL,
                 [join_request.user.email],
+                html_message=html_message,
                 fail_silently=True,
             )
         except Exception as e:

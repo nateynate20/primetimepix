@@ -122,11 +122,23 @@ class Command(BaseCommand):
             email_sent = False
             if user.email:
                 try:
+                    html_message = render_to_string('emails/pick_reminder.html', {
+                        'username': user.username,
+                        'headline': subject,
+                        'body_text': self._get_body_text(reminder_type, unpicked_count, current_week),
+                        'week': current_week,
+                        'unpicked': unpicked_count,
+                        'total': len(primetime_games),
+                        'game_day': self._get_game_day(first_game),
+                        'game_time': self._get_game_time(first_game),
+                        'site_url': settings.SITE_URL,
+                    })
                     send_mail(
                         subject,
                         message,
                         settings.DEFAULT_FROM_EMAIL,
                         [user.email],
+                        html_message=html_message,
                         fail_silently=True,
                     )
                     email_sent = True
@@ -202,3 +214,32 @@ class Command(BaseCommand):
             )
 
         return subject, message
+
+    def _get_body_text(self, reminder_type, unpicked_count, week):
+        """Get the body text snippet for the HTML template."""
+        if reminder_type == 'day_before':
+            return f"you have {unpicked_count} primetime pick(s) still open for Week {week}. First game kicks off tomorrow — make sure you're locked in before kickoff!"
+        elif reminder_type == 'morning_of':
+            return f"it's game day! You still have {unpicked_count} primetime pick(s) to make for Week {week}. Don't miss out."
+        else:
+            return f"last chance! You have {unpicked_count} pick(s) that lock in a few hours for Week {week}. Get them in now!"
+
+    def _get_game_day(self, game):
+        """Get the formatted game day string."""
+        import pytz
+        eastern = pytz.timezone('US/Eastern')
+        kickoff_et = game.start_time
+        if timezone.is_naive(kickoff_et):
+            kickoff_et = pytz.UTC.localize(kickoff_et)
+        kickoff_et = kickoff_et.astimezone(eastern)
+        return kickoff_et.strftime('%A, %b %d')
+
+    def _get_game_time(self, game):
+        """Get the formatted game time string."""
+        import pytz
+        eastern = pytz.timezone('US/Eastern')
+        kickoff_et = game.start_time
+        if timezone.is_naive(kickoff_et):
+            kickoff_et = pytz.UTC.localize(kickoff_et)
+        kickoff_et = kickoff_et.astimezone(eastern)
+        return kickoff_et.strftime('%I:%M %p ET')

@@ -81,58 +81,44 @@ class PickService:
         return saved_picks, errors
 
     @staticmethod
-    def calculate_leaderboard(league=None, limit=100):
+    def calculate_leaderboard(league=None, week=None, limit=100):
         """Calculate and return leaderboard data in format expected by templates"""
         if league:
-            # League-specific leaderboard
             picks_filter = Pick.objects.filter(league=league, is_correct__isnull=False)
             users = User.objects.filter(
                 pick__league=league,
                 pick__is_correct__isnull=False
             ).distinct()
         else:
-            # Global leaderboard - includes ALL picks from all users regardless of league
             picks_filter = Pick.objects.filter(is_correct__isnull=False)
             users = User.objects.filter(
                 pick__is_correct__isnull=False
             ).distinct()
-        
+
+        if week:
+            picks_filter = picks_filter.filter(game__week=week)
+            users = users.filter(pick__game__week=week, pick__is_correct__isnull=False).distinct()
+
         leaderboard = []
-        
+
         for user in users:
             user_picks = picks_filter.filter(user=user)
             total_picks = user_picks.count()
-            
+
             if total_picks == 0:
                 continue
-            
+
             correct_picks = user_picks.filter(is_correct=True).count()
-            total_points = user_picks.aggregate(Sum('points'))['points__sum'] or 0
+            total_points = user_picks.filter(is_correct=True).aggregate(Sum('points'))['points__sum'] or 0
             win_percentage = (correct_picks / total_picks) * 100 if total_picks > 0 else 0
-            
-            # Get primetime stats - using the game's is_primetime property
-            primetime_picks = []
-            primetime_correct = 0
-            primetime_total = 0
-            
-            # We need to fetch the games and check is_primetime
-            for pick in user_picks.select_related('game'):
-                if pick.game.is_primetime:
-                    primetime_total += 1
-                    if pick.is_correct:
-                        primetime_correct += 1
-            
-            primetime_percentage = (primetime_correct / primetime_total * 100) if primetime_total > 0 else 0
-            
+
             leaderboard.append({
                 'user': user,
                 'total_predictions': total_picks,
                 'correct_predictions': correct_picks,
+                'losses': total_picks - correct_picks,
                 'accuracy': round(win_percentage, 1),
                 'total_points': total_points,
-                'primetime_picks': primetime_total,
-                'primetime_correct': primetime_correct,
-                'primetime_percentage': round(primetime_percentage, 1),
             })
         
         # Sort by total points (desc), then accuracy (desc), then total picks (desc)

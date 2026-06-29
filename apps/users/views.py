@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.http import JsonResponse, HttpResponse
 import traceback
 from django.views.decorators.csrf import csrf_exempt
@@ -65,11 +66,16 @@ def signup(request):
 
             # Send welcome email
             try:
+                html_message = render_to_string('emails/welcome.html', {
+                    'username': user.username,
+                    'site_url': settings.SITE_URL,
+                })
                 send_mail(
                     'Welcome to PrimeTimePix!',
-                    f'Hi {user.username},\n\nWelcome! You can now make picks for NFL primetime games.\n\nGet started: {settings.SITE_URL}/picks/\n\nGood luck!\nThe PrimeTimePix Team',
+                    f'Hi {user.username}, welcome to PrimeTimePix! Make your primetime picks at {settings.SITE_URL}/picks/',
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email],
+                    html_message=html_message,
                     fail_silently=True,
                 )
             except Exception as e:

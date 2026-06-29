@@ -248,7 +248,9 @@ def display_nfl_schedule(request):
 
 @login_required(login_url="login")
 def standings(request):
-    """League-specific leaderboard"""
+    """League-specific leaderboard with optional weekly filter"""
+    from apps.games.models import Game
+
     league_id = request.GET.get("league")
     league = None
     if league_id:
@@ -258,15 +260,27 @@ def standings(request):
             messages.error(request, "League not found or you're not a member.")
             return redirect("general_standings")
 
-    leaderboard = PickService.calculate_leaderboard(league=league)
+    week_param = request.GET.get("week")
+    selected_week = int(week_param) if week_param and week_param.isdigit() else None
+
+    leaderboard = PickService.calculate_leaderboard(league=league, week=selected_week)
     paginator = Paginator(leaderboard, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
+
+    available_weeks = list(
+        Game.objects.filter(game_type='regular', status='final')
+        .values_list('week', flat=True)
+        .distinct()
+        .order_by('week')
+    )
 
     context = {
         "page_obj": page_obj,
         "league": league,
         "is_overall": not league,
+        "selected_week": selected_week,
+        "available_weeks": available_weeks,
         "user_leagues": League.objects.filter(members=request.user, is_approved=True),
     }
     return render(request, "standings.html", context)
@@ -274,15 +288,29 @@ def standings(request):
 
 @login_required(login_url="login")
 def general_standings(request):
-    """Overall leaderboard"""
-    leaderboard = PickService.calculate_leaderboard(league=None)
+    """Overall leaderboard with optional weekly filter"""
+    from apps.games.models import Game
+
+    week_param = request.GET.get("week")
+    selected_week = int(week_param) if week_param and week_param.isdigit() else None
+
+    leaderboard = PickService.calculate_leaderboard(league=None, week=selected_week)
     paginator = Paginator(leaderboard, 20)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    available_weeks = list(
+        Game.objects.filter(game_type='regular', status='final')
+        .values_list('week', flat=True)
+        .distinct()
+        .order_by('week')
+    )
+
     context = {
         "page_obj": page_obj,
         "is_overall": True,
+        "selected_week": selected_week,
+        "available_weeks": available_weeks,
         "user_leagues": League.objects.filter(members=request.user, is_approved=True),
     }
     return render(request, "general_standings.html", context)

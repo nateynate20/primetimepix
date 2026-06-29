@@ -1,0 +1,43 @@
+{% extends "emails/base_email.html" %}
+{% block title %}League Created: {{ league_name }}{% endblock %}
+{% block content %}
+<h2 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#1f2937;">Your league is live!</h2>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151; line-height:1.6;">
+  Congrats {{ username }}, <strong>{{ league_name }}</strong> has been created and you're the commissioner.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px; background-color:#f9fafb; border-radius:8px; border:1px solid #e5e7eb;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding:4px 0; font-size:14px; color:#374151;"><strong>League:</strong> {{ league_name }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0; font-size:14px; color:#374151;"><strong>Type:</strong> {{ league_type }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0; font-size:14px; color:#374151;"><strong>Sport:</strong> {{ league_sport }}</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 24px; font-size:15px; color:#374151; line-height:1.6;">
+  Share the league with friends and start competing. Picks open when the schedule is live.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" style="padding:0 0 24px;">
+      <a href="{{ site_url }}/leagues/" style="display:inline-block; padding:14px 32px; background-color:#1a1a2e; color:#39ff14; font-size:15px; font-weight:700; text-decoration:none; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">View League</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0; font-size:14px; color:#6b7280; line-height:1.5;">
+  — The PrimeTimePix Team
+</p>
+{% endblock %}

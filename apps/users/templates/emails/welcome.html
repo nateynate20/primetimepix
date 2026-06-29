@@ -1,28 +1,39 @@
-{% extends "emails/base.html" %}
-
-{% block title %}Welcome to {{ site_name }}!{% endblock %}
-
+{% extends "emails/base_email.html" %}
+{% block title %}Welcome to PrimeTimePix{% endblock %}
 {% block content %}
-<h2>Welcome aboard, {{ user.username }}! 🎉</h2>
+<h2 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#1f2937;">Welcome to the game, {{ username }}!</h2>
 
-<p>You've successfully joined the most exciting NFL primetime prediction platform!</p>
+<p style="margin:0 0 16px; font-size:15px; color:#374151; line-height:1.6;">
+  You're in. Every week during the NFL season, you'll pick the winners of primetime games — Thursday Night, Sunday Night, Monday Night, and more.
+</p>
 
-<p>Here's what you can do now:</p>
-<ul>
-    <li>🏆 Join or create leagues to compete with friends</li>
-    <li>⭐ Make picks for primetime games (Monday Night, Thursday Night, Sunday Night)</li>
-    <li>📊 Track your performance on the leaderboard</li>
-    <li>🎯 Earn points and climb the rankings</li>
-</ul>
+<p style="margin:0 0 24px; font-size:15px; color:#374151; line-height:1.6;">
+  It takes 30 seconds. No 16-game slates, no fantasy rosters. Just the biggest games everyone is already watching.
+</p>
 
-<center>
-    <a href="{{ site_url }}/picks/" class="button">Make Your First Pick</a>
-</center>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" style="padding:8px 0 24px;">
+      <a href="{{ site_url }}/picks/" style="display:inline-block; padding:14px 32px; background-color:#1a1a2e; color:#39ff14; font-size:15px; font-weight:700; text-decoration:none; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">Make Your Picks</a>
+    </td>
+  </tr>
+</table>
 
-<p>Get started by making your picks for this week's primetime games. Remember, picks lock when games start!</p>
+<p style="margin:0 0 8px; font-size:14px; font-weight:600; color:#1f2937;">Here's how it works:</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+  <tr>
+    <td style="padding:6px 0; font-size:14px; color:#374151; line-height:1.5;">1. Pick winners before each primetime kickoff</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 0; font-size:14px; color:#374151; line-height:1.5;">2. Scores update automatically after games</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 0; font-size:14px; color:#374151; line-height:1.5;">3. Check the leaderboard to see where you stand</td>
+  </tr>
+</table>
 
-<p>Good luck and may your predictions be ever accurate!</p>
-
-<p>Best regards,<br>
-The {{ site_name }} Team</p>
+<p style="margin:0; font-size:14px; color:#6b7280; line-height:1.5;">
+  Good luck this season.<br>
+  — The PrimeTimePix Team
+</p>
 {% endblock %}

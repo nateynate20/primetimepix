@@ -1,0 +1,26 @@
+{% extends "emails/base_email.html" %}
+{% block title %}Welcome to {{ league_name }}{% endblock %}
+{% block content %}
+<h2 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#1f2937;">You're in!</h2>
+
+<p style="margin:0 0 16px; font-size:15px; color:#374151; line-height:1.6;">
+  Hey {{ username }}, you've successfully joined <strong>{{ league_name }}</strong>. Time to compete.
+</p>
+
+<p style="margin:0 0 24px; font-size:15px; color:#374151; line-height:1.6;">
+  Make your picks each week and check the league standings to see how you stack up against other members.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" style="padding:0 0 24px;">
+      <a href="{{ site_url }}/picks/" style="display:inline-block; padding:14px 32px; background-color:#1a1a2e; color:#39ff14; font-size:15px; font-weight:700; text-decoration:none; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">Make Your Picks</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0; font-size:14px; color:#6b7280; line-height:1.5;">
+  Good luck this season.<br>
+  — The PrimeTimePix Team
+</p>
+{% endblock %}
