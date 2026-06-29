@@ -334,8 +334,7 @@ def vs_cpu(request):
 
     profile = request.user.profile
     if not profile.cpu_challenge_active:
-        profile.cpu_challenge_active = True
-        profile.save()
+        return render(request, "vs_cpu.html", {'cpu_inactive': True})
 
     week_param = request.GET.get('week')
 
@@ -430,6 +429,8 @@ def vs_cpu(request):
 @login_required(login_url="login")
 def toggle_cpu_challenge(request):
     """Toggle CPU challenge on/off for the user."""
+    if request.method != 'POST':
+        return redirect('vs_cpu')
     profile = request.user.profile
     profile.cpu_challenge_active = not profile.cpu_challenge_active
     profile.save()

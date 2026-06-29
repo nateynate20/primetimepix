@@ -155,11 +155,21 @@ class TestStandingsPage:
 
 @pytest.mark.django_db
 class TestVsCPU:
-    def test_vs_cpu_page_loads(self, user):
+    def test_vs_cpu_page_shows_optin_when_inactive(self, user):
         client = Client()
         client.login(username='testplayer', password='testpass123')
         response = client.get(reverse('vs_cpu'))
         assert response.status_code == 200
+        assert b'Activate CPU Challenge' in response.content
+
+    def test_vs_cpu_page_loads_when_active(self, user):
+        user.profile.cpu_challenge_active = True
+        user.profile.save()
+        client = Client()
+        client.login(username='testplayer', password='testpass123')
+        response = client.get(reverse('vs_cpu'))
+        assert response.status_code == 200
+        assert b'Activate CPU Challenge' not in response.content
 
     def test_toggle_cpu_challenge(self, user):
         client = Client()
@@ -168,3 +178,11 @@ class TestVsCPU:
         assert response.status_code == 302
         user.profile.refresh_from_db()
         assert user.profile.cpu_challenge_active is True
+
+    def test_toggle_cpu_challenge_rejects_get(self, user):
+        client = Client()
+        client.login(username='testplayer', password='testpass123')
+        response = client.get(reverse('toggle_cpu_challenge'))
+        assert response.status_code == 302
+        user.profile.refresh_from_db()
+        assert user.profile.cpu_challenge_active is False

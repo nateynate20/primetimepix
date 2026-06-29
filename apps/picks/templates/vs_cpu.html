@@ -5,6 +5,42 @@
 {% block content %}
 <div class="max-w-5xl mx-auto px-4 py-8">
 
+    {% if cpu_inactive %}
+    <!-- Opt-in Landing -->
+    <div class="text-center py-16">
+        <div class="text-6xl mb-6">&#129302;</div>
+        <h1 class="text-3xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-3">
+            CPU Challenge
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 font-medium max-w-md mx-auto mb-2">
+            Think you can beat the spread? The CPU picks the Vegas favorite every week — activate the challenge to go head-to-head.
+        </p>
+        <ul class="text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto text-left space-y-2 mb-8">
+            <li class="flex items-start gap-2">
+                <i class="fas fa-chart-line text-purple-500 mt-0.5"></i>
+                <span>CPU always picks the spread favorite based on ESPN odds</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fas fa-eye-slash text-purple-500 mt-0.5"></i>
+                <span>CPU picks stay hidden until kickoff — no peeking</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fas fa-trophy text-purple-500 mt-0.5"></i>
+                <span>Track your head-to-head record week by week</span>
+            </li>
+        </ul>
+        <form method="post" action="{% url 'toggle_cpu_challenge' %}">
+            {% csrf_token %}
+            <button type="submit" class="inline-flex items-center px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-sm uppercase tracking-wide transition shadow-lg shadow-purple-500/20">
+                <i class="fas fa-robot mr-2"></i>Activate CPU Challenge
+            </button>
+        </form>
+        <a href="{% url 'dashboard' %}" class="inline-block mt-4 text-sm text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 font-medium">
+            <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+        </a>
+    </div>
+    {% else %}
+
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
@@ -13,9 +49,12 @@
             </h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">The CPU picks the spread favorite every week. Can you beat the line?</p>
         </div>
-        <a href="{% url 'toggle_cpu_challenge' %}" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-xs border border-gray-200 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition">
-            <i class="fas fa-power-off mr-1"></i>Deactivate
-        </a>
+        <form method="post" action="{% url 'toggle_cpu_challenge' %}">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-xs border border-gray-200 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition">
+                <i class="fas fa-power-off mr-1"></i>Deactivate
+            </button>
+        </form>
     </div>
 
     <!-- Head-to-Head Record -->
@@ -158,5 +197,6 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
