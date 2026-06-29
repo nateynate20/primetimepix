@@ -38,3 +38,44 @@ class SignupUserForm(UserCreationForm):
                 user=user, defaults={'team_name': self.cleaned_data['team_name']}
             )
         return user
+
+
+class ProfileEditForm(forms.Form):
+    team_name = forms.CharField(
+        max_length=15,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter new team name',
+        })
+    )
+    email = forms.EmailField(
+        max_length=254,
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your email address',
+        })
+    )
+    email_reminders_enabled = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def clean_team_name(self):
+        team_name = self.cleaned_data.get('team_name')
+        existing = Profile.objects.filter(team_name=team_name).exclude(user=self.user)
+        if existing.exists():
+            raise forms.ValidationError("Team name already taken.")
+        return team_name
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        existing = User.objects.filter(email=email).exclude(pk=self.user.pk)
+        if existing.exists():
+            raise forms.ValidationError("Email already in use by another account.")
+        return email

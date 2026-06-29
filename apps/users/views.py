@@ -298,3 +298,32 @@ def toggle_reminders(request):
     status = "enabled" if profile.email_reminders_enabled else "disabled"
     messages.success(request, f"Email reminders {status}.")
     return redirect('dashboard')
+
+
+@login_required
+def edit_profile(request):
+    """Allow users to edit their team name, email, and preferences."""
+    from apps.users.forms import ProfileEditForm
+
+    profile = request.user.profile
+
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, user=request.user)
+        if form.is_valid():
+            profile.team_name = form.cleaned_data['team_name']
+            profile.email_reminders_enabled = form.cleaned_data['email_reminders_enabled']
+            profile.save()
+
+            request.user.email = form.cleaned_data['email']
+            request.user.save()
+
+            messages.success(request, "Profile updated successfully.")
+            return redirect('dashboard')
+    else:
+        form = ProfileEditForm(user=request.user, initial={
+            'team_name': profile.team_name,
+            'email': request.user.email,
+            'email_reminders_enabled': profile.email_reminders_enabled,
+        })
+
+    return render(request, 'registration/edit_profile.html', {'form': form})

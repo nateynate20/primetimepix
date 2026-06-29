@@ -42,4 +42,5 @@ urlpatterns = [
     
     path('dismiss-notifications/', views.dismiss_notifications, name='dismiss_notifications'),
     path('toggle-reminders/', views.toggle_reminders, name='toggle_reminders'),
+    path('profile/', views.edit_profile, name='edit_profile'),
 ]
