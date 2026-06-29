@@ -1,10 +1,10 @@
-#apps/games/admin.py
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from .models import Game
 
 
 @admin.register(Game)
-class GameAdmin(admin.ModelAdmin):
+class GameAdmin(ModelAdmin):
     list_display = ('week', 'game_type', 'away_team', 'away_score_display', 'home_team', 'home_score_display', 'start_time', 'status', 'is_primetime_display')
     list_filter = ('season', 'week', 'status', 'game_type')
     search_fields = ('home_team', 'away_team', 'game_id')

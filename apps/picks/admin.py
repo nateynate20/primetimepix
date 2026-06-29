@@ -1,10 +1,10 @@
-#apps/picks/admin.py
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from .models import Pick, CPUPick, UserStats, LeagueStats
 
 
 @admin.register(Pick)
-class PickAdmin(admin.ModelAdmin):
+class PickAdmin(ModelAdmin):
     list_display = ('user', 'game_display', 'picked_team', 'is_correct', 'points', 'league', 'created_at')
     list_filter = ('is_correct', 'game__week', 'game__season', 'league')
     search_fields = ('user__username', 'picked_team', 'game__home_team', 'game__away_team')
@@ -18,7 +18,7 @@ class PickAdmin(admin.ModelAdmin):
 
 
 @admin.register(CPUPick)
-class CPUPickAdmin(admin.ModelAdmin):
+class CPUPickAdmin(ModelAdmin):
     list_display = ('game_display', 'picked_team', 'is_correct', 'created_at')
     list_filter = ('is_correct', 'game__week')
     search_fields = ('picked_team',)
@@ -30,7 +30,7 @@ class CPUPickAdmin(admin.ModelAdmin):
 
 
 @admin.register(UserStats)
-class UserStatsAdmin(admin.ModelAdmin):
+class UserStatsAdmin(ModelAdmin):
     list_display = ('user', 'total_picks', 'correct_picks', 'win_percentage', 'total_points', 'best_streak')
     list_filter = ('win_percentage',)
     search_fields = ('user__username',)
@@ -38,7 +38,7 @@ class UserStatsAdmin(admin.ModelAdmin):
 
 
 @admin.register(LeagueStats)
-class LeagueStatsAdmin(admin.ModelAdmin):
+class LeagueStatsAdmin(ModelAdmin):
     list_display = ('user', 'league', 'total_picks', 'correct_picks', 'win_percentage', 'total_points', 'rank')
     list_filter = ('league',)
     search_fields = ('user__username', 'league__name')

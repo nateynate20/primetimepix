@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from unfold.admin import ModelAdmin, StackedInline
 from .models import Profile, Notification, ReminderLog
 
 admin.site.unregister(User)
 
 
-class ProfileInline(admin.StackedInline):
+class ProfileInline(StackedInline):
     model = Profile
     can_delete = False
     verbose_name_plural = 'Profile'
@@ -30,7 +31,7 @@ class CustomUserAdmin(UserAdmin):
 
 
 @admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
+class ProfileAdmin(ModelAdmin):
     list_display = ('user', 'team_name', 'email_reminders_enabled', 'cpu_challenge_active', 'get_login_status')
     search_fields = ('user__username', 'team_name', 'user__email')
     list_filter = ('email_reminders_enabled', 'cpu_challenge_active')
@@ -43,7 +44,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 @admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
+class NotificationAdmin(ModelAdmin):
     list_display = ('user', 'notification_type', 'title', 'is_read', 'created_at')
     list_filter = ('notification_type', 'is_read', 'created_at')
     search_fields = ('user__username', 'title', 'message')
@@ -53,7 +54,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
 
 @admin.register(ReminderLog)
-class ReminderLogAdmin(admin.ModelAdmin):
+class ReminderLogAdmin(ModelAdmin):
     list_display = ('user', 'reminder_type', 'week', 'season', 'sent_via_email', 'sent_via_app', 'sent_at')
     list_filter = ('reminder_type', 'season', 'week', 'sent_via_email')
     search_fields = ('user__username',)

@@ -24,7 +24,8 @@ INSTALLED_APPS = [
     'apps.users.apps.UsersConfig',
     'apps.leagues.apps.LeaguesConfig',
     'apps.picks.apps.PicksConfig',
-    'grappelli',
+    'unfold',
+    'unfold.contrib.filters',
     'django.contrib.admin',
     'django.contrib.auth',
 ]
@@ -113,5 +114,115 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 SITE_ID = 1
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 SITE_NAME = 'PrimeTimePix'
+
+# Django Unfold Admin Theme
+UNFOLD = {
+    "SITE_TITLE": "PrimeTimePix Admin",
+    "SITE_HEADER": "PrimeTimePix",
+    "SITE_SYMBOL": "sports_football",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "THEME": "dark",
+    "COLORS": {
+        "primary": {
+            "50": "240 253 244",
+            "100": "220 252 231",
+            "200": "187 247 208",
+            "300": "134 239 172",
+            "400": "74 222 128",
+            "500": "34 197 94",
+            "600": "22 163 74",
+            "700": "21 128 61",
+            "800": "22 101 52",
+            "900": "20 83 45",
+            "950": "5 46 22",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Core",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": "/admin/",
+                    },
+                ],
+            },
+            {
+                "title": "Games & Picks",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Games",
+                        "icon": "sports_football",
+                        "link": "/admin/games/game/",
+                    },
+                    {
+                        "title": "Picks",
+                        "icon": "how_to_vote",
+                        "link": "/admin/picks/pick/",
+                    },
+                    {
+                        "title": "CPU Picks",
+                        "icon": "smart_toy",
+                        "link": "/admin/picks/cpupick/",
+                    },
+                    {
+                        "title": "User Stats",
+                        "icon": "leaderboard",
+                        "link": "/admin/picks/userstats/",
+                    },
+                ],
+            },
+            {
+                "title": "Users & Leagues",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Users",
+                        "icon": "people",
+                        "link": "/admin/auth/user/",
+                    },
+                    {
+                        "title": "Profiles",
+                        "icon": "badge",
+                        "link": "/admin/users/profile/",
+                    },
+                    {
+                        "title": "Leagues",
+                        "icon": "groups",
+                        "link": "/admin/leagues/league/",
+                    },
+                    {
+                        "title": "Memberships",
+                        "icon": "card_membership",
+                        "link": "/admin/leagues/leaguemembership/",
+                    },
+                ],
+            },
+            {
+                "title": "Communications",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Notifications",
+                        "icon": "notifications",
+                        "link": "/admin/users/notification/",
+                    },
+                    {
+                        "title": "Reminder Logs",
+                        "icon": "schedule_send",
+                        "link": "/admin/users/reminderlog/",
+                    },
+                ],
+            },
+        ],
+    },
+}
 
 PASSWORD_RESET_TIMEOUT = 259200  # 3 days in seconds
