@@ -10,7 +10,7 @@ def get_current_nfl_week():
     """
     Calculate the current NFL week number based on actual NFL schedule.
     NFL season typically starts first Thursday after Labor Day.
-    Falls back to the latest week with games in the database during off-season.
+    During off-season, defaults to Week 1 (not latest scheduled week).
     """
     try:
         now = timezone.now()
@@ -20,20 +20,36 @@ def get_current_nfl_week():
         season_start = datetime(year, 9, 5).date()
 
         if current_date < season_start:
-            season_start = datetime(year - 1, 9, 5).date()
+            # Before this year's season starts
+            # Check if we're still in last year's season (Jan/Feb playoffs)
+            prev_season_start = datetime(year - 1, 9, 5).date()
+            days_since_prev = (current_date - prev_season_start).days
+            prev_week = (days_since_prev // 7) + 1
+            if prev_week <= 22:
+                # Still in last year's playoffs/season window
+                from apps.games.models import Game
+                latest = Game.objects.filter(
+                    status='scheduled',
+                    start_time__lte=now + timedelta(days=14)
+                ).order_by('-week').values_list('week', flat=True).first()
+                if latest:
+                    return latest
+            # Off-season: default to Week 1
+            return 1
 
         days_since_start = (current_date - season_start).days
         week_number = (days_since_start // 7) + 1
 
         if week_number > 18:
-            # Off-season: find the latest week with scheduled primetime games
+            # Post regular season — check for playoff games
             from apps.games.models import Game
             latest = Game.objects.filter(
-                status='scheduled'
+                status='scheduled',
+                start_time__lte=now + timedelta(days=14)
             ).order_by('-week').values_list('week', flat=True).first()
             if latest:
                 return latest
-            return 1
+            return 18
 
         return max(1, week_number)
 

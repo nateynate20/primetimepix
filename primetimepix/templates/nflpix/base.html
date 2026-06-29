@@ -87,6 +87,45 @@
   </header>
 
   <main id="main-content" class="flex-1 pt-8" role="main">
+    <!-- Toast Notifications (Django Messages) -->
+    {% if messages %}
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+      {% for message in messages %}
+      <div class="toast-msg pointer-events-auto transform translate-x-full opacity-0 transition-all duration-300 ease-out flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border
+        {% if message.tags == 'success' %}bg-green-50 dark:bg-green-900/90 border-green-200 dark:border-green-700 text-green-800 dark:text-green-200
+        {% elif message.tags == 'error' or message.tags == 'danger' %}bg-red-50 dark:bg-red-900/90 border-red-200 dark:border-red-700 text-red-800 dark:text-red-200
+        {% elif message.tags == 'warning' %}bg-amber-50 dark:bg-amber-900/90 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-200
+        {% else %}bg-blue-50 dark:bg-blue-900/90 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-200{% endif %}">
+        <span class="flex-shrink-0">
+          {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
+          {% elif message.tags == 'error' or message.tags == 'danger' %}<i class="fas fa-exclamation-circle"></i>
+          {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+          {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+        </span>
+        <span class="text-sm font-semibold flex-1">{{ message }}</span>
+        <button onclick="this.parentElement.remove()" class="flex-shrink-0 opacity-60 hover:opacity-100 transition">
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var toasts = document.querySelectorAll('.toast-msg');
+        toasts.forEach(function(toast, i) {
+          setTimeout(function() {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+          }, i * 100 + 50);
+          setTimeout(function() {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(function() { toast.remove(); }, 300);
+          }, 4000 + (i * 500));
+        });
+      });
+    </script>
+    {% endif %}
+
     <div class="max-w-7xl mx-auto px-4 pb-8">
       {% block breadcrumbs %}{% endblock %}
       {% block content %}{% endblock %}

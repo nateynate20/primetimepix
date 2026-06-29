@@ -57,76 +57,86 @@
   <!-- Primetime Picks (Top Priority) -->
   <div class="mb-8">
     <h3 class="text-xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-4 flex items-center">
-      <i class="fas fa-star text-amber-500 mr-2"></i>My Primetime Picks This Week
+      <i class="fas fa-star text-amber-500 mr-2"></i>My Picks This Week
+      <span class="ml-auto text-sm font-semibold text-gray-400 dark:text-gray-500 normal-case tracking-normal">
+        {% with picked=0 total=primetime_games|length %}
+        {% for game in primetime_games %}{% if game.user_pick %}{% with ''|add:'1' as x %}{% endwith %}{% endif %}{% endfor %}
+        {% endwith %}
+      </span>
     </h3>
     {% if primetime_games %}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {% for game in primetime_games %}
-      <div class="bg-white dark:bg-surface-800 rounded-xl border-2 border-accent-200 dark:border-neon/30 shadow-card dark:shadow-neon p-5 flex flex-col items-center hover:border-accent-400 dark:hover:border-neon transition-all">
-
-        <!-- Teams & Logos -->
-        <div class="flex justify-between items-center mb-4 w-full">
-          <div class="flex items-center space-x-2">
-            <img src="{{ game.away_logo|default:'/static/images/default_team.png' }}" alt="{{ game.away_team }}" class="w-8 h-8">
-            <span class="text-lg font-bold text-gray-900 dark:text-white {% if game.away_is_winner %}!text-green-600 dark:!text-green-400{% endif %}">{{ game.away_team }}</span>
-          </div>
-          <span class="text-gray-400 font-black text-sm mx-2">vs</span>
-          <div class="flex items-center space-x-2">
-            <span class="text-lg font-bold text-gray-900 dark:text-white {% if game.home_is_winner %}!text-green-600 dark:!text-green-400{% endif %}">{{ game.home_team }}</span>
-            <img src="{{ game.home_logo|default:'/static/images/default_team.png' }}" alt="{{ game.home_team }}" class="w-8 h-8">
-          </div>
-        </div>
-
-        <!-- Game Info -->
-        <div class="text-gray-500 dark:text-gray-400 text-sm mb-3 text-center font-semibold">
-          Week {{ game.week }} {% if game.is_primetime %}&bull; {{ game.primetime_type }}{% endif %} &ndash;
-          {% if game.display_time_et %}
-            <time datetime="{{ game.start_time|date:'c' }}">
-              {{ game.display_time_et|date:"l, F j, g:i A" }} ET
-            </time>
-          {% else %}
-            Time TBD
-          {% endif %}
-        </div>
-
-        <!-- Scores -->
-        <div class="font-bold text-lg bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 w-full mb-3 border border-gray-200 dark:border-gray-600">
-          {% if game.has_score %}
-          <div class="flex justify-between text-gray-900 dark:text-white">
-            <span class="{% if game.away_is_winner %}text-green-600 dark:text-green-400{% endif %}">{{ game.away_score|default:"-" }}</span>
-            <span class="{% if game.home_is_winner %}text-green-600 dark:text-green-400{% endif %}">{{ game.home_score|default:"-" }}</span>
-          </div>
-          {% if game.status == 'final' %}
-            {% if game.winner and game.winner != 'tie' %}
-              <div class="text-center mt-2 text-green-600 dark:text-green-400 text-sm font-bold">&#127942; {{ game.winner }} Wins!</div>
-            {% elif game.winner == 'tie' %}
-              <div class="text-center mt-2 text-amber-600 dark:text-yellow-400 text-sm font-bold">&#9878;&#65039; Tie Game</div>
-            {% endif %}
-          {% endif %}
-          {% else %}
-          <div class="text-center text-gray-400 dark:text-gray-500">
-            {% if game.status == 'scheduled' %}
-              Game Not Started
-            {% else %}
-              Scores TBD
-            {% endif %}
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- User Pick -->
-        <div class="mt-1 text-center font-bold text-sm {% if game.user_pick %}text-accent-600 dark:text-neon{% else %}text-gray-400 dark:text-gray-500{% endif %}">
-          {% if game.user_pick %}
-            Your Pick: {{ game.user_pick.picked_team }} &bull;
-            <a href="{% url 'schedule' %}{% if league %}?league={{ league.id }}{% endif %}" class="underline text-accent-600 dark:text-green-400 hover:text-accent-700 dark:hover:text-green-300">Change Pick</a>
-          {% else %}
-            You haven't picked yet &bull;
-            <a href="{% url 'schedule' %}{% if league %}?league={{ league.id }}{% endif %}" class="underline text-accent-600 dark:text-green-400 hover:text-accent-700 dark:hover:text-green-300 font-bold">Make Pick</a>
-          {% endif %}
-        </div>
-
+    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-card dark:shadow-card-dark overflow-hidden">
+      <!-- Summary Bar -->
+      <div class="px-5 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">
+          {% with total=primetime_games|length %}
+          {{ total }} primetime game{{ total|pluralize }}
+          {% endwith %}
+        </span>
+        <a href="{% url 'schedule' %}" class="text-xs font-bold text-accent-600 dark:text-neon hover:underline">
+          Go to Picks Page <i class="fas fa-arrow-right ml-1"></i>
+        </a>
       </div>
-      {% endfor %}
+
+      <!-- Picks List -->
+      <div class="divide-y divide-gray-100 dark:divide-gray-700/50">
+        {% for game in primetime_games %}
+        <div class="px-5 py-3 flex items-center gap-4">
+          <!-- Teams -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <img src="{{ game.away_logo|default:'/static/images/default_team.png' }}" alt="" class="w-5 h-5 flex-shrink-0">
+              <span class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ game.away_team }}</span>
+              <span class="text-xs text-gray-400 mx-1">@</span>
+              <span class="text-sm font-bold text-gray-900 dark:text-white truncate">{{ game.home_team }}</span>
+              <img src="{{ game.home_logo|default:'/static/images/default_team.png' }}" alt="" class="w-5 h-5 flex-shrink-0">
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+              {% if game.display_time_et %}
+                {% if game.display_time_et.hour == 0 and game.display_time_et.minute == 0 %}
+                  {{ game.display_time_et|date:"l, M j" }} &bull; TBD
+                {% else %}
+                  {{ game.display_time_et|date:"l, M j \a\t g:i A" }} ET
+                {% endif %}
+              {% else %}
+                Time TBD
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Pick Status -->
+          <div class="flex-shrink-0 text-right">
+            {% if game.user_pick %}
+              {% if game.status == 'final' %}
+                {% if game.user_pick.is_correct %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-xs font-bold text-green-700 dark:text-green-400">
+                    <i class="fas fa-check text-[10px]"></i>{{ game.user_pick.picked_team }}
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-xs font-bold text-red-700 dark:text-red-400">
+                    <i class="fas fa-times text-[10px]"></i>{{ game.user_pick.picked_team }}
+                  </span>
+                {% endif %}
+              {% else %}
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent-100 dark:bg-neon/10 text-xs font-bold text-accent-700 dark:text-neon">
+                  <i class="fas fa-check text-[10px]"></i>{{ game.user_pick.picked_team }}
+                </span>
+              {% endif %}
+            {% else %}
+              {% if game.status == 'scheduled' %}
+                <a href="{% url 'schedule' %}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/20 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/40 transition">
+                  <i class="fas fa-exclamation-circle text-[10px]"></i>No pick
+                </a>
+              {% else %}
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-bold text-gray-500 dark:text-gray-400">
+                  Missed
+                </span>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
     {% else %}
     <div class="text-gray-500 dark:text-gray-400 mt-4 font-medium p-6 bg-white dark:bg-surface-800 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 text-center">No primetime games available this week.</div>

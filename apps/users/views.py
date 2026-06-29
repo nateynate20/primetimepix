@@ -168,6 +168,9 @@ def dashboard(request):
 
     for game in primetime_games:
         game.user_pick = picks_dict.get(game.id)
+        game.has_score = game.status in ['final', 'in_progress'] and (game.home_score is not None or game.away_score is not None)
+        game.away_is_winner = game.winner == game.away_team if game.winner else False
+        game.home_is_winner = game.winner == game.home_team if game.winner else False
 
     # Get unread notifications
     from apps.users.models import Notification

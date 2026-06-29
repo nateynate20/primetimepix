@@ -104,9 +104,8 @@ def display_nfl_schedule(request):
         primetime_games = [g for g in all_games if g.is_primetime]
 
         # Apply day filter
-        if day_filter:
+        if day_filter and day_filter != 'all':
             if day_filter == 'sunday':
-                # Sunday Night Football only (primetime Sunday game)
                 all_games = [g for g in all_games if g.is_primetime and g.display_time_et and g.display_time_et.weekday() == 6]
             else:
                 day_map = {
@@ -162,8 +161,14 @@ def display_nfl_schedule(request):
     picks_dict = PickService.get_user_pick_status(request.user, primetime_games, league=league)
     now = timezone.now()
 
-    # In week mode, enhance ALL games (not just primetime)
-    display_games = all_games if (view_mode == 'week') else primetime_games
+    # In week mode, show primetime games by default; show all only when 'all' filter is active
+    if view_mode == 'week':
+        if day_filter == 'all':
+            display_games = all_games
+        else:
+            display_games = primetime_games
+    else:
+        display_games = primetime_games
 
     for game in display_games:
         game.user_pick = picks_dict.get(game.id)
@@ -174,6 +179,11 @@ def display_nfl_schedule(request):
         game.home_is_winner = game.winner == game.home_team if game.winner else False
         # Only primetime games are pickable
         game.is_pickable = game.is_primetime and game.start_time > now and game.status == 'scheduled'
+        # Mark placeholder times (midnight = ESPN hasn't set real kickoff yet)
+        if game.display_time_et:
+            game.time_is_tbd = (game.display_time_et.hour == 0 and game.display_time_et.minute == 0)
+        else:
+            game.time_is_tbd = True
 
     # Group games by date for ESPN-style display
     if view_mode != 'season':
