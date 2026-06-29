@@ -68,7 +68,7 @@ def get_nfl_week_dates(week_number=None):
 
     try:
         from apps.games.models import Game
-        games_in_week = Game.objects.filter(week=week_number).order_by('start_time')
+        games_in_week = Game.objects.filter(week=week_number, game_type='regular').order_by('start_time')
         if games_in_week.exists():
             first_game = games_in_week.first()
             last_game = games_in_week.last()

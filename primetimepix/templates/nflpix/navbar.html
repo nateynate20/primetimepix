@@ -11,12 +11,12 @@
 
         {% if user.is_authenticated %}
           {% if user_leagues %}
-            <div class="relative group">
-              <button class="nav-link-btn flex items-center">
+            <div class="relative" id="leagues-dropdown-wrapper">
+              <button id="leagues-dropdown-btn" class="nav-link-btn flex items-center">
                 My Leagues ({{ user_leagues|length }})
-                <i class="fas fa-chevron-down ml-1.5 text-[10px]"></i>
+                <i class="fas fa-chevron-down ml-1.5 text-[10px] transition-transform" id="leagues-chevron"></i>
               </button>
-              <div class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-card dark:shadow-card-dark opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 hidden group-hover:block">
+              <div id="leagues-dropdown-menu" class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-card dark:shadow-card-dark z-50 hidden">
                 <div class="py-2">
                   <a href="{% url 'league_detail_no_id' %}" class="block px-4 py-2 text-accent-600 dark:text-neon font-semibold hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i class="fas fa-list mr-2"></i>View All My Leagues
@@ -117,11 +117,31 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const btn = document.getElementById('mobile-menu-btn');
-      const menu = document.getElementById('mobile-menu');
+      // Mobile menu toggle
+      var btn = document.getElementById('mobile-menu-btn');
+      var menu = document.getElementById('mobile-menu');
       if (btn && menu) {
         btn.addEventListener('click', function() {
           menu.classList.toggle('hidden');
+        });
+      }
+
+      // Leagues dropdown toggle (click-based)
+      var leaguesBtn = document.getElementById('leagues-dropdown-btn');
+      var leaguesMenu = document.getElementById('leagues-dropdown-menu');
+      var chevron = document.getElementById('leagues-chevron');
+      if (leaguesBtn && leaguesMenu) {
+        leaguesBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          leaguesMenu.classList.toggle('hidden');
+          if (chevron) chevron.classList.toggle('rotate-180');
+        });
+        document.addEventListener('click', function(e) {
+          var wrapper = document.getElementById('leagues-dropdown-wrapper');
+          if (wrapper && !wrapper.contains(e.target)) {
+            leaguesMenu.classList.add('hidden');
+            if (chevron) chevron.classList.remove('rotate-180');
+          }
         });
       }
     });

@@ -57,21 +57,14 @@
   <!-- Primetime Picks (Top Priority) -->
   <div class="mb-8">
     <h3 class="text-xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-4 flex items-center">
-      <i class="fas fa-star text-amber-500 mr-2"></i>My Picks This Week
-      <span class="ml-auto text-sm font-semibold text-gray-400 dark:text-gray-500 normal-case tracking-normal">
-        {% with picked=0 total=primetime_games|length %}
-        {% for game in primetime_games %}{% if game.user_pick %}{% with ''|add:'1' as x %}{% endwith %}{% endif %}{% endfor %}
-        {% endwith %}
-      </span>
+      <i class="fas fa-star text-amber-500 mr-2"></i>My Picks — Week {{ current_week }}
     </h3>
     {% if primetime_games %}
     <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-card dark:shadow-card-dark overflow-hidden">
       <!-- Summary Bar -->
       <div class="px-5 py-3 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <span class="text-sm font-bold text-gray-700 dark:text-gray-300">
-          {% with total=primetime_games|length %}
-          {{ total }} primetime game{{ total|pluralize }}
-          {% endwith %}
+          {{ primetime_games|length }} primetime game{{ primetime_games|length|pluralize }}
         </span>
         <a href="{% url 'schedule' %}" class="text-xs font-bold text-accent-600 dark:text-neon hover:underline">
           Go to Picks Page <i class="fas fa-arrow-right ml-1"></i>

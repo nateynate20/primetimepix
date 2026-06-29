@@ -155,13 +155,15 @@ def dashboard(request):
     leagues = user.leagues.all()
     league = leagues.first() if leagues.exists() else None
 
-    current_week_start, current_week_end = get_current_week_dates()
-    primetime_games = Game.objects.filter(
-        start_time__date__gte=current_week_start,
-        start_time__date__lte=current_week_end,
-    ).order_by("week", "start_time")
+    from apps.games.utils import get_current_nfl_week
+    current_week = get_current_nfl_week()
 
-    primetime_games = [g for g in primetime_games if is_primetime_game(g)]
+    week_games = Game.objects.filter(
+        game_type='regular',
+        week=current_week,
+    ).order_by("start_time")
+
+    primetime_games = [g for g in week_games if g.is_primetime]
 
     user_picks_qs = Pick.objects.filter(user=user, game__in=primetime_games).select_related("game")
     picks_dict = {p.game.id: p for p in user_picks_qs}
@@ -180,6 +182,7 @@ def dashboard(request):
         'user': user,
         'league': league,
         'primetime_games': primetime_games,
+        'current_week': current_week,
         'notifications': notifications,
     }
     return render(request, 'user_dashboard.html', context)
