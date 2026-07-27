@@ -62,3 +62,21 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
 
 SITE_ID = 1
+
+# Error monitoring via Sentry (no-op unless SENTRY_DSN is set).
+SENTRY_DSN = os.getenv('SENTRY_DSN', '')
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        # Capture a sample of performance traces; tune down if noisy/costly.
+        traces_sample_rate=float(os.getenv('SENTRY_TRACES_SAMPLE_RATE', '0.1')),
+        send_default_pii=False,
+        environment=os.getenv('SENTRY_ENVIRONMENT', 'production'),
+        release=os.getenv('RAILWAY_GIT_COMMIT_SHA', None),
+    )
+else:
+    print("[INFO] SENTRY_DSN not set — error monitoring is disabled.")

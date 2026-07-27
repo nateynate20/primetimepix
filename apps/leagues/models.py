@@ -1,4 +1,5 @@
 # apps/leagues/models.py
+import secrets
 import uuid
 
 from django.db import models
@@ -7,6 +8,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 User = get_user_model()
+
+# Unambiguous alphabet for shareable codes (no 0/O, 1/I, etc.)
+JOIN_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+
+
+def generate_join_code(length=8):
+    return ''.join(secrets.choice(JOIN_CODE_ALPHABET) for _ in range(length))
 
 class League(models.Model):
     name = models.CharField(max_length=100)
@@ -23,6 +31,12 @@ class League(models.Model):
     is_private = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=True)
     invite_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    join_code = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True,
+        help_text='Short, shareable code used in the invite link (e.g. CHIEFS24).'
+    )
 
     members = models.ManyToManyField(
         User,
@@ -35,6 +49,28 @@ class League(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+    def save(self, *args, **kwargs):
+        if self.join_code:
+            self.join_code = self.join_code.strip().upper()
+        else:
+            self.join_code = self._generate_unique_join_code()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def _generate_unique_join_code():
+        for _ in range(20):
+            code = generate_join_code()
+            if not League.objects.filter(join_code=code).exists():
+                return code
+        # Extremely unlikely fallback: widen the code space.
+        return generate_join_code(12)
+
+    def regenerate_join_code(self):
+        """Rotate the short invite code (e.g. if the link leaks)."""
+        self.join_code = self._generate_unique_join_code()
+        self.save(update_fields=['join_code'])
+        return self.join_code
 
     def is_commissioner(self, user):
         """Return True if the user is the primary commissioner or a co-commissioner."""

@@ -53,6 +53,14 @@
                 <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.description.errors.0 }}</p>
                 {% endif %}
             </div>
+            <div>
+                <label for="id_join_code" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Custom Invite Code</label>
+                {{ form.join_code }}
+                {% if form.join_code.errors %}
+                <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.join_code.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Used in your invite link (letters, numbers, hyphens). Leave unchanged to keep the current code.</p>
+            </div>
             <button type="submit" class="bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-2.5 px-5 rounded-lg text-sm hover:opacity-90 transition">
                 <i class="fas fa-save mr-1"></i>Save Changes
             </button>
@@ -68,6 +76,9 @@
         <div class="flex flex-col sm:flex-row gap-2">
             <input type="text" id="invite-url" readonly value="{{ invite_url }}"
                    class="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white">
+            <button type="button" id="share-btn" onclick="shareInvite()" class="hidden bg-gray-900 dark:bg-white text-white dark:text-black font-bold py-2.5 px-5 rounded-lg text-sm hover:opacity-90 transition whitespace-nowrap">
+                <i class="fas fa-share-nodes mr-1"></i>Share
+            </button>
             <button type="button" onclick="copyInvite()" class="bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-2.5 px-5 rounded-lg text-sm hover:opacity-90 transition whitespace-nowrap">
                 <i class="fas fa-copy mr-1"></i><span id="copy-label">Copy</span>
             </button>
@@ -163,6 +174,24 @@ function copyInvite() {
         label.textContent = 'Copied!';
         setTimeout(function() { label.textContent = 'Copy'; }, 2000);
     });
+}
+
+// Native share sheet (mobile) — the easiest way to send the link via text.
+const shareBtn = document.getElementById('share-btn');
+if (navigator.share && shareBtn) {
+    shareBtn.classList.remove('hidden');
+}
+async function shareInvite() {
+    const url = document.getElementById('invite-url').value;
+    try {
+        await navigator.share({
+            title: 'Join my league on PrimeTimePix',
+            text: 'Join my league on PrimeTimePix:',
+            url: url,
+        });
+    } catch (e) {
+        copyInvite();
+    }
 }
 </script>
 {% endblock %}

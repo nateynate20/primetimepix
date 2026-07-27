@@ -1,0 +1,81 @@
+{% extends 'nflpix/base.html' %}
+{% load static %}
+
+{% block title %}Join {{ league.name }} - PrimeTimePix{% endblock %}
+{% block meta_description %}You're invited to join {{ league.name }} on PrimeTimePix. Make your picks and compete!{% endblock %}
+{% block og_title %}Join {{ league.name }} on PrimeTimePix{% endblock %}
+{% block og_description %}You've been invited to join {{ league.name }} ({{ league.sport }}) — {{ member_count }} member{{ member_count|pluralize }}. Make your primetime picks and climb the leaderboard!{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4">
+    <div class="max-w-md w-full">
+        <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-card dark:shadow-card-dark overflow-hidden">
+
+            <!-- Banner -->
+            <div class="px-6 pt-8 pb-4 text-center border-b border-gray-100 dark:border-gray-700">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent-100 dark:bg-neon/10 mb-4">
+                    <i class="fas fa-trophy text-3xl text-amber-500 dark:text-neon"></i>
+                </div>
+                <p class="text-xs font-black uppercase tracking-widest text-accent-600 dark:text-neon mb-1">You're Invited</p>
+                <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">{{ league.name }}</h1>
+                {% if league.description %}
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ league.description }}</p>
+                {% endif %}
+            </div>
+
+            <!-- League facts -->
+            <div class="grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-700 text-center py-4">
+                <div>
+                    <div class="text-lg font-black font-display text-gray-900 dark:text-white">{{ league.sport }}</div>
+                    <div class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">Sport</div>
+                </div>
+                <div>
+                    <div class="text-lg font-black font-display text-gray-900 dark:text-white">{{ member_count }}</div>
+                    <div class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">Member{{ member_count|pluralize }}</div>
+                </div>
+                <div>
+                    <div class="text-lg font-black font-display text-gray-900 dark:text-white">
+                        {% if league.is_private %}<i class="fas fa-lock text-amber-500"></i>{% else %}<i class="fas fa-globe text-green-500"></i>{% endif %}
+                    </div>
+                    <div class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">{% if league.is_private %}Private{% else %}Public{% endif %}</div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="px-6">
+                {% for message in messages %}
+                <div class="mb-3 p-3 rounded-lg text-sm font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>{{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Action -->
+            <div class="px-6 pb-6 pt-2">
+                {% if already_member %}
+                <a href="{% url 'league_detail' league.id %}" class="block w-full text-center bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
+                    <i class="fas fa-arrow-right mr-2"></i>You're already in — Go to League
+                </a>
+                {% elif user.is_authenticated %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
+                        <i class="fas fa-user-plus mr-2"></i>Join League
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'signup' %}?next={{ request.path|urlencode }}" class="block w-full text-center bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
+                    <i class="fas fa-user-plus mr-2"></i>Sign Up &amp; Join
+                </a>
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
+                    Already have an account?
+                    <a href="{% url 'login' %}?next={{ request.path|urlencode }}" class="text-accent-600 dark:text-neon font-bold hover:underline">Log in to join</a>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

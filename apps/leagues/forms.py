@@ -1,4 +1,6 @@
 # apps/leagues/forms.py
+import re
+
 from django import forms
 from .models import LeagueCreationRequest, LeagueJoinRequest, League
 
@@ -36,7 +38,7 @@ class LeagueEditForm(forms.ModelForm):
     """Used by commissioners/co-commissioners to edit basic league details."""
     class Meta:
         model = League
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'join_code']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-900 dark:text-white',
@@ -46,6 +48,10 @@ class LeagueEditForm(forms.ModelForm):
                 'class': 'w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-900 dark:text-white',
                 'placeholder': 'Optional description for your league',
                 'rows': 3,
+            }),
+            'join_code': forms.TextInput(attrs={
+                'class': 'w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-900 dark:text-white font-mono uppercase',
+                'placeholder': 'e.g. CHIEFS24',
             }),
         }
 
@@ -57,6 +63,22 @@ class LeagueEditForm(forms.ModelForm):
         if qs.exists():
             raise forms.ValidationError(f"A league named '{name}' already exists.")
         return name
+
+    def clean_join_code(self):
+        code = (self.cleaned_data.get('join_code') or '').strip().upper()
+        # Blank means "keep the current code".
+        if not code:
+            return self.instance.join_code if self.instance and self.instance.pk else code
+        if not re.fullmatch(r'[A-Z0-9-]{4,20}', code):
+            raise forms.ValidationError(
+                "Use 4–20 characters: letters, numbers, or hyphens only."
+            )
+        qs = League.objects.filter(join_code=code)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError("That invite code is already taken. Try another.")
+        return code
 
 
 class LeagueCreationRequestForm(forms.ModelForm):

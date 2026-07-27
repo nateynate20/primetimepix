@@ -135,8 +135,10 @@ class UserStats(models.Model):
         else:
             self.win_percentage = 0.0
         
-        # Calculate total points
-        self.total_points = Pick.objects.filter(user=self.user).aggregate(
+        # Calculate total points from resolved, correct picks only.
+        # Unresolved picks keep the default points=1, so summing all picks
+        # would inflate the total before games finish.
+        self.total_points = correct_picks_qs.aggregate(
             total=Sum('points')
         )['total'] or 0
         
@@ -313,10 +315,11 @@ class LeagueStats(models.Model):
         else:
             self.win_percentage = 0.0
         
-        self.total_points = Pick.objects.filter(
-            user=self.user, 
-            league=self.league
-        ).aggregate(total=Sum('points'))['total'] or 0
+        # Points come from resolved, correct picks only (unresolved picks keep
+        # the default points=1 and would otherwise inflate the total).
+        self.total_points = league_picks.filter(is_correct=True).aggregate(
+            total=Sum('points')
+        )['total'] or 0
         
         self.save()
     

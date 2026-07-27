@@ -1,7 +1,12 @@
+import random
 import re
 from playwright.sync_api import Page, expect
 
 BASE_URL = "http://127.0.0.1:8000"
+
+
+def _rand():
+    return random.randint(100000, 999999)
 
 
 def test_landing_page_loads(page: Page):
@@ -12,13 +17,15 @@ def test_landing_page_loads(page: Page):
 
 def test_full_signup_journey(page: Page):
     """Test complete user signup flow."""
+    suffix = _rand()
     page.goto(f"{BASE_URL}/users/signup/")
 
-    page.fill("#id_username", "e2etestuser")
-    page.fill("#id_email", "e2e@testuser.com")
-    page.fill("#id_team_name", "E2ETeam")
+    page.fill("#id_username", f"e2etestuser{suffix}")
+    page.fill("#id_email", f"e2e{suffix}@testuser.com")
+    page.fill("#id_team_name", f"tm{suffix}")  # <=15 chars, unique
     page.fill("#id_password1", "testpass123!")
     page.fill("#id_password2", "testpass123!")
+    page.check("#terms")  # required client-side agreement
     page.click("button[type='submit']")
 
     # Should redirect to dashboard after signup
@@ -29,12 +36,14 @@ def test_full_signup_journey(page: Page):
 def test_login_and_navigate(page: Page):
     """Test login and navigation to schedule."""
     # First create a user via signup
+    suffix = _rand()
     page.goto(f"{BASE_URL}/users/signup/")
-    page.fill("#id_username", "e2enav")
-    page.fill("#id_email", "e2enav@test.com")
-    page.fill("#id_team_name", "NavTeam")
+    page.fill("#id_username", f"e2enav{suffix}")
+    page.fill("#id_email", f"e2enav{suffix}@test.com")
+    page.fill("#id_team_name", f"nv{suffix}")  # <=15 chars, unique
     page.fill("#id_password1", "testpass123!")
     page.fill("#id_password2", "testpass123!")
+    page.check("#terms")  # required client-side agreement
     page.click("button[type='submit']")
     page.wait_for_url(re.compile(r"/users/dashboard"))
 

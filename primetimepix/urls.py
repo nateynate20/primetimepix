@@ -4,6 +4,7 @@ from django.urls import path, include
 from django.contrib.auth.views import LogoutView
 from apps.users import views as user_views
 from apps.picks import views as picks_views
+from apps.leagues import views as league_views
 from . import views
 
 urlpatterns = [
@@ -23,6 +24,9 @@ urlpatterns = [
     path('profile/', user_views.edit_profile, name='profile_short'),
     path('standings/', picks_views.general_standings, name='standings_short'),
     path('leaderboard/', picks_views.general_standings, name='leaderboard_short'),
+
+    # Short, shareable league invite links: /join/<code>/
+    path('join/<str:code>/', league_views.join_via_invite, name='join_via_invite'),
 
     # Landing page (must be last)
     path('', views.landing_page, name='landing_page'),

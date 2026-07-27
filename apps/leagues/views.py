@@ -537,7 +537,7 @@ def manage_league(request, league_id):
     members = league.members.all().order_by('username')
     co_commissioner_ids = set(league.co_commissioners.values_list('id', flat=True))
 
-    invite_url = f"{settings.SITE_URL}/leagues/invite/{league.invite_code}/"
+    invite_url = f"{settings.SITE_URL}{reverse('join_via_invite', args=[league.join_code])}"
 
     context = {
         'league': league,
@@ -557,7 +557,7 @@ def manage_league(request, league_id):
 def regenerate_invite(request, league_id):
     """Rotate a league's shareable invite code."""
     league = get_commissioner_league_or_404(league_id, request.user)
-    league.regenerate_invite_code()
+    league.regenerate_join_code()
     messages.success(request, "Invite link regenerated. The old link no longer works.")
     return redirect('manage_league', league_id=league.id)
 
@@ -582,44 +582,59 @@ def remove_member(request, league_id, user_id):
     return redirect('manage_league', league_id=league.id)
 
 
-def join_via_invite(request, invite_code):
-    """Join a league using a shareable invite link.
+def join_via_invite(request, code):
+    """Branded invite landing page + join action for a shareable invite link.
 
-    Anonymous visitors are sent to signup first (carrying the invite along),
-    so a brand-new user lands straight in the league after registering.
+    GET renders a preview of the league (with Open Graph tags for rich link
+    previews when the link is texted/shared). POSTing the "Join League" form
+    adds the user; anonymous visitors are routed to signup first, carrying the
+    invite along so they land back here after registering.
     """
-    league = get_object_or_404(League, invite_code=invite_code, is_approved=True)
+    league = get_object_or_404(League, join_code=code.upper(), is_approved=True)
 
-    if not request.user.is_authenticated:
-        from urllib.parse import urlencode
-        signup_url = reverse('signup')
-        return redirect(f"{signup_url}?{urlencode({'next': request.get_full_path()})}")
+    already_member = (
+        request.user.is_authenticated
+        and league.members.filter(id=request.user.id).exists()
+    )
 
-    if league.members.filter(id=request.user.id).exists():
-        messages.info(request, f"You're already a member of {league.name}.")
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            from urllib.parse import urlencode
+            return redirect(f"{reverse('signup')}?{urlencode({'next': request.path})}")
+
+        if not already_member:
+            LeagueMembership.objects.get_or_create(user=request.user, league=league)
+            messages.success(request, f"You've joined {league.name}!")
+            try:
+                if request.user.email:
+                    html_message = render_to_string('emails/league_joined.html', {
+                        'username': request.user.username,
+                        'league_name': league.name,
+                        'site_url': settings.SITE_URL,
+                    })
+                    send_mail(
+                        f'Welcome to {league.name}!',
+                        f'You have joined "{league.name}". Make picks at: {settings.SITE_URL}/picks/',
+                        settings.DEFAULT_FROM_EMAIL,
+                        [request.user.email],
+                        html_message=html_message,
+                        fail_silently=True,
+                    )
+            except Exception as e:
+                print(f"Invite join email failed: {e}")
+
         return redirect('league_detail', league_id=league.id)
 
-    membership, created = LeagueMembership.objects.get_or_create(
-        user=request.user, league=league
-    )
-    if created:
-        messages.success(request, f"You've joined {league.name}!")
-        try:
-            if request.user.email:
-                html_message = render_to_string('emails/league_joined.html', {
-                    'username': request.user.username,
-                    'league_name': league.name,
-                    'site_url': settings.SITE_URL,
-                })
-                send_mail(
-                    f'Welcome to {league.name}!',
-                    f'You have joined "{league.name}". Make picks at: {settings.SITE_URL}/picks/',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [request.user.email],
-                    html_message=html_message,
-                    fail_silently=True,
-                )
-        except Exception as e:
-            print(f"Invite join email failed: {e}")
+    context = {
+        'league': league,
+        'already_member': already_member,
+        'member_count': league.members.count(),
+        'invite_url': request.build_absolute_uri(),
+    }
+    return render(request, 'leagues/invite_landing.html', context)
 
-    return redirect('league_detail', league_id=league.id)
+
+def invite_redirect(request, invite_code):
+    """Backward-compat: old UUID invite links redirect to the new short link."""
+    league = get_object_or_404(League, invite_code=invite_code, is_approved=True)
+    return redirect('join_via_invite', code=league.join_code)

@@ -8,6 +8,16 @@
   <meta name="description" content="{% block meta_description %}Make your picks for NFL primetime games. Compete with friends, climb the leaderboard!{% endblock %}">
   <meta name="theme-color" content="#0a0a0a">
 
+  {% block og_tags %}
+  <meta property="og:site_name" content="PrimeTimePix">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{% block og_title %}PrimeTimePix{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Make your picks for NFL primetime games. Compete with friends, climb the leaderboard!{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/default_team.png' %}{% endblock %}">
+  <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+  <meta name="twitter:card" content="summary_large_image">
+  {% endblock %}
+
   <!-- Fonts: Orbitron for headlines, Inter for body -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

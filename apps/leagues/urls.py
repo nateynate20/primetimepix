@@ -23,7 +23,8 @@ urlpatterns = [
     path('manage/<int:league_id>/', views.manage_league, name='manage_league'),
     path('manage/<int:league_id>/regenerate-invite/', views.regenerate_invite, name='regenerate_invite'),
     path('manage/<int:league_id>/remove-member/<int:user_id>/', views.remove_member, name='remove_member'),
-    path('invite/<uuid:invite_code>/', views.join_via_invite, name='join_via_invite'),
+    # Backward-compat: old UUID invite links redirect to the new short /join/<code>/ link.
+    path('invite/<uuid:invite_code>/', views.invite_redirect, name='invite_redirect'),
     
     # Legacy/admin routes
     path('request-create/', views.request_create_league, name='league_create_request'),
