@@ -32,6 +32,33 @@ class LeagueCreateForm(forms.ModelForm):
         return name
 
 
+class LeagueEditForm(forms.ModelForm):
+    """Used by commissioners/co-commissioners to edit basic league details."""
+    class Meta:
+        model = League
+        fields = ['name', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-900 dark:text-white',
+                'placeholder': 'Enter league name',
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-gray-900 dark:text-white',
+                'placeholder': 'Optional description for your league',
+                'rows': 3,
+            }),
+        }
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        qs = League.objects.filter(name=name)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError(f"A league named '{name}' already exists.")
+        return name
+
+
 class LeagueCreationRequestForm(forms.ModelForm):
     league_name = forms.CharField(
         max_length=100,

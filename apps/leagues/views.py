@@ -1,6 +1,8 @@
 # apps/leagues/views.py - Complete version with all functions
 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -11,12 +13,23 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 from .models import League, LeagueMembership, LeagueCreationRequest, LeagueJoinRequest
-from .forms import LeagueCreationRequestForm, LeagueJoinRequestForm
+from .forms import LeagueCreationRequestForm, LeagueJoinRequestForm, LeagueEditForm
+
+User = get_user_model()
 
 
 def is_superadmin(user):
     """Check if user is superadmin"""
     return user.is_superuser
+
+
+def get_commissioner_league_or_404(league_id, user):
+    """Return the league only if the user is a commissioner or co-commissioner."""
+    league = get_object_or_404(League, id=league_id)
+    if not league.is_commissioner(user):
+        from django.http import Http404
+        raise Http404("You do not manage this league.")
+    return league
 
 
 @login_required
@@ -69,6 +82,8 @@ def league_detail(request, league_id):
         'page_obj': page_obj,
         'user': request.user,
         'total_members': league.members.count(),
+        'is_manager': league.is_commissioner(request.user),
+        'co_commissioners': league.co_commissioners.all(),
     }
     return render(request, 'league_detail.html', context)
 
@@ -298,15 +313,18 @@ def join_league_instant(request, league_id):
             LeagueJoinRequest.objects.create(user=request.user, league=league)
             messages.success(request, f"Join request sent for {league.name}. You'll be notified when approved.")
             
-            # Send email notification to commissioner
+            # Send email notification to all commissioners (primary + co-commissioners)
             try:
-                if league.commissioner.email:
+                commissioner_emails = [
+                    c.email for c in league.all_commissioners() if c.email
+                ]
+                if commissioner_emails:
                     send_mail(
                         f'New join request for {league.name}',
                         f'{request.user.username} has requested to join your league "{league.name}".\n\n'
                         f'Approve or deny this request at: {settings.SITE_URL}/leagues/my-requests/',
                         settings.DEFAULT_FROM_EMAIL,
-                        [league.commissioner.email],
+                        commissioner_emails,
                         fail_silently=True,
                     )
             except Exception as e:
@@ -396,17 +414,17 @@ def my_leagues(request):
     member_leagues = League.objects.filter(
         members=request.user,
         is_approved=True
-    ).annotate(member_count=Count('members'))
+    ).annotate(member_count=Count('members')).distinct()
 
     commissioner_leagues = League.objects.filter(
-        commissioner=request.user,
+        Q(commissioner=request.user) | Q(co_commissioners=request.user),
         is_approved=True
-    ).annotate(member_count=Count('members'))
+    ).annotate(member_count=Count('members')).distinct()
 
     pending_requests = LeagueJoinRequest.objects.filter(
-        league__commissioner=request.user,
+        Q(league__commissioner=request.user) | Q(league__co_commissioners=request.user),
         approved=False
-    ).select_related('user', 'league')
+    ).select_related('user', 'league').distinct()
 
     # Combine all unique leagues for stats
     all_leagues = (member_leagues | commissioner_leagues).distinct()
@@ -427,9 +445,9 @@ def my_leagues(request):
 def my_league_requests(request):
     """Show pending requests for leagues where user is commissioner"""
     pending_requests = LeagueJoinRequest.objects.filter(
-        league__commissioner=request.user,
+        Q(league__commissioner=request.user) | Q(league__co_commissioners=request.user),
         approved=False
-    ).select_related('user', 'league').order_by('-created_at')
+    ).select_related('user', 'league').distinct().order_by('-created_at')
     
     return render(request, 'pending_request.html', {
         'pending_requests': pending_requests
@@ -441,9 +459,10 @@ def my_league_requests(request):
 def approve_join_request(request, request_id):
     """Approve a join request"""
     join_request = get_object_or_404(
-        LeagueJoinRequest, 
-        id=request_id, 
-        league__commissioner=request.user
+        LeagueJoinRequest.objects.filter(
+            Q(league__commissioner=request.user) | Q(league__co_commissioners=request.user)
+        ).distinct(),
+        id=request_id,
     )
     
     LeagueMembership.objects.get_or_create(
@@ -483,9 +502,10 @@ def approve_join_request(request, request_id):
 def deny_join_request(request, request_id):
     """Deny a join request"""
     join_request = get_object_or_404(
-        LeagueJoinRequest, 
-        id=request_id, 
-        league__commissioner=request.user
+        LeagueJoinRequest.objects.filter(
+            Q(league__commissioner=request.user) | Q(league__co_commissioners=request.user)
+        ).distinct(),
+        id=request_id,
     )
     
     username = join_request.user.username
@@ -493,3 +513,113 @@ def deny_join_request(request, request_id):
     messages.success(request, f"Denied join request from {username}")
     
     return redirect('my_league_requests')
+
+
+# --------------------------------------
+# League management (commissioners + co-commissioners)
+# --------------------------------------
+@login_required
+def manage_league(request, league_id):
+    """League management page for commissioners and co-commissioners."""
+    league = get_commissioner_league_or_404(league_id, request.user)
+
+    if request.method == 'POST':
+        form = LeagueEditForm(request.POST, instance=league)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "League details updated.")
+            return redirect('manage_league', league_id=league.id)
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = LeagueEditForm(instance=league)
+
+    members = league.members.all().order_by('username')
+    co_commissioner_ids = set(league.co_commissioners.values_list('id', flat=True))
+
+    invite_url = f"{settings.SITE_URL}/leagues/invite/{league.invite_code}/"
+
+    context = {
+        'league': league,
+        'form': form,
+        'members': members,
+        'co_commissioner_ids': co_commissioner_ids,
+        'invite_url': invite_url,
+        'pending_requests': LeagueJoinRequest.objects.filter(
+            league=league, approved=False
+        ).select_related('user'),
+    }
+    return render(request, 'leagues/manage_league.html', context)
+
+
+@login_required
+@require_POST
+def regenerate_invite(request, league_id):
+    """Rotate a league's shareable invite code."""
+    league = get_commissioner_league_or_404(league_id, request.user)
+    league.regenerate_invite_code()
+    messages.success(request, "Invite link regenerated. The old link no longer works.")
+    return redirect('manage_league', league_id=league.id)
+
+
+@login_required
+@require_POST
+def remove_member(request, league_id, user_id):
+    """Remove a member from a league (commissioners/co-commissioners only)."""
+    league = get_commissioner_league_or_404(league_id, request.user)
+
+    if user_id == league.commissioner_id:
+        messages.error(request, "The primary commissioner cannot be removed.")
+        return redirect('manage_league', league_id=league.id)
+
+    target = get_object_or_404(User, id=user_id)
+
+    LeagueMembership.objects.filter(user=target, league=league).delete()
+    # Removing a member also revokes any co-commissioner role they held.
+    league.co_commissioners.remove(target)
+
+    messages.success(request, f"Removed {target.username} from {league.name}.")
+    return redirect('manage_league', league_id=league.id)
+
+
+def join_via_invite(request, invite_code):
+    """Join a league using a shareable invite link.
+
+    Anonymous visitors are sent to signup first (carrying the invite along),
+    so a brand-new user lands straight in the league after registering.
+    """
+    league = get_object_or_404(League, invite_code=invite_code, is_approved=True)
+
+    if not request.user.is_authenticated:
+        from urllib.parse import urlencode
+        signup_url = reverse('signup')
+        return redirect(f"{signup_url}?{urlencode({'next': request.get_full_path()})}")
+
+    if league.members.filter(id=request.user.id).exists():
+        messages.info(request, f"You're already a member of {league.name}.")
+        return redirect('league_detail', league_id=league.id)
+
+    membership, created = LeagueMembership.objects.get_or_create(
+        user=request.user, league=league
+    )
+    if created:
+        messages.success(request, f"You've joined {league.name}!")
+        try:
+            if request.user.email:
+                html_message = render_to_string('emails/league_joined.html', {
+                    'username': request.user.username,
+                    'league_name': league.name,
+                    'site_url': settings.SITE_URL,
+                })
+                send_mail(
+                    f'Welcome to {league.name}!',
+                    f'You have joined "{league.name}". Make picks at: {settings.SITE_URL}/picks/',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [request.user.email],
+                    html_message=html_message,
+                    fail_silently=True,
+                )
+        except Exception as e:
+            print(f"Invite join email failed: {e}")
+
+    return redirect('league_detail', league_id=league.id)

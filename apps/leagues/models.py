@@ -1,4 +1,6 @@
 # apps/leagues/models.py
+import uuid
+
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
@@ -9,11 +11,18 @@ User = get_user_model()
 class League(models.Model):
     name = models.CharField(max_length=100)
     commissioner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leagues_owned')
+    co_commissioners = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name='leagues_co_commissioned',
+        help_text='Members who can help manage this league. Must already be members of the league.'
+    )
     sport = models.CharField(max_length=10, choices=[('NFL', 'NFL'), ('NBA', 'NBA')], default='NFL')
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_private = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=True)
+    invite_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     members = models.ManyToManyField(
         User,
@@ -26,6 +35,24 @@ class League(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+    def is_commissioner(self, user):
+        """Return True if the user is the primary commissioner or a co-commissioner."""
+        if not user or not user.is_authenticated:
+            return False
+        if user.id == self.commissioner_id:
+            return True
+        return self.co_commissioners.filter(id=user.id).exists()
+
+    def all_commissioners(self):
+        """Return the primary commissioner plus all co-commissioners."""
+        return [self.commissioner] + list(self.co_commissioners.all())
+
+    def regenerate_invite_code(self):
+        """Rotate the shareable invite code (e.g. if the link leaks)."""
+        self.invite_code = uuid.uuid4()
+        self.save(update_fields=['invite_code'])
+        return self.invite_code
 
     # Removed the member_count property to avoid conflicts
     # Now use annotation in views: .annotate(member_count=Count('members'))

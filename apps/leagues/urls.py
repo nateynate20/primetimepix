@@ -18,6 +18,12 @@ urlpatterns = [
     path('my-requests/', views.my_league_requests, name='my_league_requests'),
     path('approve-request/<int:request_id>/', views.approve_join_request, name='approve_join_request'),
     path('deny-request/<int:request_id>/', views.deny_join_request, name='deny_join_request'),
+
+    # League management (commissioners + co-commissioners)
+    path('manage/<int:league_id>/', views.manage_league, name='manage_league'),
+    path('manage/<int:league_id>/regenerate-invite/', views.regenerate_invite, name='regenerate_invite'),
+    path('manage/<int:league_id>/remove-member/<int:user_id>/', views.remove_member, name='remove_member'),
+    path('invite/<uuid:invite_code>/', views.join_via_invite, name='join_via_invite'),
     
     # Legacy/admin routes
     path('request-create/', views.request_create_league, name='league_create_request'),

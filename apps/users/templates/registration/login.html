@@ -28,6 +28,7 @@
             <!-- Form -->
             <form method="POST" class="px-6 pb-6 space-y-4">
                 {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
                 <!-- Username -->
                 <div>
@@ -72,7 +73,7 @@
             <div class="text-center px-6 pb-6 pt-2 border-t border-gray-200 dark:border-gray-700">
                 <p class="text-sm text-gray-500 dark:text-gray-400 pt-4">
                     Don't have an account?
-                    <a href="{% url 'signup' %}" class="text-accent-600 dark:text-neon font-bold hover:underline">
+                    <a href="{% url 'signup' %}{% if next %}?next={{ next|urlencode }}{% endif %}" class="text-accent-600 dark:text-neon font-bold hover:underline">
                         Sign Up <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </p>

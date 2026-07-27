@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
@@ -56,6 +57,18 @@ from apps.users.models import Profile  # Assuming Profile model exists
 # --------------------------------------
 # User Signup
 # --------------------------------------
+def _get_safe_next(request):
+    """Return a validated ?next= redirect target, or None if unsafe/absent."""
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return next_url
+    return None
+
+
 def signup(request):
     if request.method == "POST":
         form = SignupUserForm(request.POST)
@@ -81,12 +94,15 @@ def signup(request):
             except Exception as e:
                 print(f"Email sending failed: {e}")
 
-            return redirect('dashboard')
+            return redirect(_get_safe_next(request) or 'dashboard')
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         form = SignupUserForm()
-    return render(request, 'registration/signup.html', {'form': form})
+    return render(request, 'registration/signup.html', {
+        'form': form,
+        'next': _get_safe_next(request) or '',
+    })
 
 
 # --------------------------------------
@@ -202,12 +218,15 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
-            return redirect('dashboard')
+            return redirect(_get_safe_next(request) or 'dashboard')
         else:
             messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
-    return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'registration/login.html', {
+        'form': form,
+        'next': _get_safe_next(request) or '',
+    })
 
 
 # --------------------------------------

@@ -28,6 +28,11 @@
             <a href="{% url 'schedule' %}?league={{ league.id }}" class="px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
                 <i class="fas fa-hand-pointer mr-1"></i>Make Picks
             </a>
+            {% if is_manager %}
+            <a href="{% url 'manage_league' league.id %}" class="px-4 py-2 bg-amber-500 dark:bg-yellow-400/20 text-white dark:text-yellow-300 rounded-lg font-bold text-sm hover:opacity-90 transition">
+                <i class="fas fa-cog mr-1"></i>Manage League
+            </a>
+            {% endif %}
             <a href="{% url 'league_detail_no_id' %}" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
                 <i class="fas fa-arrow-left mr-1"></i>My Leagues
             </a>
@@ -200,6 +205,10 @@
                     You are the commissioner of this league.
                     {% else %}
                     League commissioner: {{ league.commissioner.username }}
+                    {% endif %}
+                    {% if co_commissioners %}
+                    <br><span class="font-semibold">Co-commissioners:</span>
+                    {% for cc in co_commissioners %}{{ cc.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
                     {% endif %}
                 </p>
             </div>

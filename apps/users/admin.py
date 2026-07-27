@@ -1,10 +1,16 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from unfold.admin import ModelAdmin, StackedInline
 from .models import Profile, Notification, ReminderLog
 
 admin.site.unregister(User)
+
+# Groups are not used in this app's permission model, so hide them from the admin.
+try:
+    admin.site.unregister(Group)
+except admin.sites.NotRegistered:
+    pass
 
 
 class ProfileInline(StackedInline):

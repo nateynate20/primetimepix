@@ -1,15 +1,56 @@
+from django import forms
 from django.contrib import admin
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 from .models import League, LeagueMembership, LeagueCreationRequest, LeagueJoinRequest
+
+
+class LeagueMembershipInline(TabularInline):
+    model = LeagueMembership
+    extra = 1
+    autocomplete_fields = ('user',)
+    verbose_name = 'Member'
+    verbose_name_plural = 'Members'
+
+
+class LeagueAdminForm(forms.ModelForm):
+    class Meta:
+        model = League
+        fields = [
+            'name', 'commissioner', 'co_commissioners',
+            'sport', 'description', 'is_private', 'is_approved',
+        ]
+
+    def clean_co_commissioners(self):
+        co_commissioners = self.cleaned_data.get('co_commissioners')
+        if not co_commissioners:
+            return co_commissioners
+
+        # Co-commissioners must already be members of this league.
+        if self.instance and self.instance.pk:
+            member_ids = set(
+                self.instance.members.values_list('id', flat=True)
+            )
+            member_ids.add(self.instance.commissioner_id)
+            invalid = [u for u in co_commissioners if u.id not in member_ids]
+            if invalid:
+                names = ', '.join(u.username for u in invalid)
+                raise forms.ValidationError(
+                    f"These users must be members of the league before becoming "
+                    f"co-commissioners: {names}."
+                )
+        return co_commissioners
 
 
 @admin.register(League)
 class LeagueAdmin(ModelAdmin):
+    form = LeagueAdminForm
+    inlines = (LeagueMembershipInline,)
     list_display = ('name', 'sport', 'commissioner', 'is_private', 'is_approved', 'created_at')
     list_filter = ('sport', 'is_private', 'is_approved')
     search_fields = ('name', 'commissioner__username')
-    fields = ('name', 'commissioner', 'sport', 'description', 'is_private', 'is_approved')
-    readonly_fields = ('created_at',)
+    fields = ('name', 'commissioner', 'co_commissioners', 'sport', 'description', 'is_private', 'is_approved', 'invite_code')
+    readonly_fields = ('created_at', 'invite_code')
+    filter_horizontal = ('co_commissioners',)
 
 
 @admin.register(LeagueMembership)

@@ -88,6 +88,9 @@
                 </div>
                 <!-- Actions -->
                 <div class="flex gap-2">
+                    <a href="{% url 'manage_league' league.id %}" class="px-4 py-2 text-xs font-bold bg-amber-500 dark:bg-yellow-400/20 text-white dark:text-yellow-300 rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-cog mr-1"></i>Manage
+                    </a>
                     <a href="{% url 'standings' %}?league={{ league.id }}" class="px-4 py-2 text-xs font-bold bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg hover:opacity-90 transition">
                         <i class="fas fa-chart-line mr-1"></i>View Standings
                     </a>
@@ -155,9 +158,9 @@
             <div>
                 <h4 class="font-bold text-gray-900 dark:text-blue-200 text-sm">League Management</h4>
                 <p class="text-gray-600 dark:text-blue-100/70 text-sm mt-1">
-                    League creation and join requests require admin approval.
+                    Create a league instantly and you'll be its commissioner. For private leagues, the commissioner approves join requests.
                     {% if request.user.is_staff %}
-                    <a href="{% url 'admin:index' %}" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Go to admin panel</a> to manage requests.
+                    <a href="{% url 'admin:index' %}" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Go to admin panel</a> to manage leagues and requests.
                     {% endif %}
                 </p>
             </div>
