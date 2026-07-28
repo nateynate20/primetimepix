@@ -28,6 +28,9 @@ urlpatterns = [
     # Short, shareable league invite links: /join/<code>/
     path('join/<str:code>/', league_views.join_via_invite, name='join_via_invite'),
 
+    # Staff-only endpoint to verify Sentry captures 500s (see primetimepix/views.py)
+    path('debug/sentry-test/', views.sentry_debug, name='sentry_debug'),
+
     # Landing page (must be last)
     path('', views.landing_page, name='landing_page'),
 ]
