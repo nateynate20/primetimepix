@@ -22,10 +22,8 @@ def test_full_signup_journey(page: Page):
 
     page.fill("#id_username", f"e2etestuser{suffix}")
     page.fill("#id_email", f"e2e{suffix}@testuser.com")
-    page.fill("#id_team_name", f"tm{suffix}")  # <=15 chars, unique
     page.fill("#id_password1", "testpass123!")
     page.fill("#id_password2", "testpass123!")
-    page.check("#terms")  # required client-side agreement
     page.click("button[type='submit']")
 
     # Should redirect to dashboard after signup
@@ -40,10 +38,8 @@ def test_login_and_navigate(page: Page):
     page.goto(f"{BASE_URL}/users/signup/")
     page.fill("#id_username", f"e2enav{suffix}")
     page.fill("#id_email", f"e2enav{suffix}@test.com")
-    page.fill("#id_team_name", f"nv{suffix}")  # <=15 chars, unique
     page.fill("#id_password1", "testpass123!")
     page.fill("#id_password2", "testpass123!")
-    page.check("#terms")  # required client-side agreement
     page.click("button[type='submit']")
     page.wait_for_url(re.compile(r"/users/dashboard"))
 

@@ -48,3 +48,6 @@ build/
 # Deployment
 *.dump.env
 .env
+
+# Transient brand-design preview artifacts (kept locally, regenerated on demand)
+docs/brand_refs/_*

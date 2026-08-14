@@ -1,4 +1,5 @@
 {% extends 'nflpix/base.html' %}
+{% load static %}
 
 {% block title %}Sign Up - PrimeTimePix{% endblock %}
 
@@ -11,9 +12,10 @@
 
             <!-- Header -->
             <div class="px-6 pt-8 pb-4 text-center">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent-100 dark:bg-neon/10 mb-4">
-                    <i class="fas fa-user-plus text-2xl text-accent-600 dark:text-neon"></i>
-                </div>
+                <img src="{% static 'images/logo-light.png' %}" alt="PrimeTimePix Sports"
+                     class="h-12 w-auto mx-auto mb-5 block dark:hidden">
+                <img src="{% static 'images/logo.png' %}" alt="PrimeTimePix Sports"
+                     class="h-12 w-auto mx-auto mb-5 hidden dark:block drop-shadow-[0_0_10px_rgba(57,255,20,0.4)]">
                 <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">Join PrimeTimePix</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Create your account and start making picks!</p>
             </div>
@@ -72,24 +74,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Team Name -->
-                <div>
-                    <label for="id_team_name" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
-                        Team Name <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <input type="text" name="team_name" id="id_team_name" required maxlength="15"
-                               placeholder="Your team's name"
-                               value="{{ form.team_name.value|default:'' }}"
-                               class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-accent-500 dark:focus:border-neon focus:ring-2 focus:ring-accent-500/20 dark:focus:ring-neon/20">
-                        <i class="fas fa-trophy absolute right-3 top-3 text-gray-400 dark:text-gray-500 text-sm"></i>
-                    </div>
-                    {% if form.team_name.errors %}
-                    <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.team_name.errors.0 }}</p>
-                    {% endif %}
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-500">Be creative! This represents you in leagues</p>
-                </div>
-
                 <!-- Password -->
                 <div>
                     <label for="id_password1" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
@@ -123,20 +107,17 @@
                     {% endif %}
                 </div>
 
-                <!-- Terms -->
-                <div class="flex items-start pt-1">
-                    <input type="checkbox" id="terms" required
-                           class="mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-accent-600 dark:text-neon focus:ring-accent-500 dark:focus:ring-neon bg-gray-50 dark:bg-gray-900">
-                    <label for="terms" class="ml-2 text-xs text-gray-600 dark:text-gray-400">
-                        I agree to the <a href="#" class="text-accent-600 dark:text-neon font-bold hover:underline">Terms of Service</a>
-                        and <a href="#" class="text-accent-600 dark:text-neon font-bold hover:underline">Privacy Policy</a>
-                    </label>
-                </div>
-
                 <!-- Submit -->
                 <button type="submit" class="w-full mt-2 bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition flex items-center justify-center">
                     <i class="fas fa-user-plus mr-2"></i>Create Account
                 </button>
+
+                <!-- Implicit terms agreement (no extra click required to convert) -->
+                <p class="text-center text-xs text-gray-500 dark:text-gray-500">
+                    By creating an account, you agree to our
+                    <a href="#" class="text-accent-600 dark:text-neon font-medium hover:underline">Terms of Service</a>
+                    and <a href="#" class="text-accent-600 dark:text-neon font-medium hover:underline">Privacy Policy</a>.
+                </p>
             </form>
 
             <!-- What happens next -->

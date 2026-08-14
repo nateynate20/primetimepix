@@ -29,15 +29,13 @@ def _unique(prefix):
 
 
 def _signup(page: Page, username: str) -> None:
-    # team_name is capped at 15 chars and must be unique (see SignupUserForm).
-    team_name = f"tm{random.randint(100000, 999999)}"
+    # Signup is intentionally minimal (username, email, password) — no team
+    # name field and no terms checkbox; agreement is implicit via inline copy.
     page.goto(f"{BASE_URL}/users/signup/")
     page.fill("#id_username", username)
     page.fill("#id_email", f"{username}@example.com")
-    page.fill("#id_team_name", team_name)
     page.fill("#id_password1", "testpass123!")
     page.fill("#id_password2", "testpass123!")
-    page.check("#terms")  # required client-side agreement, blocks submit if unchecked
     page.click("button[type='submit']")
     page.wait_for_url(re.compile(r"/users/dashboard"))
 

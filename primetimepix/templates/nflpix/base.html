@@ -8,12 +8,16 @@
   <meta name="description" content="{% block meta_description %}Make your picks for NFL primetime games. Compete with friends, climb the leaderboard!{% endblock %}">
   <meta name="theme-color" content="#0a0a0a">
 
+  <!-- Favicon / app icon (PrimeTimePix X mark) -->
+  <link rel="icon" type="image/png" href="{% static 'images/logo-mark.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'images/logo-mark.png' %}">
+
   {% block og_tags %}
   <meta property="og:site_name" content="PrimeTimePix">
   <meta property="og:type" content="website">
   <meta property="og:title" content="{% block og_title %}PrimeTimePix{% endblock %}">
   <meta property="og:description" content="{% block og_description %}Make your picks for NFL primetime games. Compete with friends, climb the leaderboard!{% endblock %}">
-  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/default_team.png' %}{% endblock %}">
+  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/invite-og.png' %}{% endblock %}">
   <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
   <meta name="twitter:card" content="summary_large_image">
   {% endblock %}
@@ -145,8 +149,13 @@
   <footer class="bg-white/80 dark:bg-surface-800/80 border-t border-gray-200 dark:border-gray-800 mt-auto backdrop-blur-sm" role="contentinfo">
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
       <div class="text-center md:text-left">
-        <h3 class="text-lg font-black font-display text-accent-700 dark:text-neon mb-2 uppercase tracking-wide">PrimeTimePix</h3>
-        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">The ultimate NFL primetime prediction platform</p>
+        <h3 class="mb-3">
+          <img src="{% static 'images/logo-light.png' %}" alt="PrimeTimePix Sports"
+               class="h-10 w-auto mx-auto md:mx-0 block dark:hidden">
+          <img src="{% static 'images/logo.png' %}" alt="PrimeTimePix Sports"
+               class="h-10 w-auto mx-auto md:mx-0 hidden dark:block drop-shadow-[0_0_8px_rgba(57,255,20,0.35)]">
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">The ultimate primetime sports prediction platform</p>
       </div>
       <div class="text-center">
         <h4 class="text-xs font-bold text-gray-600 dark:text-gray-300 mb-3 uppercase tracking-widest">Quick Links</h4>

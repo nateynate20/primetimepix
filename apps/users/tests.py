@@ -19,7 +19,6 @@ class TestSignupFlow:
         response = client.post(reverse('signup'), {
             'username': 'newuser',
             'email': 'new@test.com',
-            'team_name': 'MyTeam',
             'password1': 'strongpass123!',
             'password2': 'strongpass123!',
         })
@@ -28,30 +27,19 @@ class TestSignupFlow:
         user = User.objects.get(username='newuser')
         assert Profile.objects.filter(user=user).exists()
         profile = Profile.objects.get(user=user)
-        assert profile.team_name == 'MyTeam'
+        # Signup no longer collects a team name; it defaults to the username
+        # (via the post_save signal) and can be personalized later.
+        assert profile.team_name == 'newuser'
 
     def test_signup_duplicate_email_rejected(self, user):
         client = Client()
         response = client.post(reverse('signup'), {
             'username': 'anotheruser',
             'email': 'test@test.com',  # Same as user fixture
-            'team_name': 'UniqueTeam',
             'password1': 'strongpass123!',
             'password2': 'strongpass123!',
         })
         assert response.status_code == 200  # Re-renders form with errors
-        assert not User.objects.filter(username='anotheruser').exists()
-
-    def test_signup_duplicate_team_name_rejected(self, user):
-        client = Client()
-        response = client.post(reverse('signup'), {
-            'username': 'anotheruser',
-            'email': 'another@test.com',
-            'team_name': 'TestTeam',  # Same as user fixture
-            'password1': 'strongpass123!',
-            'password2': 'strongpass123!',
-        })
-        assert response.status_code == 200
         assert not User.objects.filter(username='anotheruser').exists()
 
     def test_signup_password_mismatch_rejected(self):
@@ -59,7 +47,6 @@ class TestSignupFlow:
         response = client.post(reverse('signup'), {
             'username': 'newuser',
             'email': 'new@test.com',
-            'team_name': 'MyTeam',
             'password1': 'strongpass123!',
             'password2': 'differentpass456!',
         })

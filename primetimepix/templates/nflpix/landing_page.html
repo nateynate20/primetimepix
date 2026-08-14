@@ -1,4 +1,5 @@
 {% extends 'nflpix/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="min-h-[85vh] py-16 px-4 sm:px-6 lg:px-8">
@@ -12,9 +13,12 @@
         </span>
       </div>
 
-      <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black font-display uppercase tracking-tight leading-none">
-        <span class="text-gray-900 dark:text-white">Primetime</span><br>
-        <span class="text-accent-600 dark:text-neon">Pix</span>
+      <h1>
+        <img src="{% static 'images/logo-light.png' %}" alt="PrimeTimePix Sports"
+             class="mx-auto w-auto h-28 sm:h-36 lg:h-44 block dark:hidden">
+        <img src="{% static 'images/logo.png' %}" alt="PrimeTimePix Sports"
+             class="mx-auto w-auto h-28 sm:h-36 lg:h-44 hidden dark:block drop-shadow-[0_0_22px_rgba(57,255,20,0.4)]">
+        <span class="sr-only">PrimeTimePix Sports</span>
       </h1>
 
       <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl font-semibold text-gray-600 dark:text-gray-300 leading-relaxed">

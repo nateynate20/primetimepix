@@ -5,6 +5,7 @@
 {% block meta_description %}You're invited to join {{ league.name }} on PrimeTimePix. Make your picks and compete!{% endblock %}
 {% block og_title %}Join {{ league.name }} on PrimeTimePix{% endblock %}
 {% block og_description %}You've been invited to join {{ league.name }} ({{ league.sport }}) — {{ member_count }} member{{ member_count|pluralize }}. Make your primetime picks and climb the leaderboard!{% endblock %}
+{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/invite-og.png' %}{% endblock %}
 
 {% block content %}
 <div class="min-h-[80vh] flex items-center justify-center py-12 px-4">
@@ -13,6 +14,10 @@
 
             <!-- Banner -->
             <div class="px-6 pt-8 pb-4 text-center border-b border-gray-100 dark:border-gray-700">
+                <img src="{% static 'images/logo-light.png' %}" alt="PrimeTimePix Sports"
+                     class="h-10 w-auto mx-auto mb-5 block dark:hidden">
+                <img src="{% static 'images/logo.png' %}" alt="PrimeTimePix Sports"
+                     class="h-10 w-auto mx-auto mb-5 hidden dark:block drop-shadow-[0_0_10px_rgba(57,255,20,0.4)]">
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent-100 dark:bg-neon/10 mb-4">
                     <i class="fas fa-trophy text-3xl text-amber-500 dark:text-neon"></i>
                 </div>
