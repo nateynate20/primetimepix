@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from unfold.admin import ModelAdmin, TabularInline
 from .models import League, LeagueMembership, LeagueCreationRequest, LeagueJoinRequest
 
@@ -65,6 +65,50 @@ class LeagueCreationRequestAdmin(ModelAdmin):
     list_display = ('league_name', 'user', 'approved', 'created_at')
     list_filter = ('approved', 'created_at')
     search_fields = ('league_name', 'user__username')
+    actions = ('approve_requests', 'deny_requests')
+
+    @admin.action(description='Approve selected requests (creates the league)')
+    def approve_requests(self, request, queryset):
+        created, skipped = 0, 0
+        for req in queryset:
+            if req.approved:
+                skipped += 1
+                continue
+            # Mirror the in-app approval flow: create the league, set the
+            # requester as commissioner, then mark the request approved (which
+            # fires the approval-email signal on save).
+            League.objects.create(
+                name=req.league_name,
+                commissioner=req.user,
+                description=req.description or '',
+                is_approved=True,
+                is_private=False,
+            )
+            req.approved = True
+            req.save()
+            created += 1
+        if created:
+            self.message_user(
+                request,
+                f'Approved {created} request(s) and created the league(s).',
+                messages.SUCCESS,
+            )
+        if skipped:
+            self.message_user(
+                request,
+                f'Skipped {skipped} already-approved request(s).',
+                messages.WARNING,
+            )
+
+    @admin.action(description='Deny and delete selected requests')
+    def deny_requests(self, request, queryset):
+        count = queryset.count()
+        queryset.delete()
+        self.message_user(
+            request,
+            f'Denied and deleted {count} request(s).',
+            messages.WARNING,
+        )
 
 
 @admin.register(LeagueJoinRequest)

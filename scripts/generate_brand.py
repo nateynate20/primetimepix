@@ -702,6 +702,19 @@ def build_logo_art():
     ys = np.where(lbl == i_id)[0]
     a[(lbl == i_id) & (np.arange(H)[:, None] < ys.min() + 24)] = (0, 0, 0)
 
+    # Scrub leftover reference cruft in the TIME|PIX gap: the recoloured needle
+    # checkmark and the tiny ™ sit below y=336, so they survived the band wipe.
+    # Drop every component that lives ENTIRELY inside the junction box (the E and
+    # P straddle its edges, so they're kept), then clear faint AA ghosts.
+    JX0, JX1, JY0, JY1 = 744, 808, 330, 452
+    for i in range(1, n + 1):
+        x0, x1, y0, y1 = bb(i)
+        if x0 >= JX0 - 2 and x1 <= JX1 + 2 and y0 >= JY0 - 2 and y1 <= JY1 + 2:
+            a[lbl == i] = (0, 0, 0)
+    gap = a[JY0:JY1, JX0:JX1]
+    gmax = gap.max(2)
+    gap[(gmax > 6) & (gmax < 150)] = (0, 0, 0)   # solid letters (>150) survive
+
     art = Image.fromarray(a, "RGB").convert("RGBA")
     emb = _render_svg(clock_emblem_svg(W, H), W, H).resize((W, H), Image.LANCZOS)
     art.alpha_composite(emb)
