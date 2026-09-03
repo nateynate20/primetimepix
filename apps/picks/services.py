@@ -82,42 +82,43 @@ class PickService:
 
     @staticmethod
     def calculate_leaderboard(league=None, week=None, limit=100):
-        """Calculate and return leaderboard data in format expected by templates"""
-        if league:
-            picks_filter = Pick.objects.filter(league=league, is_correct__isnull=False)
-            users = User.objects.filter(
-                pick__league=league,
-                pick__is_correct__isnull=False
-            ).distinct()
-        else:
-            picks_filter = Pick.objects.filter(is_correct__isnull=False)
-            users = User.objects.filter(
-                pick__is_correct__isnull=False
-            ).distinct()
+        """Leaderboard rows for the standings templates.
 
-        if week:
-            picks_filter = picks_filter.filter(game__week=week)
-            users = users.filter(pick__game__week=week, pick__is_correct__isnull=False).distinct()
+        For a specific league we include *every* member — even those whose picks
+        haven't been graded yet — so this page matches the league standings table
+        exactly (a member shows 0-0 with pending games rather than the whole page
+        reading "No standings available"). The overall board still lists only
+        players with at least one graded pick, to keep the global ranking
+        meaningful.
+        """
+        if league:
+            members = list(league.members.all())
+        else:
+            members = list(
+                User.objects.filter(pick__is_correct__isnull=False).distinct()
+            )
 
         leaderboard = []
 
-        for user in users:
-            user_picks = picks_filter.filter(user=user)
-            total_picks = user_picks.count()
-
-            if total_picks == 0:
-                continue
-
-            correct_picks = user_picks.filter(is_correct=True).count()
-            total_points = user_picks.filter(is_correct=True).aggregate(Sum('points'))['points__sum'] or 0
-            win_percentage = (correct_picks / total_picks) * 100 if total_picks > 0 else 0
-
-            # Pending = this user's picks for games that haven't concluded yet.
+        for user in members:
+            graded = Pick.objects.filter(user=user, is_correct__isnull=False)
             pending_qs = Pick.objects.filter(user=user, is_correct__isnull=True)
             if league:
+                graded = graded.filter(league=league)
                 pending_qs = pending_qs.filter(league=league)
             if week:
+                graded = graded.filter(game__week=week)
                 pending_qs = pending_qs.filter(game__week=week)
+
+            total_picks = graded.count()
+            # Overall board skips players with nothing graded; a league shows all
+            # members so it lines up with the league standings page.
+            if total_picks == 0 and not league:
+                continue
+
+            correct_picks = graded.filter(is_correct=True).count()
+            total_points = graded.filter(is_correct=True).aggregate(Sum('points'))['points__sum'] or 0
+            win_percentage = (correct_picks / total_picks) * 100 if total_picks else 0
             pending = pending_qs.exclude(game__status__in=['final', 'cancelled']).count()
 
             leaderboard.append({
@@ -129,17 +130,17 @@ class PickService:
                 'accuracy': round(win_percentage, 1),
                 'total_points': total_points,
             })
-        
+
         # Sort by total points (desc), then accuracy (desc), then total picks (desc)
         leaderboard.sort(
             key=lambda x: (x['total_points'], x['accuracy'], x['total_predictions']),
             reverse=True
         )
-        
+
         # Add rank
         for i, entry in enumerate(leaderboard[:limit], 1):
             entry['rank'] = i
-        
+
         return leaderboard[:limit]
 
     @staticmethod
