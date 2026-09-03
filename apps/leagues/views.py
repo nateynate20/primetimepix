@@ -76,14 +76,19 @@ def league_detail(request, league_id):
     paginator = Paginator(standings, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
+    from apps.games.utils import get_current_nfl_week
+
     context = {
         'league': league,
         'page_obj': page_obj,
         'user': request.user,
         'total_members': league.members.count(),
+        'current_week': get_current_nfl_week(),
         'is_manager': league.is_commissioner(request.user),
         'co_commissioners': league.co_commissioners.all(),
+        'join_locked': league.is_join_locked(),
+        'invite_url': f"{settings.SITE_URL}{reverse('join_via_invite', args=[league.join_code])}",
     }
     return render(request, 'league_detail.html', context)
 
@@ -127,7 +132,11 @@ def request_join_league(request, league_id=None):
         if league.members.filter(id=request.user.id).exists():
             messages.info(request, "You're already a member of this league.")
             return redirect('league_detail_no_id')
-        
+
+        if league.is_join_locked():
+            messages.error(request, f"{league.name} is locked — the season has already started, so new members can't join.")
+            return redirect('league_detail_no_id')
+
         if request.method == 'POST':
             if league.is_private:
                 existing_request = LeagueJoinRequest.objects.filter(
@@ -156,6 +165,10 @@ def request_join_league(request, league_id=None):
 
             if league.members.filter(id=request.user.id).exists():
                 messages.warning(request, 'You are already a member of this league.')
+                return redirect('league_detail_no_id')
+
+            if league.is_join_locked():
+                messages.error(request, f"{league.name} is locked — the season has already started, so new members can't join.")
                 return redirect('league_detail_no_id')
 
             # Public leagues: instant join, no approval needed
@@ -298,7 +311,11 @@ def join_league_instant(request, league_id):
     if league.members.filter(id=request.user.id).exists():
         messages.info(request, f"You're already a member of {league.name}.")
         return redirect('league_detail', league_id=league.id)
-    
+
+    if league.is_join_locked():
+        messages.error(request, f"{league.name} is locked — the season has already started, so new members can't join.")
+        return redirect('league_list')
+
     if league.is_private:
         # Create join request for private league
         existing_request = LeagueJoinRequest.objects.filter(
@@ -596,11 +613,26 @@ def join_via_invite(request, code):
         request.user.is_authenticated
         and league.members.filter(id=request.user.id).exists()
     )
+    join_locked = league.is_join_locked()
 
-    if request.method == 'POST':
+    # A visitor is trying to join when they submit the Join form (POST) OR when
+    # they return here authenticated straight from signup/login. We carry a
+    # ?join=1 flag on the "next" URL so registration flows directly into league
+    # membership instead of dumping them back on the preview page to click again.
+    wants_join = request.method == 'POST' or request.GET.get('join') == '1'
+
+    # Season's underway — existing members can still open the league, but nobody
+    # new can join through the invite link.
+    if wants_join and join_locked and not already_member:
+        messages.error(request, f"{league.name} is locked — the season has already started, so new members can't join.")
+        return redirect('join_via_invite', code=league.join_code)
+
+    if wants_join:
         if not request.user.is_authenticated:
             from urllib.parse import urlencode
-            return redirect(f"{reverse('signup')}?{urlencode({'next': request.path})}")
+            return redirect(
+                f"{reverse('signup')}?{urlencode({'next': f'{request.path}?join=1'})}"
+            )
 
         if not already_member:
             LeagueMembership.objects.get_or_create(user=request.user, league=league)
@@ -628,6 +660,7 @@ def join_via_invite(request, code):
     context = {
         'league': league,
         'already_member': already_member,
+        'join_locked': join_locked,
         'member_count': league.members.count(),
         'invite_url': request.build_absolute_uri(),
     }

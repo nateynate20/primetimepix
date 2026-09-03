@@ -51,33 +51,38 @@
     </div>
     {% endif %}
 
-    <!-- Stats Bar -->
+    <!-- Stats Bar + Share -->
     <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div>
-                <div class="text-2xl font-black font-display text-amber-500">
-                    {% if page_obj %}{{ page_obj.0.total_points|default:0 }}{% else %}0{% endif %}
+        <div class="flex items-center justify-between gap-4">
+            <div class="grid grid-cols-2 gap-8 text-center">
+                <div>
+                    <div class="text-2xl font-black font-display text-gray-900 dark:text-white">{{ total_members }}</div>
+                    <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Members</div>
                 </div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Highest Score</div>
-            </div>
-            <div class="border-l border-gray-200 dark:border-gray-700">
-                <div class="text-2xl font-black font-display text-gray-900 dark:text-white">{{ total_members }}</div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Total Members</div>
-            </div>
-            <div class="border-l border-gray-200 dark:border-gray-700">
-                <div class="text-2xl font-black font-display text-accent-600 dark:text-neon">
-                    {% if page_obj %}{{ page_obj.0.record|default:"0-0" }}{% else %}0-0{% endif %}
+                <div class="border-l border-gray-200 dark:border-gray-700 pl-8">
+                    <div class="text-2xl font-black font-display text-accent-600 dark:text-neon">{{ current_week|default:"—" }}</div>
+                    <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">NFL Week</div>
                 </div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Leader's Record</div>
             </div>
-            <div class="border-l border-gray-200 dark:border-gray-700">
-                <div class="text-2xl font-black font-display text-purple-600 dark:text-purple-400">
-                    {% if page_obj %}{{ page_obj.0.accuracy|default:0 }}%{% else %}0%{% endif %}
-                </div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Top Accuracy</div>
-            </div>
+            <button type="button" id="share-standings-btn"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition whitespace-nowrap">
+                <i class="fas fa-share-nodes"></i><span id="share-standings-label">Share Standings</span>
+            </button>
         </div>
     </div>
+
+    {# Plain-text standings summary the Share button copies / shares. #}
+    {% spaceless %}
+    <script type="application/json" id="share-standings-data">
+    {
+        "title": "{{ league.name|escapejs }} — Standings (Week {{ current_week|default:0 }})",
+        "rows": [
+            {% for standing in page_obj %}{% if forloop.counter <= 10 %}"{{ forloop.counter }}. {{ standing.user.username|escapejs }} {{ standing.record|escapejs }} ({{ standing.total_points }} pts)"{% if not forloop.last and forloop.counter < 10 %},{% endif %}{% endif %}{% endfor %}
+        ],
+        "url": "{{ invite_url|escapejs }}"
+    }
+    </script>
+    {% endspaceless %}
 
     {% if page_obj %}
     <!-- Standings Table -->
@@ -235,9 +240,77 @@
                     <br><span class="font-semibold">Co-commissioners:</span>
                     {% for cc in co_commissioners %}{{ cc.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
                     {% endif %}
+                    {% if join_locked %}
+                    <br><span class="font-semibold"><i class="fas fa-lock mr-1"></i>Joining is closed</span> for this season &mdash; the invite link no longer accepts new members now that games have started.
+                    {% endif %}
                 </p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    var btn = document.getElementById('share-standings-btn');
+    var dataEl = document.getElementById('share-standings-data');
+    if (!btn || !dataEl) return;
+
+    var payload;
+    try {
+        payload = JSON.parse(dataEl.textContent);
+    } catch (e) {
+        payload = null;
+    }
+    if (!payload) return;
+
+    function buildText() {
+        var lines = ['\uD83C\uDFC8 ' + payload.title];
+        if (payload.rows && payload.rows.length) {
+            lines = lines.concat(payload.rows);
+        } else {
+            lines.push('No picks graded yet — standings open once games finish.');
+        }
+        if (payload.url) {
+            lines.push('');
+            lines.push('Join / follow: ' + payload.url);
+        }
+        return lines.join('\n');
+    }
+
+    function flash(label) {
+        var el = document.getElementById('share-standings-label');
+        if (!el) return;
+        var prev = el.textContent;
+        el.textContent = label;
+        setTimeout(function () { el.textContent = prev; }, 2000);
+    }
+
+    btn.addEventListener('click', function () {
+        var text = buildText();
+        // Native share sheet on mobile / supported browsers.
+        if (navigator.share) {
+            navigator.share({ title: payload.title, text: text }).catch(function () {});
+            return;
+        }
+        // Desktop fallback: copy to clipboard.
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(
+                function () { flash('Copied!'); },
+                function () { flash('Copy failed'); }
+            );
+        } else {
+            // Legacy fallback.
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); flash('Copied!'); }
+            catch (e) { flash('Copy failed'); }
+            document.body.removeChild(ta);
+        }
+    });
+})();
+</script>
 {% endblock %}

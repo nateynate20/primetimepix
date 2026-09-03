@@ -97,6 +97,14 @@ class League(models.Model):
         """Use this method when you need member count without annotation"""
         return self.members.count()
 
+    def is_join_locked(self):
+        """Return True once the season has started and new members can no
+        longer join. Existing members are unaffected — this only gates *new*
+        joins/requests (standard pick'em behavior: no entering after kickoff).
+        """
+        from apps.games.utils import season_has_started
+        return season_has_started()
+
     def get_standings(self):
         """League standings computed live from graded picks.
 

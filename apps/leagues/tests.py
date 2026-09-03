@@ -1,9 +1,14 @@
+from datetime import timedelta
+
 import pytest
 from django.test import Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from apps.users.models import Profile
+from apps.games.models import Game
+from apps.games.utils import season_has_started
 from apps.leagues.models import League, LeagueMembership, LeagueJoinRequest
 from apps.leagues.admin import LeagueAdminForm
 
@@ -159,6 +164,28 @@ class TestInviteLinks:
         response = client.post(reverse('join_via_invite', args=[league.join_code]))
         assert response.status_code == 302
         assert LeagueMembership.objects.filter(user=outsider, league=league).exists()
+
+    def test_returning_from_signup_auto_joins(self, league, outsider):
+        """After signup the user lands back here authenticated with ?join=1, and
+        must be added to the league without having to click Join a second time."""
+        client = Client()
+        client.force_login(outsider)
+        response = client.get(
+            reverse('join_via_invite', args=[league.join_code]), {'join': '1'}
+        )
+        assert response.status_code == 302
+        assert response.url == reverse('league_detail', args=[league.id])
+        assert LeagueMembership.objects.filter(user=outsider, league=league).exists()
+
+    def test_anonymous_post_carries_join_flag_into_signup(self, league):
+        """The signup redirect must preserve the join intent so registration
+        flows straight into membership."""
+        client = Client()
+        response = client.post(reverse('join_via_invite', args=[league.join_code]))
+        assert response.status_code == 302
+        assert reverse('signup') in response.url
+        # next=...%3Fjoin%3D1  (URL-encoded "?join=1")
+        assert 'join%3D1' in response.url
 
     def test_join_code_lookup_is_case_insensitive(self, league, outsider):
         client = Client()
@@ -424,3 +451,76 @@ class TestNextRedirects:
         })
         assert response.status_code == 302
         assert response.url == '/leagues/'
+
+
+# ---------------------------------------------------------------------------
+# Joining closes once the season starts (no late entry after kickoff)
+# ---------------------------------------------------------------------------
+@pytest.mark.django_db
+class TestSeasonStartLocksJoining:
+    def _past_game(self):
+        return Game.objects.create(
+            game_id='lock_started_1', season=2026, week=1, game_type='regular',
+            start_time=timezone.now() - timedelta(hours=1),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills',
+            status='in_progress',
+        )
+
+    def _future_game(self):
+        return Game.objects.create(
+            game_id='lock_future_1', season=2026, week=1, game_type='regular',
+            start_time=timezone.now() + timedelta(days=3),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills',
+            status='scheduled',
+        )
+
+    def test_season_not_started_without_games(self, db):
+        assert season_has_started() is False
+
+    def test_season_not_started_with_only_future_games(self, db):
+        self._future_game()
+        assert season_has_started() is False
+
+    def test_season_started_once_a_game_has_kicked_off(self, db):
+        self._future_game()
+        self._past_game()
+        assert season_has_started() is True
+
+    def test_invite_join_blocked_after_kickoff(self, league, outsider):
+        self._past_game()
+        client = Client()
+        client.force_login(outsider)
+        response = client.post(reverse('join_via_invite', args=[league.join_code]))
+        assert response.status_code == 302
+        assert not LeagueMembership.objects.filter(user=outsider, league=league).exists()
+
+    def test_invite_join_allowed_before_kickoff(self, league, outsider):
+        self._future_game()
+        client = Client()
+        client.force_login(outsider)
+        response = client.post(reverse('join_via_invite', args=[league.join_code]))
+        assert response.status_code == 302
+        assert LeagueMembership.objects.filter(user=outsider, league=league).exists()
+
+    def test_instant_join_blocked_after_kickoff(self, league, outsider):
+        self._past_game()
+        client = Client()
+        client.force_login(outsider)
+        response = client.post(reverse('join_league_instant', args=[league.id]))
+        assert response.status_code == 302
+        assert not LeagueMembership.objects.filter(user=outsider, league=league).exists()
+
+    def test_existing_member_can_still_open_league_after_kickoff(self, league, plain_member):
+        self._past_game()
+        client = Client()
+        client.force_login(plain_member)
+        response = client.get(reverse('league_detail', args=[league.id]))
+        assert response.status_code == 200
+
+    def test_landing_page_shows_locked_state(self, league, outsider):
+        self._past_game()
+        client = Client()
+        client.force_login(outsider)
+        response = client.get(reverse('join_via_invite', args=[league.join_code]))
+        assert response.status_code == 200
+        assert b'Joining Closed' in response.content

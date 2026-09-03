@@ -63,6 +63,13 @@
                 <a href="{% url 'league_detail' league.id %}" class="block w-full text-center bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
                     <i class="fas fa-arrow-right mr-2"></i>You're already in — Go to League
                 </a>
+                {% elif join_locked %}
+                <div class="w-full text-center bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 font-bold py-3 px-4 rounded-lg text-sm cursor-not-allowed">
+                    <i class="fas fa-lock mr-2"></i>Joining Closed — Season Has Started
+                </div>
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
+                    This league locked new entries once the season kicked off.
+                </p>
                 {% elif user.is_authenticated %}
                 <form method="POST">
                     {% csrf_token %}

@@ -111,6 +111,40 @@ def get_current_week_dates():
     return get_nfl_week_dates()
 
 
+def season_has_started():
+    """Return True once the current season's first game has kicked off.
+
+    League membership closes at this point — the same way ESPN/Yahoo/CBS
+    pick'em pools lock entry once games have been played, so nobody can join
+    late and back-fill picks. Scoped to the latest season loaded in the DB so
+    stale prior-season data doesn't keep new leagues locked during the
+    off-season (before the new schedule's first game).
+    """
+    from apps.games.models import Game
+
+    season = (
+        Game.objects.order_by('-season')
+        .values_list('season', flat=True)
+        .first()
+    )
+    if season is None:
+        return False
+
+    first_kickoff = (
+        Game.objects.filter(season=season)
+        .order_by('start_time')
+        .values_list('start_time', flat=True)
+        .first()
+    )
+    if first_kickoff is None:
+        return False
+
+    if timezone.is_naive(first_kickoff):
+        first_kickoff = pytz.UTC.localize(first_kickoff)
+
+    return timezone.now() >= first_kickoff
+
+
 def filter_primetime_games(games_queryset):
     """
     Filter games queryset to only include primetime games.
