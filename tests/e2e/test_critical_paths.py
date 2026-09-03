@@ -62,10 +62,11 @@ def test_signup_then_submit_picks(page: Page):
 
 
 def test_general_standings_loads(page: Page):
+    # Standings are per-league now; the old Overall route forwards to the
+    # league standings (or the league chooser). It must never 5xx.
     _signup(page, _unique("e2estand"))
     response = page.goto(f"{BASE_URL}/picks/general-standings/")
     assert response is not None and response.status < 500
-    expect(page).to_have_url(re.compile(r"/general-standings/"))
 
 
 def test_invite_link_is_handled_gracefully(page: Page):

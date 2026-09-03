@@ -127,16 +127,18 @@ class TestSchedulePage:
 
 @pytest.mark.django_db
 class TestStandingsPage:
-    def test_general_standings_loads(self, user):
+    def test_general_standings_redirects_to_league_standings(self, user):
+        # The Overall board was retired; this route now forwards to the
+        # per-league standings experience without erroring.
         client = Client()
         client.login(username='testplayer', password='testpass123')
-        response = client.get(reverse('general_standings'))
+        response = client.get(reverse('general_standings'), follow=True)
         assert response.status_code == 200
 
     def test_standings_page_loads(self, user, league):
         client = Client()
         client.login(username='testplayer', password='testpass123')
-        response = client.get(reverse('standings'))
+        response = client.get(reverse('standings'), follow=True)
         assert response.status_code == 200
 
 

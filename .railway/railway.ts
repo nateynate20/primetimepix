@@ -88,7 +88,12 @@ export default defineRailway(() => {
   const cron = (name: string, schedule: string, command: string) =>
     fn(name, {
       source: github(REPO),
-      build: "pip install -r requirements.txt",
+      // Use the same builder as the web service so crons build identically and
+      // don't fall back to the default builder's mise/runtime.txt path.
+      build: {
+        builder: "NIXPACKS",
+        buildCommand: "pip install -r requirements.txt",
+      },
       start: command,
       env: cronEnv,
       deploy: {

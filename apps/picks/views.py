@@ -258,72 +258,26 @@ def display_nfl_schedule(request):
 
 @login_required(login_url="login")
 def standings(request):
-    """League-specific leaderboard with optional weekly filter"""
-    from apps.games.models import Game
-
+    """Standings live on each league's own page now, so there is a single
+    standings experience. The navbar "Standings" link (and any old bookmarks)
+    forward here and are routed to the relevant league."""
     league_id = request.GET.get("league")
-    league = None
     if league_id:
-        try:
-            league = League.objects.get(id=league_id, members=request.user)
-        except League.DoesNotExist:
-            messages.error(request, "League not found or you're not a member.")
-            return redirect("general_standings")
+        return redirect('league_detail', league_id=league_id)
 
-    week_param = request.GET.get("week")
-    selected_week = int(week_param) if week_param and week_param.isdigit() else None
-
-    leaderboard = PickService.calculate_leaderboard(league=league, week=selected_week)
-    paginator = Paginator(leaderboard, 20)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    available_weeks = list(
-        Game.objects.filter(game_type='regular', status='final')
-        .values_list('week', flat=True)
-        .distinct()
-        .order_by('week')
-    )
-
-    context = {
-        "page_obj": page_obj,
-        "league": league,
-        "is_overall": not league,
-        "selected_week": selected_week,
-        "available_weeks": available_weeks,
-        "user_leagues": League.objects.filter(members=request.user, is_approved=True),
-    }
-    return render(request, "standings.html", context)
+    my_leagues = League.objects.filter(members=request.user, is_approved=True)
+    if my_leagues.count() == 1:
+        return redirect('league_detail', league_id=my_leagues.first().id)
+    # No leagues (chooser shows ways to join) or several (chooser lets them pick).
+    return redirect('league_detail_no_id')
 
 
 @login_required(login_url="login")
 def general_standings(request):
-    """Overall leaderboard with optional weekly filter"""
-    from apps.games.models import Game
-
-    week_param = request.GET.get("week")
-    selected_week = int(week_param) if week_param and week_param.isdigit() else None
-
-    leaderboard = PickService.calculate_leaderboard(league=None, week=selected_week)
-    paginator = Paginator(leaderboard, 20)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    available_weeks = list(
-        Game.objects.filter(game_type='regular', status='final')
-        .values_list('week', flat=True)
-        .distinct()
-        .order_by('week')
-    )
-
-    context = {
-        "page_obj": page_obj,
-        "is_overall": True,
-        "selected_week": selected_week,
-        "available_weeks": available_weeks,
-        "user_leagues": League.objects.filter(members=request.user, is_approved=True),
-    }
-    return render(request, "general_standings.html", context)
+    """The cross-league "Overall" board was confusing — leagues have different
+    members and play different games, so a single global ranking wasn't
+    meaningful. Standings are per-league now; forward to the league standings."""
+    return redirect('standings')
 
 
 @login_required(login_url="login")

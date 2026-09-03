@@ -39,6 +39,18 @@
         </div>
     </div>
 
+    <!-- League switcher (only when the user belongs to more than one league) -->
+    {% if user_leagues|length > 1 %}
+    <div class="flex flex-wrap gap-2 mb-6">
+        {% for ul in user_leagues %}
+        <a href="{% url 'league_detail' ul.id %}"
+           class="px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide transition-all {% if ul.id == league.id %}bg-accent-600 dark:bg-neon text-white dark:text-black{% else %}bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-2 border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon{% endif %}">
+            {{ ul.name }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Stats Bar -->
     <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -164,6 +176,11 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700/50 text-xs text-gray-500 dark:text-gray-400">
+            <span class="font-bold text-green-600 dark:text-green-400">W</span> wins &middot;
+            <span class="font-bold text-red-600 dark:text-red-400">L</span> losses &middot;
+            <span class="font-bold text-gray-700 dark:text-gray-300">Pending</span> = picks for games that haven&rsquo;t finished yet &mdash; each turns into a W or L once that game ends.
         </div>
     </div>
 
