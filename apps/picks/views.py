@@ -36,7 +36,14 @@ def display_nfl_schedule(request):
             messages.error(request, "Invalid or unauthorized league selected.")
             return redirect("schedule")
 
-    user_leagues = League.objects.filter(members=request.user, is_approved=True)
+    user_leagues = League.objects.filter(members=request.user, is_approved=True).order_by("name")
+
+    # Default to a specific league (alphabetically first, like ESPN and other
+    # pick'em apps) rather than a confusing cross-league "Overall" when the
+    # user hasn't explicitly picked one.
+    if league is None and user_leagues.exists():
+        league = user_leagues.first()
+        league_id = str(league.id)
 
     # Team filter
     selected_team = request.GET.get("team")

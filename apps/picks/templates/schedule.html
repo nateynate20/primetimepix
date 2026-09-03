@@ -81,7 +81,6 @@
             {% if current_week %}<input type="hidden" name="week" value="{{ current_week }}">{% endif %}
             <select name="league" onchange="this.form.submit()"
                     class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1.5 text-sm font-semibold">
-                <option value="">Overall</option>
                 {% for user_league in user_leagues %}
                     <option value="{{ user_league.id }}" {% if league and league.id == user_league.id %}selected{% endif %}>
                         {{ user_league.name }}
