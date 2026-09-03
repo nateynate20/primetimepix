@@ -79,7 +79,7 @@
         "rows": [
             {% for standing in page_obj %}{% if forloop.counter <= 10 %}"{{ forloop.counter }}. {{ standing.user.username|escapejs }} {{ standing.record|escapejs }} ({{ standing.total_points }} pts)"{% if not forloop.last and forloop.counter < 10 %},{% endif %}{% endif %}{% endfor %}
         ],
-        "url": "{{ invite_url|escapejs }}"
+        "url": "{% if not join_locked %}{{ invite_url|escapejs }}{% endif %}"
     }
     </script>
     {% endspaceless %}

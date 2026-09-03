@@ -524,3 +524,21 @@ class TestSeasonStartLocksJoining:
         response = client.get(reverse('join_via_invite', args=[league.join_code]))
         assert response.status_code == 200
         assert b'Joining Closed' in response.content
+
+    def test_share_includes_join_link_when_open(self, league):
+        # Before kickoff the sharable standings still carry the join link.
+        self._future_game()
+        client = Client()
+        client.force_login(league.commissioner)  # commissioner is a member
+        response = client.get(reverse('league_detail', args=[league.id]))
+        assert response.status_code == 200
+        assert league.join_code.encode() in response.content
+
+    def test_share_omits_join_link_when_locked(self, league):
+        # Once locked, the dead join link is dropped from the share payload.
+        self._past_game()
+        client = Client()
+        client.force_login(league.commissioner)
+        response = client.get(reverse('league_detail', args=[league.id]))
+        assert response.status_code == 200
+        assert league.join_code.encode() not in response.content
