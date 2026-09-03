@@ -14,7 +14,6 @@
       {% if primary_league %}
       <p class="text-sm text-gray-500 dark:text-gray-400 font-semibold mt-1">
         <i class="fas fa-trophy text-amber-500 mr-1"></i>{{ primary_league.name }}
-        {% if user_leagues|length > 1 %}<span class="text-gray-400 dark:text-gray-500"> · +{{ user_leagues|length|add:"-1" }} more league{{ user_leagues|length|add:"-1"|pluralize }}</span>{% endif %}
       </p>
       {% endif %}
     </div>
@@ -22,6 +21,23 @@
       <i class="fas fa-calendar-day text-accent-600 dark:text-neon"></i>NFL Week {{ current_week }}
     </span>
   </div>
+
+  <!-- League switcher (members of more than one league) — also shows your rank
+       in each so you can glance across all your leagues at once. -->
+  {% if league_summaries %}
+  <div class="mb-6">
+    <div class="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Your leagues</div>
+    <div class="flex flex-wrap gap-2">
+      {% for s in league_summaries %}
+      <a href="?league={{ s.league.id }}"
+         class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-bold transition-all {% if s.is_active %}bg-accent-600 dark:bg-neon text-white dark:text-black{% else %}bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon{% endif %}">
+        <span class="uppercase tracking-wide">{{ s.league.name }}</span>
+        {% if s.rank %}<span class="text-xs font-black px-1.5 py-0.5 rounded {% if s.is_active %}bg-white/25 dark:bg-black/15{% else %}bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300{% endif %}">#{{ s.rank }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Admin Notice -->
   {% if user.is_staff %}
@@ -108,7 +124,7 @@
       <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white flex items-center">
         <i class="fas fa-star text-amber-500 mr-2"></i>Week {{ current_week }} Picks
       </h3>
-      <a href="{% url 'schedule' %}" class="text-xs font-bold text-accent-600 dark:text-neon hover:underline">All games <i class="fas fa-arrow-right ml-1"></i></a>
+      <a href="{% url 'schedule' %}{% if primary_league %}?league={{ primary_league.id }}{% endif %}" class="text-xs font-bold text-accent-600 dark:text-neon hover:underline">All games <i class="fas fa-arrow-right ml-1"></i></a>
     </div>
 
     {% if primetime_games %}

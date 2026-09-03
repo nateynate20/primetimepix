@@ -114,6 +114,42 @@ class TestDashboard:
         assert league.name.encode() in response.content
         assert b'Standings' in response.content
 
+    def test_dashboard_switches_active_league(self, user, league):
+        # Second league (alphabetically after "Test League") the user also joins.
+        from apps.leagues.models import League, LeagueMembership
+        other = League.objects.create(
+            name='Zephyr League', commissioner=user, sport='NFL', is_approved=True,
+        )
+        LeagueMembership.objects.get_or_create(user=user, league=other)
+
+        client = Client()
+        client.force_login(user)
+
+        # Default focuses the alphabetically-first league...
+        default = client.get(reverse('dashboard'))
+        assert default.context['primary_league'].id == league.id
+        # ...and the switcher lists both leagues.
+        assert b'Your leagues' in default.content
+        assert b'Zephyr League' in default.content
+
+        # Selecting the other league refocuses the dashboard on it.
+        switched = client.get(reverse('dashboard'), {'league': other.id})
+        assert switched.context['primary_league'].id == other.id
+
+    def test_dashboard_ignores_league_the_user_is_not_in(self, user, league):
+        from apps.leagues.models import League
+        stranger_league = League.objects.create(
+            name='Not Mine', commissioner=User.objects.create_user(
+                username='someoneelse', password='x'),
+            sport='NFL', is_approved=True,
+        )
+        client = Client()
+        client.force_login(user)
+        response = client.get(reverse('dashboard'), {'league': stranger_league.id})
+        # Falls back to the user's own league rather than exposing another's.
+        assert response.status_code == 200
+        assert response.context['primary_league'].id == league.id
+
 
 @pytest.mark.django_db
 class TestSchedulePage:

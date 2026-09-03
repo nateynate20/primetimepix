@@ -177,7 +177,16 @@ def dashboard(request):
 
     # Leagues (alphabetical, matching the picks page default).
     user_leagues = League.objects.filter(members=user, is_approved=True).order_by("name")
-    primary_league = user_leagues.first()
+
+    # Which league the dashboard is focused on. Members of multiple leagues can
+    # switch via ?league=<id>; otherwise we default to the first alphabetically
+    # (same default as the picks page). Invalid/unauthorized ids fall back.
+    requested_id = request.GET.get("league")
+    primary_league = None
+    if requested_id:
+        primary_league = user_leagues.filter(id=requested_id).first()
+    if primary_league is None:
+        primary_league = user_leagues.first()
 
     week_games = Game.objects.filter(
         game_type='regular',
@@ -229,6 +238,26 @@ def dashboard(request):
                 my_accuracy = row['accuracy']
         standings_snapshot = standings[:5]
 
+    # Cross-league glance for members of more than one league: their rank and
+    # record in each, so they don't have to open every league one by one.
+    league_summaries = []
+    if user_leagues.count() > 1:
+        for lg in user_leagues:
+            rank = record = points = None
+            lg_standings = lg.get_standings()
+            for idx, row in enumerate(lg_standings, start=1):
+                if row['user'] == user:
+                    rank, record, points = idx, row['record'], row['total_points']
+                    break
+            league_summaries.append({
+                'league': lg,
+                'rank': rank,
+                'record': record,
+                'points': points,
+                'total': len(lg_standings),
+                'is_active': primary_league and lg.id == primary_league.id,
+            })
+
     # Get unread notifications
     from apps.users.models import Notification
     notifications = Notification.objects.filter(user=user, is_read=False)[:5]
@@ -238,6 +267,7 @@ def dashboard(request):
         'league': primary_league,  # backwards-compatible alias
         'user_leagues': user_leagues,
         'primary_league': primary_league,
+        'league_summaries': league_summaries,
         'primetime_games': primetime_games,
         'current_week': current_week,
         'picked_count': picked_count,
