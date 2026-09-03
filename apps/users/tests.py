@@ -98,6 +98,22 @@ class TestDashboard:
         response = client.get(reverse('dashboard'))
         assert response.status_code == 200
 
+    def test_dashboard_shows_onboarding_without_league(self, user):
+        client = Client()
+        client.force_login(user)
+        response = client.get(reverse('dashboard'))
+        assert response.status_code == 200
+        assert b'Join a league to get started' in response.content
+
+    def test_dashboard_shows_league_snapshot(self, user, league):
+        # `league`'s commissioner is `user`, who is auto-added as a member.
+        client = Client()
+        client.force_login(user)
+        response = client.get(reverse('dashboard'))
+        assert response.status_code == 200
+        assert league.name.encode() in response.content
+        assert b'Standings' in response.content
+
 
 @pytest.mark.django_db
 class TestSchedulePage:

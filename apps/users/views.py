@@ -168,11 +168,16 @@ def debug_password_reset(request):
 @login_required
 def dashboard(request):
     user = request.user
-    leagues = user.leagues.all()
-    league = leagues.first() if leagues.exists() else None
 
+    from django.utils import timezone
     from apps.games.utils import get_current_nfl_week
+    from apps.leagues.models import League
+
     current_week = get_current_nfl_week()
+
+    # Leagues (alphabetical, matching the picks page default).
+    user_leagues = League.objects.filter(members=user, is_approved=True).order_by("name")
+    primary_league = user_leagues.first()
 
     week_games = Game.objects.filter(
         game_type='regular',
@@ -181,14 +186,48 @@ def dashboard(request):
 
     primetime_games = [g for g in week_games if g.is_primetime]
 
-    user_picks_qs = Pick.objects.filter(user=user, game__in=primetime_games).select_related("game")
-    picks_dict = {p.game.id: p for p in user_picks_qs}
+    # Show pick status for the user's primary league so it lines up with the
+    # picks page (which now defaults to that same league).
+    user_picks_qs = Pick.objects.filter(user=user, game__in=primetime_games)
+    if primary_league:
+        user_picks_qs = user_picks_qs.filter(league=primary_league)
+    picks_dict = {p.game_id: p for p in user_picks_qs.select_related("game")}
 
+    now = timezone.now()
+    next_game = None
+    picked_count = 0
+    open_unpicked = 0
     for game in primetime_games:
         game.user_pick = picks_dict.get(game.id)
         game.has_score = game.status in ['final', 'in_progress'] and (game.home_score is not None or game.away_score is not None)
         game.away_is_winner = game.winner == game.away_team if game.winner else False
         game.home_is_winner = game.winner == game.home_team if game.winner else False
+        game.is_open = game.status == 'scheduled' and game.start_time > now
+        if game.user_pick:
+            picked_count += 1
+        elif game.is_open:
+            open_unpicked += 1
+        if game.is_open and (next_game is None or game.start_time < next_game.start_time):
+            next_game = game
+
+    # Personal standing snapshot in the primary league.
+    my_rank = None
+    my_record = None
+    my_points = None
+    my_accuracy = None
+    total_in_league = 0
+    standings_snapshot = []
+    if primary_league:
+        standings = primary_league.get_standings()
+        total_in_league = len(standings)
+        for idx, row in enumerate(standings, start=1):
+            row['rank'] = idx
+            if row['user'] == user:
+                my_rank = idx
+                my_record = row['record']
+                my_points = row['total_points']
+                my_accuracy = row['accuracy']
+        standings_snapshot = standings[:5]
 
     # Get unread notifications
     from apps.users.models import Notification
@@ -196,9 +235,21 @@ def dashboard(request):
 
     context = {
         'user': user,
-        'league': league,
+        'league': primary_league,  # backwards-compatible alias
+        'user_leagues': user_leagues,
+        'primary_league': primary_league,
         'primetime_games': primetime_games,
         'current_week': current_week,
+        'picked_count': picked_count,
+        'open_unpicked': open_unpicked,
+        'total_primetime': len(primetime_games),
+        'next_game': next_game,
+        'my_rank': my_rank,
+        'my_record': my_record,
+        'my_points': my_points,
+        'my_accuracy': my_accuracy,
+        'total_in_league': total_in_league,
+        'standings_snapshot': standings_snapshot,
         'notifications': notifications,
     }
     return render(request, 'user_dashboard.html', context)
