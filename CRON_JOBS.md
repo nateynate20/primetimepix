@@ -41,6 +41,15 @@ railway config plan          # SAFE: previews the diff, changes nothing
 railway config apply         # applies after you confirm
 ```
 
+The IaC SDK (`railway/iac`) is vendored under `.railway/` (its `package.json`
+lives there, not the repo root). **Never `npm install railway` at the repo
+root** — a root `package.json` makes Railway's builder detect a Node app and
+skip pip, breaking the Python build. If you need to reinstall it:
+
+```bash
+cd .railway && npm install railway && cd ..
+```
+
 `railway config plan` is the safety gate. Because IaC is declarative for the
 whole environment, confirm the plan **only ADDS the four cron services**. If it
 proposes deleting your `web` service or `Postgres`, stop and fix the resource
