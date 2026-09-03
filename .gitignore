@@ -51,3 +51,6 @@ build/
 
 # Transient brand-design preview artifacts (kept locally, regenerated on demand)
 docs/brand_refs/_*
+
+# Node deps for Railway Infrastructure-as-Code authoring (.railway/railway.ts)
+node_modules/
