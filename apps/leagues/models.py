@@ -98,49 +98,65 @@ class League(models.Model):
         return self.members.count()
 
     def get_standings(self):
-        """Get league standings with user statistics"""
+        """League standings computed live from graded picks.
+
+        Only games that have *concluded* count toward a member's win/loss
+        record, so the table updates incrementally as each primetime game
+        finishes (e.g. after Thursday night a correct pick immediately shows a
+        win, a wrong pick shows a loss, and the still-to-play Sunday/Monday
+        games are surfaced as "pending" rather than counted). Tie games are
+        recorded as pushes and don't help or hurt the record.
+        """
         from apps.picks.models import Pick
         from django.db.models import Sum
 
         standings = []
 
         for member in self.members.all():
-            resolved_picks = Pick.objects.filter(
-                user=member, league=self, is_correct__isnull=False
-            )
-            total_picks = resolved_picks.count()
+            picks = Pick.objects.filter(user=member, league=self)
 
-            if total_picks == 0:
-                standings.append({
-                    'user': member,
-                    'total_predictions': 0,
-                    'correct_predictions': 0,
-                    'accuracy': 0,
-                    'total_points': 0,
-                })
-                continue
+            wins = picks.filter(is_correct=True).count()
+            losses = picks.filter(is_correct=False).count()
+            # Push: the game finished with no winner, so is_correct stays null.
+            pushes = picks.filter(
+                is_correct__isnull=True, game__status='final'
+            ).count()
+            # Pending: a pick whose game hasn't concluded yet (not final/cancelled).
+            pending = picks.filter(is_correct__isnull=True).exclude(
+                game__status__in=['final', 'cancelled']
+            ).count()
 
-            correct_picks = resolved_picks.filter(is_correct=True).count()
-            total_points = resolved_picks.filter(is_correct=True).aggregate(
+            decided = wins + losses
+            total_points = picks.filter(is_correct=True).aggregate(
                 total=Sum('points')
             )['total'] or 0
+            # Accuracy is over decided games only (pushes/pending excluded).
+            accuracy = round((wins / decided) * 100, 1) if decided else 0
 
-            accuracy = round((correct_picks / total_picks) * 100, 1)
+            record = f"{wins}-{losses}"
+            if pushes:
+                record = f"{record}-{pushes}"
 
             standings.append({
                 'user': member,
-                'total_predictions': total_picks,
-                'correct_predictions': correct_picks,
+                'wins': wins,
+                'losses': losses,
+                'pushes': pushes,
+                'pending': pending,
+                'record': record,
                 'accuracy': accuracy,
                 'total_points': total_points,
+                # Backwards-compatible keys still used by templates/tests:
+                'total_predictions': decided,
+                'correct_predictions': wins,
             })
-        
-        # Sort by total points (desc), then by accuracy (desc), then by correct picks (desc)
+
+        # Rank by points, then accuracy, then most wins, then fewest losses.
         standings.sort(
-            key=lambda x: (x['total_points'], x['accuracy'], x['correct_predictions']),
+            key=lambda x: (x['total_points'], x['accuracy'], x['wins'], -x['losses']),
             reverse=True
         )
-        
+
         return standings
 
 

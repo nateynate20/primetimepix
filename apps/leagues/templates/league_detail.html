@@ -54,9 +54,9 @@
             </div>
             <div class="border-l border-gray-200 dark:border-gray-700">
                 <div class="text-2xl font-black font-display text-accent-600 dark:text-neon">
-                    {% if page_obj %}{{ page_obj.0.total_predictions|default:0 }}{% else %}0{% endif %}
+                    {% if page_obj %}{{ page_obj.0.record|default:"0-0" }}{% else %}0-0{% endif %}
                 </div>
-                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Leader's Picks</div>
+                <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Leader's Record</div>
             </div>
             <div class="border-l border-gray-200 dark:border-gray-700">
                 <div class="text-2xl font-black font-display text-purple-600 dark:text-purple-400">
@@ -74,7 +74,7 @@
             <h2 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
                 <i class="fas fa-list-ol text-accent-600 dark:text-neon mr-2"></i>League Standings
             </h2>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Ranked by total points, then by accuracy</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Ranked by total points, then accuracy &middot; updates after each game concludes</p>
         </div>
 
         <div class="overflow-x-auto">
@@ -84,8 +84,9 @@
                         <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rank</th>
                         <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
                         <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Points</th>
-                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Picks Made</th>
-                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Correct</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" title="Wins">W</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" title="Losses">L</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" title="Picks for games that haven't finished yet">Pending</th>
                         <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Accuracy</th>
                     </tr>
                 </thead>
@@ -131,10 +132,17 @@
                             <span class="text-lg font-black text-gray-900 dark:text-white">{{ standing.total_points }}</span>
                         </td>
                         <td class="px-4 py-4 text-center">
-                            <span class="text-sm font-bold text-gray-600 dark:text-gray-300">{{ standing.total_predictions }}</span>
+                            <span class="text-sm font-bold text-green-600 dark:text-green-400">{{ standing.wins }}</span>
                         </td>
                         <td class="px-4 py-4 text-center">
-                            <span class="text-sm font-bold text-green-600 dark:text-green-400">{{ standing.correct_predictions }}</span>
+                            <span class="text-sm font-bold text-red-600 dark:text-red-400">{{ standing.losses }}</span>
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            {% if standing.pending %}
+                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400">{{ standing.pending }}</span>
+                            {% else %}
+                            <span class="text-sm text-gray-300 dark:text-gray-600">&mdash;</span>
+                            {% endif %}
                         </td>
                         <td class="px-4 py-4 text-center">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
@@ -147,7 +155,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <div class="text-4xl mb-3">&#128200;</div>
                             <h3 class="font-bold text-gray-900 dark:text-white mb-1">No Picks Yet</h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Standings will appear once members start making picks.</p>
@@ -200,7 +208,7 @@
                 <h4 class="font-bold text-gray-900 dark:text-blue-200 text-sm">{{ league.name }} Info</h4>
                 <p class="text-gray-600 dark:text-blue-100/70 text-sm mt-1">
                     This league focuses on {{ league.sport }} games.
-                    Standings are calculated based on total points earned from correct picks.
+                    Each member's record updates automatically as games finish &mdash; a correct pick counts as a win, a wrong pick as a loss, and picks for games still to be played show as pending.
                     {% if league.commissioner == user %}
                     You are the commissioner of this league.
                     {% else %}

@@ -112,11 +112,20 @@ class PickService:
             total_points = user_picks.filter(is_correct=True).aggregate(Sum('points'))['points__sum'] or 0
             win_percentage = (correct_picks / total_picks) * 100 if total_picks > 0 else 0
 
+            # Pending = this user's picks for games that haven't concluded yet.
+            pending_qs = Pick.objects.filter(user=user, is_correct__isnull=True)
+            if league:
+                pending_qs = pending_qs.filter(league=league)
+            if week:
+                pending_qs = pending_qs.filter(game__week=week)
+            pending = pending_qs.exclude(game__status__in=['final', 'cancelled']).count()
+
             leaderboard.append({
                 'user': user,
                 'total_predictions': total_picks,
                 'correct_predictions': correct_picks,
                 'losses': total_picks - correct_picks,
+                'pending': pending,
                 'accuracy': round(win_percentage, 1),
                 'total_points': total_points,
             })
