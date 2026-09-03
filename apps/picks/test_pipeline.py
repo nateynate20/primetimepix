@@ -85,6 +85,11 @@ def _run_results():
     return out.getvalue()
 
 
+def _row(standings, target_user):
+    """Pull one member's standings row regardless of current rank order."""
+    return next(r for r in standings if r['user'] == target_user)
+
+
 @pytest.mark.django_db
 class TestSeasonWeekPipeline:
     def test_full_week_grades_picks_and_standings(self, week_scenario):
@@ -164,3 +169,119 @@ class TestResultsIdempotency:
         lstats.refresh_from_db()
         second_l = (lstats.total_picks, lstats.correct_picks, lstats.total_points)
         assert first_l == second_l
+
+
+@pytest.fixture
+def midweek_scenario(db, user, second_user):
+    """Two members with picks on a 3-game primetime slate and NOTHING finished
+    yet. The test drives games to 'final' one at a time so it can assert the
+    standings update incrementally as each game concludes."""
+    league = League.objects.create(
+        name='Midweek League', commissioner=user, sport='NFL', is_approved=True,
+    )
+    LeagueMembership.objects.get_or_create(user=user, league=league)
+    LeagueMembership.objects.get_or_create(user=second_user, league=league)
+
+    tnf = _make_open_game('mid_tnf', 'Kansas City Chiefs', 'Buffalo Bills')
+    snf = _make_open_game('mid_snf', 'Philadelphia Eagles', 'Dallas Cowboys')
+    mnf = _make_open_game('mid_mnf', 'New York Giants', 'Washington Commanders')
+
+    # user picks all favorites; second_user picks all underdogs.
+    PickService.save_user_picks(user, {
+        tnf.id: {'team': 'Kansas City Chiefs', 'confidence': 1},
+        snf.id: {'team': 'Philadelphia Eagles', 'confidence': 1},
+        mnf.id: {'team': 'New York Giants', 'confidence': 1},
+    }, league=league)
+    PickService.save_user_picks(second_user, {
+        tnf.id: {'team': 'Buffalo Bills', 'confidence': 1},
+        snf.id: {'team': 'Dallas Cowboys', 'confidence': 1},
+        mnf.id: {'team': 'Washington Commanders', 'confidence': 1},
+    }, league=league)
+
+    return {'league': league, 'user': user, 'second_user': second_user,
+            'tnf': tnf, 'snf': snf, 'mnf': mnf}
+
+
+@pytest.mark.django_db
+class TestMidweekPartialStandings:
+    """Standings must reflect only games that have concluded, updating game by
+    game: a correct pick becomes a win, a wrong pick a loss, and picks for games
+    still to be played stay 'pending' (never counted as a win or a loss)."""
+
+    def test_before_any_game_finishes_everything_is_pending(self, midweek_scenario):
+        league = midweek_scenario['league']
+        user = midweek_scenario['user']
+
+        _run_results()  # no games are final yet -> nothing gets graded
+
+        row = _row(league.get_standings(), user)
+        assert (row['wins'], row['losses'], row['pending']) == (0, 0, 3)
+        assert row['record'] == '0-0'
+        assert row['total_points'] == 0
+        assert row['total_predictions'] == 0  # no decided games
+
+    def test_after_thursday_only_that_game_counts(self, midweek_scenario):
+        league = midweek_scenario['league']
+        user = midweek_scenario['user']
+        second_user = midweek_scenario['second_user']
+
+        # Thursday night concludes: Kansas City beats Buffalo.
+        _finish_game(midweek_scenario['tnf'], home_score=27, away_score=24)
+        _run_results()
+
+        standings = league.get_standings()
+        u = _row(standings, user)          # picked KC -> win
+        s = _row(standings, second_user)   # picked BUF -> loss
+
+        assert (u['wins'], u['losses'], u['pending']) == (1, 0, 2)
+        assert u['record'] == '1-0'
+        assert u['total_points'] == 1
+        assert u['accuracy'] == 100.0
+
+        assert (s['wins'], s['losses'], s['pending']) == (0, 1, 2)
+        assert s['record'] == '0-1'
+        assert s['total_points'] == 0
+        assert s['accuracy'] == 0
+
+        # Favorites-picker leads on points after one game.
+        assert standings[0]['user'] == user
+
+    def test_sunday_night_updates_record_incrementally(self, midweek_scenario):
+        league = midweek_scenario['league']
+        user = midweek_scenario['user']
+        second_user = midweek_scenario['second_user']
+
+        # Thursday finishes and is graded...
+        _finish_game(midweek_scenario['tnf'], home_score=27, away_score=24)
+        _run_results()
+        # ...then Sunday night finishes too (Eagles win). Monday still to play.
+        _finish_game(midweek_scenario['snf'], home_score=20, away_score=10)
+        _run_results()
+
+        standings = league.get_standings()
+        u = _row(standings, user)
+        s = _row(standings, second_user)
+
+        # A second correct pick flips one pending game into a win.
+        assert (u['wins'], u['losses'], u['pending']) == (2, 0, 1)
+        assert u['record'] == '2-0'
+        assert u['total_points'] == 2
+
+        assert (s['wins'], s['losses'], s['pending']) == (0, 2, 1)
+        assert s['record'] == '0-2'
+        assert s['total_points'] == 0
+
+    def test_tie_game_is_a_push_not_a_loss(self, midweek_scenario):
+        league = midweek_scenario['league']
+        user = midweek_scenario['user']
+
+        # Monday night ends in a tie -> push: not a win, not a loss, no points.
+        _finish_game(midweek_scenario['mnf'], home_score=21, away_score=21)
+        _run_results()
+
+        row = _row(league.get_standings(), user)
+        assert (row['wins'], row['losses']) == (0, 0)
+        assert row['pushes'] == 1
+        assert row['pending'] == 2          # TNF + SNF still to play
+        assert row['record'] == '0-0-1'     # push shown as the third figure
+        assert row['total_points'] == 0
