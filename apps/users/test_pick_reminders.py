@@ -201,3 +201,79 @@ class TestFrequencyCap:
         call_command('send_weekly_reminder', '--week', '1', stdout=StringIO())
         call_command('send_pick_reminders', '--week', '1', stdout=StringIO())
         assert len(mail.outbox) == 2
+
+
+def _graded_game(gid, week):
+    """A concluded game in a past week (for recap tests)."""
+    return Game.objects.create(
+        game_id=gid, season=2026, week=week, game_type='regular',
+        start_time=timezone.now() - timedelta(days=3),
+        home_team='Kansas City Chiefs', away_team='Buffalo Bills',
+        status='final',
+    )
+
+
+def _graded_pick(user, game, league, correct, points):
+    return Pick.objects.create(
+        user=user, game=game, league=league,
+        picked_team='Kansas City Chiefs' if correct else 'Buffalo Bills',
+        is_correct=correct, points=points,
+    )
+
+
+@pytest.mark.django_db
+class TestWeeklyRecap:
+    """The retrospective 'how you did last week' email: record, points, and
+    rank movement, scoped to the user's primary league."""
+
+    @pytest.fixture
+    def member_league(self, league, user):
+        from apps.leagues.models import LeagueMembership
+        LeagueMembership.objects.get_or_create(user=user, league=league)
+        return league
+
+    def test_recap_sends_record_and_logs(self, user, member_league):
+        _graded_pick(user, _graded_game('rc1', 1), member_league, True, 1)
+        _graded_pick(user, _graded_game('rc2', 1), member_league, True, 1)
+        _graded_pick(user, _graded_game('rc3', 1), member_league, False, 0)
+        call_command('send_weekly_recap', '--week', '1', stdout=StringIO())
+        assert len(mail.outbox) == 1
+        assert '2-1' in mail.outbox[0].subject
+        assert ReminderLog.objects.filter(
+            user=user, reminder_type='recap', game__isnull=True
+        ).exists()
+
+    def test_recap_skips_user_without_graded_picks(self, user, member_league):
+        _graded_game('skip_only', 1)  # game exists (season resolves) but no picks
+        call_command('send_weekly_recap', '--week', '1', stdout=StringIO())
+        assert len(mail.outbox) == 0
+
+    def test_recap_deduped_per_week(self, user, member_league):
+        _graded_pick(user, _graded_game('dedupe', 1), member_league, True, 1)
+        call_command('send_weekly_recap', '--week', '1', stdout=StringIO())
+        call_command('send_weekly_recap', '--week', '1', stdout=StringIO())
+        assert len(mail.outbox) == 1
+
+    def test_recap_force_repeatable_without_log(self, user, member_league):
+        _graded_pick(user, _graded_game('forcey', 1), member_league, True, 1)
+        call_command('send_weekly_recap', '--user', 'testplayer', '--force', '--week', '1', stdout=StringIO())
+        call_command('send_weekly_recap', '--user', 'testplayer', '--force', '--week', '1', stdout=StringIO())
+        assert len(mail.outbox) == 2
+        assert not ReminderLog.objects.filter(user=user, reminder_type='recap').exists()
+
+    def test_recap_reports_rank_movement(self, user, second_user, member_league):
+        from apps.leagues.models import LeagueMembership
+        LeagueMembership.objects.get_or_create(user=second_user, league=member_league)
+        # Week 1: second_user leads (3 pts vs 1).
+        g1 = _graded_game('mv_w1', 1)
+        _graded_pick(second_user, g1, member_league, True, 3)
+        _graded_pick(user, g1, member_league, True, 1)
+        # Week 2: user surges (3 pts vs 0) and overtakes for the top spot.
+        g2 = _graded_game('mv_w2', 2)
+        _graded_pick(user, g2, member_league, True, 3)
+        _graded_pick(second_user, g2, member_league, False, 0)
+        call_command('send_weekly_recap', '--user', 'testplayer', '--force', '--week', '2', stdout=StringIO())
+        assert len(mail.outbox) == 1
+        html = mail.outbox[0].alternatives[0][0]
+        assert '#1' in html
+        assert 'Up 1 spot' in html

@@ -151,7 +151,19 @@ export default defineRailway(() => {
     "python manage.py send_weekly_reminder",
   );
 
+  // 6) Weekly recap — Tuesdays 14:00 UTC (10:00 AM ET). Retrospective "how you
+  //    did last week" email (record, points, rank movement). Runs after the
+  //    just-completed week's Monday-night results are graded by update_scores,
+  //    and a couple hours after the forward-looking weekly slate reminder so the
+  //    two touchpoints don't stack. Not a pick nudge, so it's exempt from the
+  //    awareness frequency cap (but still deduped once per week).
+  const weeklyRecap = cron(
+    "cron-weekly-recap",
+    "0 14 * * 2",
+    "python manage.py send_weekly_recap",
+  );
+
   return project("primetimepix", {
-    resources: [db, web, updateScores, syncSchedule, pickReminders, cpuPicks, weeklyReminder],
+    resources: [db, web, updateScores, syncSchedule, pickReminders, cpuPicks, weeklyReminder, weeklyRecap],
   });
 });

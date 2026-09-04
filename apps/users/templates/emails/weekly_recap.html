@@ -1,0 +1,60 @@
+{% extends "emails/base_email.html" %}
+{% block title %}Week {{ recap.week }} Recap{% endblock %}
+{% block content %}
+<h2 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#1f2937;">Your Week {{ recap.week }} recap 📊</h2>
+
+<p style="margin:0 0 20px; font-size:15px; color:#374151; line-height:1.6;">
+  Hey {{ user.username }}, here's how you did in <strong>{{ recap.league.name }}</strong> last week.
+</p>
+
+<!-- Record + points -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
+  <tr>
+    <td width="50%" style="padding:16px; background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; text-align:center;">
+      <div style="font-size:28px; font-weight:800; color:#1a1a2e;">{{ recap.record }}</div>
+      <div style="font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#6b7280; padding-top:4px;">Week Record</div>
+    </td>
+    <td style="width:8px;">&nbsp;</td>
+    <td width="50%" style="padding:16px; background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; text-align:center;">
+      <div style="font-size:28px; font-weight:800; color:#1a1a2e;">{{ recap.week_points }}</div>
+      <div style="font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#6b7280; padding-top:4px;">Points Earned</div>
+    </td>
+  </tr>
+</table>
+
+<!-- Standing + movement -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+  <tr>
+    <td style="padding:16px; background-color:#1a1a2e; border-radius:8px; text-align:center;">
+      <div style="font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#39ff14;">Standing in {{ recap.league.name }}</div>
+      <div style="font-size:26px; font-weight:800; color:#ffffff; padding-top:6px;">#{{ recap.rank }} <span style="font-size:16px; font-weight:600; color:#9ca3af;">of {{ recap.total_members }}</span></div>
+      <div style="font-size:14px; font-weight:700; padding-top:6px;">
+        {% if recap.movement > 0 %}
+          <span style="color:#39ff14;">&#9650; Up {{ recap.movement }} spot{{ recap.movement|pluralize }} this week</span>
+        {% elif recap.movement < 0 %}
+          <span style="color:#f87171;">&#9660; Down {{ recap.movement_abs }} spot{{ recap.movement_abs|pluralize }} this week</span>
+        {% else %}
+          <span style="color:#9ca3af;">Held your spot this week</span>
+        {% endif %}
+      </div>
+    </td>
+  </tr>
+</table>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" style="padding:0 0 12px;">
+      <a href="{{ standings_url }}" style="display:inline-block; padding:14px 32px; background-color:#1a1a2e; color:#39ff14; font-size:15px; font-weight:700; text-decoration:none; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">View Full Standings</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" style="padding:0 0 24px;">
+      <a href="{{ picks_url }}" style="font-size:14px; font-weight:700; color:#7c3aed; text-decoration:none;">Make this week's picks &rarr;</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0; font-size:13px; color:#9ca3af; line-height:1.5;">
+  Records update after each primetime game finishes. Keep your streak alive — get next week's picks in early.
+</p>
+{% endblock %}

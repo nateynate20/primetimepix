@@ -52,6 +52,7 @@ class ReminderLog(models.Model):
         ('day_before', 'Day Before'),
         ('morning_of', 'Morning Of'),
         ('hours_before', 'Hours Before Kickoff'),
+        ('recap', 'Weekly Recap'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reminder_logs')
