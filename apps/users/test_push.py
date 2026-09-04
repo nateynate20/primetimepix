@@ -74,6 +74,35 @@ class TestPushSubscribeEndpoints:
 
 
 @pytest.mark.django_db
+class TestPushOptInPlacement:
+    """The opt-in has a permanent home on the profile page, gated on VAPID."""
+
+    def test_profile_shows_optin_when_configured(self, user, settings):
+        settings.VAPID_PUBLIC_KEY = 'pub-key'
+        client = Client()
+        client.force_login(user)
+        body = client.get(reverse('edit_profile')).content.decode()
+        assert 'push-optin' in body
+        assert 'push-enable-btn' in body
+
+    def test_profile_hides_optin_when_unconfigured(self, user, settings):
+        settings.VAPID_PUBLIC_KEY = ''
+        client = Client()
+        client.force_login(user)
+        body = client.get(reverse('edit_profile')).content.decode()
+        assert 'push-optin' not in body
+
+    def test_optin_buttons_are_type_button(self, user, settings):
+        # Inside the profile <form>, the toggle buttons must not submit it.
+        settings.VAPID_PUBLIC_KEY = 'pub-key'
+        client = Client()
+        client.force_login(user)
+        body = client.get(reverse('edit_profile')).content.decode()
+        assert 'type="button" id="push-enable-btn"' in body
+        assert 'type="button" id="push-disable-btn"' in body
+
+
+@pytest.mark.django_db
 class TestSendWebPush:
     def test_noop_when_push_disabled(self, user, settings):
         settings.VAPID_PUBLIC_KEY = ''

@@ -63,6 +63,9 @@
                     </label>
                 </div>
 
+                <!-- Push Notifications (opt-in; renders only when VAPID is configured) -->
+                {% include 'partials/push_optin.html' %}
+
                 <!-- Submit -->
                 <button type="submit"
                         class="w-full py-3 px-4 bg-accent-600 dark:bg-neon text-white dark:text-gray-900 font-bold rounded-lg hover:bg-accent-700 dark:hover:bg-neon/90 transition-all shadow-md hover:shadow-lg uppercase tracking-wide text-sm">
