@@ -35,10 +35,16 @@ def get_commissioner_league_or_404(league_id, user):
 @login_required
 def select_league(request):
     """Show user's leagues"""
+    # Filter the user's leagues via a membership subquery (not a join on
+    # `members`), otherwise Count('members') reuses the restricted join and
+    # returns 1 for every league. distinct=True guards against join fan-out.
+    my_league_ids = LeagueMembership.objects.filter(
+        user=request.user
+    ).values('league_id')
     leagues = League.objects.filter(
-        members=request.user
+        pk__in=my_league_ids
     ).annotate(
-        member_count=Count('members')
+        member_count=Count('members', distinct=True)
     ).select_related('commissioner')
 
     total_members = sum(l.member_count for l in leagues)
@@ -48,7 +54,7 @@ def select_league(request):
         is_approved=True,
         is_private=False
     ).exclude(members=request.user).annotate(
-        member_count=Count('members')
+        member_count=Count('members', distinct=True)
     ).order_by('name')
 
     # Private leagues the user can request to join. Previously these were hidden
@@ -58,7 +64,7 @@ def select_league(request):
         is_approved=True,
         is_private=True
     ).exclude(members=request.user).annotate(
-        member_count=Count('members')
+        member_count=Count('members', distinct=True)
     ).order_by('name')
     pending_ids = set(
         LeagueJoinRequest.objects.filter(
@@ -332,7 +338,7 @@ def review_league_join_requests(request):
 def league_list(request):
     """Show all approved leagues (both public and private)"""
     leagues = League.objects.filter(is_approved=True).select_related('commissioner').annotate(
-        member_count=Count('members')
+        member_count=Count('members', distinct=True)
     ).order_by('-created_at')
     
     # Add membership status for each league
@@ -502,15 +508,22 @@ def my_leagues(request):
     """Show all leagues where user is a member or commissioner"""
     from django.db.models import Sum
 
+    # Membership via subquery so Count('members') isn't restricted to just the
+    # current user (which would report 1 member per league).
+    my_league_ids = LeagueMembership.objects.filter(
+        user=request.user
+    ).values('league_id')
     member_leagues = League.objects.filter(
-        members=request.user,
+        pk__in=my_league_ids,
         is_approved=True
-    ).annotate(member_count=Count('members')).distinct()
+    ).annotate(member_count=Count('members', distinct=True)).distinct()
 
+    # This filter joins co_commissioners, so Count('members') needs distinct=True
+    # or the two M2M joins multiply and inflate the count.
     commissioner_leagues = League.objects.filter(
         Q(commissioner=request.user) | Q(co_commissioners=request.user),
         is_approved=True
-    ).annotate(member_count=Count('members')).distinct()
+    ).annotate(member_count=Count('members', distinct=True)).distinct()
 
     pending_requests = LeagueJoinRequest.objects.filter(
         Q(league__commissioner=request.user) | Q(league__co_commissioners=request.user),

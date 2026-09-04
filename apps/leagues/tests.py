@@ -670,3 +670,55 @@ class TestPublicStandings:
         response = client.get(reverse('public_standings', args=[league.join_code]))
         assert response.status_code == 200
         assert b'Open in your dashboard' in response.content
+
+
+@pytest.mark.django_db
+class TestMemberCountAccuracy:
+    """Regression: league list/join pages must report the real member count.
+
+    The old `filter(members=request.user).annotate(Count('members'))` reused the
+    restricted join and reported 1 member per league; the co-commissioner
+    variant instead inflated it via a cartesian join. Both are now fixed.
+    """
+
+    def _three_member_league(self, commissioner):
+        league = League.objects.create(
+            name='Count League', commissioner=commissioner, sport='NFL',
+            is_approved=True,
+        )
+        # Commissioner is auto-added by signal; add two more → 3 total.
+        LeagueMembership.objects.get_or_create(user=make_user('countm2', 'C2'), league=league)
+        LeagueMembership.objects.get_or_create(user=make_user('countm3', 'C3'), league=league)
+        return league
+
+    def test_select_league_reports_true_count(self, user):
+        league = self._three_member_league(user)
+        assert league.members.count() == 3
+        client = Client()
+        client.force_login(user)
+        response = client.get(reverse('league_detail_no_id'))
+        assert response.status_code == 200
+        row = next(l for l in response.context['leagues'] if l.id == league.id)
+        assert row.member_count == 3
+
+    def test_my_leagues_member_list_true_count(self, user):
+        league = self._three_member_league(user)
+        client = Client()
+        client.force_login(user)
+        response = client.get(reverse('my_leagues'))
+        assert response.status_code == 200
+        row = next(l for l in response.context['member_leagues'] if l.id == league.id)
+        assert row.member_count == 3
+
+    def test_my_leagues_commissioner_count_not_inflated_by_cocommish(self, user):
+        league = self._three_member_league(user)
+        # Promote an existing member to co-commissioner: the extra M2M join must
+        # NOT multiply the members count.
+        cc = make_user('countcc', 'CC')
+        LeagueMembership.objects.get_or_create(user=cc, league=league)  # now 4 members
+        league.co_commissioners.add(cc)
+        client = Client()
+        client.force_login(user)
+        response = client.get(reverse('my_leagues'))
+        row = next(l for l in response.context['commissioner_leagues'] if l.id == league.id)
+        assert row.member_count == 4
