@@ -71,8 +71,10 @@ subscription JSON is POSTed to /users/push/(un)subscribe/.
             applicationServerKey: urlB64ToUint8(PUBLIC_KEY),
           }).then(function (sub) {
             return post('{% url "push_subscribe" %}', sub.toJSON());
-          }).then(function () { showEnabled(true); })
-            .catch(function (e) { console.warn('Push subscribe failed', e); });
+          }).then(function () {
+            showEnabled(true);
+            if (window.ptpTrack) ptpTrack('push_enabled');
+          }).catch(function (e) { console.warn('Push subscribe failed', e); });
         });
       });
 
@@ -82,7 +84,10 @@ subscription JSON is POSTed to /users/push/(un)subscribe/.
           var endpoint = sub.endpoint;
           sub.unsubscribe().finally(function () {
             post('{% url "push_unsubscribe" %}', { endpoint: endpoint })
-              .finally(function () { showEnabled(false); });
+              .finally(function () {
+                showEnabled(false);
+                if (window.ptpTrack) ptpTrack('push_disabled');
+              });
           });
         });
       });

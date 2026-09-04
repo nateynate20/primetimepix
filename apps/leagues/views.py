@@ -416,7 +416,9 @@ def join_league_instant(request, league_id):
         )
         if created:
             messages.success(request, f"Successfully joined {league.name}!")
-            
+            from primetimepix.analytics import queue_event
+            queue_event(request, 'league_joined', {'via': 'instant'})
+
             # Send welcome email
             try:
                 if request.user.email:
@@ -709,6 +711,8 @@ def join_via_invite(request, code):
         if not already_member:
             LeagueMembership.objects.get_or_create(user=request.user, league=league)
             messages.success(request, f"You've joined {league.name}!")
+            from primetimepix.analytics import queue_event
+            queue_event(request, 'league_joined', {'via': 'invite'})
             try:
                 if request.user.email:
                     html_message = render_to_string('emails/league_joined.html', {

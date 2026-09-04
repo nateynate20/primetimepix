@@ -94,6 +94,8 @@ def signup(request):
             except Exception as e:
                 print(f"Email sending failed: {e}")
 
+            from primetimepix.analytics import queue_event
+            queue_event(request, 'signup')
             return redirect(_get_safe_next(request) or 'dashboard')
         else:
             messages.error(request, "Please correct the errors below.")

@@ -54,11 +54,19 @@ already installed or recently dismissed (7-day snooze).
 
     btn.addEventListener('click', function () {
       if (!deferred) return;
+      if (window.ptpTrack) ptpTrack('pwa_install_click');
       deferred.prompt();
-      deferred.userChoice.finally(function () {
+      deferred.userChoice.then(function (choice) {
+        if (window.ptpTrack) ptpTrack('pwa_install_choice', { outcome: choice && choice.outcome });
+      }).finally(function () {
         deferred = null;
         banner.classList.add('hidden');
       });
+    });
+
+    // Fires on a completed install (Android/desktop). iOS has no equivalent.
+    window.addEventListener('appinstalled', function () {
+      if (window.ptpTrack) ptpTrack('pwa_installed');
     });
 
     dismiss.addEventListener('click', function () {

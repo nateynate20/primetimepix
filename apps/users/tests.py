@@ -267,6 +267,36 @@ class TestSEO:
 
 
 @pytest.mark.django_db
+class TestAnalyticsFunnel:
+    """Server-queued funnel events replay once, then clear. ptpTrack is always
+    defined so instrumentation can call it unconditionally."""
+
+    def test_ptptrack_always_defined(self):
+        body = Client().get('/').content.decode()
+        assert 'window.ptpTrack' in body
+
+    def test_no_replay_without_queued_events(self):
+        body = Client().get('/').content.decode()
+        # No conversion happened, so nothing is replayed.
+        assert '.forEach(function (ev)' not in body
+
+    def test_signup_queues_and_fires_once(self):
+        client = Client()
+        response = client.post(reverse('signup'), {
+            'username': 'funneluser',
+            'email': 'funnel@test.com',
+            'password1': 'strongpass123!',
+            'password2': 'strongpass123!',
+        }, follow=True)
+        assert response.status_code == 200
+        # Replayed on the page the signup redirect lands on.
+        assert '"name": "signup"' in response.content.decode()
+        # Exactly once: a subsequent page load no longer carries it.
+        again = client.get(reverse('dashboard')).content.decode()
+        assert '"name": "signup"' not in again
+
+
+@pytest.mark.django_db
 class TestPWA:
     """PWA-lite: installable manifest, root-scoped service worker, offline shell,
     and base-template wiring."""

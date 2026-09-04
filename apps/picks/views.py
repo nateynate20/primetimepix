@@ -147,6 +147,8 @@ def display_nfl_schedule(request):
             saved, errors = PickService.save_user_picks(request.user, picks_data, league=league)
             if saved:
                 messages.success(request, f"{len(saved)} primetime pick(s) saved successfully.")
+                from primetimepix.analytics import queue_event
+                queue_event(request, 'pick_submitted', {'count': len(saved)})
             if errors:
                 for error in errors:
                     messages.warning(request, error)

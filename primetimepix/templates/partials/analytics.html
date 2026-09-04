@@ -1,7 +1,11 @@
 {% comment %}
-Opt-in web analytics. Renders only when the matching env var is set, so dev,
-tests, and unconfigured deploys stay script-free. Set GA_MEASUREMENT_ID for
-Google Analytics 4 and/or PLAUSIBLE_DOMAIN for Plausible.
+Opt-in web analytics. Renders provider scripts only when the matching env var is
+set, so dev, tests, and unconfigured deploys stay script-free. Set
+GA_MEASUREMENT_ID for Google Analytics 4 and/or PLAUSIBLE_DOMAIN for Plausible.
+
+Always defines window.ptpTrack(name, props) — a no-op until a provider loads —
+so instrumentation code can call it unconditionally. Server-queued events (from
+redirect-based conversions) are replayed here on page load.
 {% endcomment %}
 {% if GA_MEASUREMENT_ID %}
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}"></script>
@@ -14,4 +18,19 @@ Google Analytics 4 and/or PLAUSIBLE_DOMAIN for Plausible.
 {% endif %}
 {% if PLAUSIBLE_DOMAIN %}
 <script defer data-domain="{{ PLAUSIBLE_DOMAIN }}" src="https://plausible.io/js/script.js"></script>
+<script>window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };</script>
 {% endif %}
+<script>
+  // Unified event helper. Safe to call even when no provider is configured.
+  window.ptpTrack = function (name, props) {
+    props = props || {};
+    try { if (typeof gtag === 'function') gtag('event', name, props); } catch (e) {}
+    try { if (typeof window.plausible === 'function') window.plausible(name, { props: props }); } catch (e) {}
+  };
+  {% if ANALYTICS_EVENTS_JSON %}
+  // Replay server-queued conversions (signup, league_joined, pick_submitted…).
+  try {
+    ({{ ANALYTICS_EVENTS_JSON|safe }}).forEach(function (ev) { window.ptpTrack(ev.name, ev.props); });
+  } catch (e) {}
+  {% endif %}
+</script>
