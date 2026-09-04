@@ -24,7 +24,7 @@
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ league.description }}</p>
             {% endif %}
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
             <a href="{% url 'schedule' %}?league={{ league.id }}" class="px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
                 <i class="fas fa-hand-pointer mr-1"></i>Make Picks
             </a>
@@ -53,19 +53,19 @@
 
     <!-- Stats Bar + Share -->
     <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6">
-        <div class="flex items-center justify-between gap-4">
-            <div class="grid grid-cols-2 gap-8 text-center">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="grid grid-cols-2 gap-6 sm:gap-8 text-center">
                 <div>
                     <div class="text-2xl font-black font-display text-gray-900 dark:text-white">{{ total_members }}</div>
                     <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Members</div>
                 </div>
-                <div class="border-l border-gray-200 dark:border-gray-700 pl-8">
+                <div class="border-l border-gray-200 dark:border-gray-700 pl-6 sm:pl-8">
                     <div class="text-2xl font-black font-display text-accent-600 dark:text-neon">{{ current_week|default:"—" }}</div>
                     <div class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">NFL Week</div>
                 </div>
             </div>
             <button type="button" id="share-standings-btn"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition whitespace-nowrap">
+                    class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition whitespace-nowrap">
                 <i class="fas fa-share-nodes"></i><span id="share-standings-label">Share Standings</span>
             </button>
         </div>
