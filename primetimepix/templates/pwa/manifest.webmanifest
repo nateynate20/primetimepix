@@ -1,0 +1,18 @@
+{% load static %}{
+  "name": "PrimeTimePix",
+  "short_name": "PrimeTimePix",
+  "description": "NFL primetime pick'em with your friends. Make your picks and climb the standings.",
+  "start_url": "/dashboard/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "categories": ["sports", "games", "entertainment"],
+  "icons": [
+    { "src": "{% static 'images/icon-192.png' %}", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "{% static 'images/icon-512.png' %}", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "{% static 'images/icon-maskable-192.png' %}", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "{% static 'images/icon-maskable-512.png' %}", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -24,6 +24,38 @@ def _site_base(request):
     return base or f"{request.scheme}://{request.get_host()}"
 
 
+def manifest_webmanifest(request):
+    """Web App Manifest — makes the site installable (Add to Home Screen) and
+    controls the standalone, full-screen app experience. Rendered as a template
+    so icon URLs go through {% static %} (hashed in production)."""
+    return render(
+        request, 'pwa/manifest.webmanifest',
+        content_type='application/manifest+json',
+    )
+
+
+def service_worker(request):
+    """Service worker script served from the site root so its scope covers the
+    whole origin (a /static/ path would only control /static/). Rendered as a
+    template so precached asset URLs resolve to the real (hashed) static files."""
+    response = render(
+        request, 'pwa/sw.js',
+        content_type='application/javascript',
+    )
+    # Allow root scope even though the file lives behind a view.
+    response['Service-Worker-Allowed'] = '/'
+    # The SW itself must never be staled by a CDN/browser cache.
+    response['Cache-Control'] = 'no-cache'
+    return response
+
+
+def pwa_offline(request):
+    """Standalone offline fallback shown by the service worker when a navigation
+    fails with no network. Intentionally self-contained (inline styles) so it
+    renders without any cached CSS/CDN assets."""
+    return render(request, 'pwa/offline.html')
+
+
 def robots_txt(request):
     """robots.txt — allow crawling of public pages, keep app/admin private, and
     point crawlers at the sitemap."""

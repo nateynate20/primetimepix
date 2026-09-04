@@ -11,7 +11,14 @@
 
   <!-- Favicon / app icon (PrimeTimePix X mark) -->
   <link rel="icon" type="image/png" href="{% static 'images/logo-mark.png' %}">
-  <link rel="apple-touch-icon" href="{% static 'images/logo-mark.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'images/icon-192.png' %}">
+
+  <!-- PWA: installable, full-screen app -->
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PrimeTimePix">
 
   {% block og_tags %}
   <meta property="og:site_name" content="PrimeTimePix">
@@ -202,6 +209,17 @@
         html.classList.add('dark');
         localStorage.setItem('ptp-theme', 'dark');
       }
+    }
+  </script>
+
+  <!-- PWA: register the root-scoped service worker (app shell + push) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function (err) {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
     }
   </script>
 

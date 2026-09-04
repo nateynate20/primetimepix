@@ -267,6 +267,49 @@ class TestSEO:
 
 
 @pytest.mark.django_db
+class TestPWA:
+    """PWA-lite: installable manifest, root-scoped service worker, offline shell,
+    and base-template wiring."""
+
+    def test_manifest_served(self):
+        response = Client().get('/manifest.webmanifest')
+        assert response.status_code == 200
+        assert 'manifest' in response['Content-Type']
+        body = response.content.decode()
+        assert 'PrimeTimePix' in body
+        assert '"display": "standalone"' in body
+        assert 'icon-512.png' in body
+        assert 'maskable' in body
+
+    def test_service_worker_served_root_scope(self):
+        response = Client().get('/sw.js')
+        assert response.status_code == 200
+        assert 'javascript' in response['Content-Type']
+        # Must be allowed to control the whole origin.
+        assert response['Service-Worker-Allowed'] == '/'
+        body = response.content.decode()
+        # Ships with push handlers so web push lights up later.
+        assert "addEventListener('push'" in body
+        assert "addEventListener('install'" in body
+
+    def test_offline_page_served(self):
+        response = Client().get('/offline/')
+        assert response.status_code == 200
+        assert b'offline' in response.content.lower()
+
+    def test_base_template_wires_pwa(self):
+        body = Client().get('/').content.decode()
+        assert 'rel="manifest"' in body
+        assert "serviceWorker.register('/sw.js')" in body
+
+    def test_dashboard_has_install_banner(self, user):
+        client = Client()
+        client.force_login(user)
+        body = client.get(reverse('dashboard')).content.decode()
+        assert 'pwa-install-banner' in body
+
+
+@pytest.mark.django_db
 class TestAnalyticsGating:
     """Analytics scripts render only when configured via env — dev/tests stay
     script-free."""

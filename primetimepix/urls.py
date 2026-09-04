@@ -35,6 +35,11 @@ urlpatterns = [
     path('robots.txt', views.robots_txt, name='robots_txt'),
     path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),
 
+    # PWA: installable app manifest, root-scoped service worker, offline shell
+    path('manifest.webmanifest', views.manifest_webmanifest, name='manifest'),
+    path('sw.js', views.service_worker, name='service_worker'),
+    path('offline/', views.pwa_offline, name='pwa_offline'),
+
     # Legal + email compliance (root-level for clean links in footer/emails)
     path('privacy/', views.privacy_policy, name='privacy'),
     path('terms/', views.terms_of_service, name='terms'),
