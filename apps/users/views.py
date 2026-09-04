@@ -258,12 +258,26 @@ def dashboard(request):
                 'is_active': primary_league and lg.id == primary_league.id,
             })
 
+    # Streaks & badges — computed from the user's global pick history. Stats
+    # aren't refreshed by the grading pipeline, so recompute on load to keep the
+    # streak/badges honest. `current_streak` can be negative (a losing skid).
+    from apps.picks.models import UserStats
+    from apps.picks.badges import compute_badges
+    stats = UserStats.get_or_create_for_user(user)
+    stats.update_stats()
+    stats.current_streak_abs = abs(stats.current_streak)
+    badges = compute_badges(stats)
+    earned_badge_count = sum(1 for b in badges if b['earned'])
+
     # Get unread notifications
     from apps.users.models import Notification
     notifications = Notification.objects.filter(user=user, is_read=False)[:5]
 
     context = {
         'user': user,
+        'stats': stats,
+        'badges': badges,
+        'earned_badge_count': earned_badge_count,
         'league': primary_league,  # backwards-compatible alias
         'user_leagues': user_leagues,
         'primary_league': primary_league,

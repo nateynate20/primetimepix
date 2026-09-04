@@ -114,6 +114,19 @@ class TestDashboard:
         assert league.name.encode() in response.content
         assert b'Standings' in response.content
 
+    def test_dashboard_shows_streak_and_badges(self, user, league):
+        # `league`'s commissioner is `user`, who is auto-added as a member, so
+        # the streak/badges card (gated on having a league) renders.
+        client = Client()
+        client.force_login(user)
+        response = client.get(reverse('dashboard'))
+        assert response.status_code == 200
+        assert b'Current Streak' in response.content
+        assert b'Badges' in response.content
+        assert response.context['badges']  # list of badge dicts present
+        # A brand-new user has earned nothing yet.
+        assert response.context['earned_badge_count'] == 0
+
     def test_dashboard_switches_active_league(self, user, league):
         # Second league (alphabetically after "Test League") the user also joins.
         from apps.leagues.models import League, LeagueMembership

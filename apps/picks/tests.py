@@ -326,3 +326,43 @@ class TestPickLockingServerSide:
             {'pick_' + str(started.id): 'home', 'league': str(league.id)},
         )
         assert not Pick.objects.filter(user=user, game=started).exists()
+
+
+class TestBadges:
+    """compute_badges is pure (no DB) — it derives achievements from stats."""
+
+    def _stats(self, **kw):
+        from types import SimpleNamespace
+        base = dict(total_picks=0, best_streak=0, win_percentage=0.0, primetime_correct=0)
+        base.update(kw)
+        return SimpleNamespace(**base)
+
+    def test_new_user_earns_nothing(self):
+        from apps.picks.badges import compute_badges
+        badges = compute_badges(self._stats())
+        assert all(not b['earned'] for b in badges)
+
+    def test_first_pick_earns_on_board(self):
+        from apps.picks.badges import compute_badges
+        earned = {b['key'] for b in compute_badges(self._stats(total_picks=1)) if b['earned']}
+        assert earned == {'on_board'}
+
+    def test_thresholds_unlock_expected_badges(self):
+        from apps.picks.badges import compute_badges
+        stats = self._stats(total_picks=10, best_streak=5, win_percentage=70.0, primetime_correct=10)
+        earned = {b['key'] for b in compute_badges(stats) if b['earned']}
+        assert {'on_board', 'regular', 'hot_hand', 'unstoppable', 'sharpshooter', 'primetime_pro'} <= earned
+        # Perfectionist needs a 10-game win streak.
+        assert 'perfectionist' not in earned
+
+    def test_sharpshooter_requires_minimum_picks(self):
+        from apps.picks.badges import compute_badges
+        # 100% accuracy but only 3 picks — not enough sample to earn it.
+        earned = {b['key'] for b in compute_badges(self._stats(total_picks=3, win_percentage=100.0)) if b['earned']}
+        assert 'sharpshooter' not in earned
+
+    def test_locked_badges_expose_progress(self):
+        from apps.picks.badges import compute_badges
+        regular = next(b for b in compute_badges(self._stats(total_picks=4)) if b['key'] == 'regular')
+        assert regular['earned'] is False
+        assert regular['progress'] == '4/10'

@@ -116,6 +116,40 @@
       <div class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Accuracy</div>
     </div>
   </div>
+
+  <!-- Streak + Badges -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+    <!-- Current streak -->
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 flex items-center gap-4">
+      <div class="flex-shrink-0 h-16 w-16 rounded-full flex items-center justify-center text-3xl {% if stats.current_streak > 0 %}bg-orange-100 dark:bg-orange-500/10{% elif stats.current_streak < 0 %}bg-sky-100 dark:bg-sky-500/10{% else %}bg-gray-100 dark:bg-gray-700{% endif %}">
+        {% if stats.current_streak > 0 %}&#128293;{% elif stats.current_streak < 0 %}&#129398;{% else %}&#128064;{% endif %}
+      </div>
+      <div>
+        <div class="text-3xl font-black font-display leading-none {% if stats.current_streak > 0 %}text-orange-500{% elif stats.current_streak < 0 %}text-sky-500{% else %}text-gray-900 dark:text-white{% endif %}">
+          {% if stats.current_streak > 0 %}W{{ stats.current_streak }}{% elif stats.current_streak < 0 %}L{{ stats.current_streak_abs }}{% else %}&mdash;{% endif %}
+        </div>
+        <div class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1">Current Streak</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Best run: <span class="font-bold text-gray-700 dark:text-gray-200">{{ stats.best_streak }} in a row</span></div>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="lg:col-span-2 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-black uppercase tracking-wide text-gray-900 dark:text-white"><i class="fas fa-medal text-amber-500 mr-1.5"></i>Badges</h3>
+        <span class="text-xs font-bold text-gray-500 dark:text-gray-400">{{ earned_badge_count }}/{{ badges|length }} earned</span>
+      </div>
+      <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+        {% for b in badges %}
+        <div class="flex flex-col items-center text-center" title="{{ b.label }} — {{ b.desc }}">
+          <div class="h-11 w-11 rounded-full flex items-center justify-center text-xl {% if b.earned %}bg-amber-100 dark:bg-amber-400/15{% else %}bg-gray-100 dark:bg-gray-700/60 grayscale opacity-40{% endif %}">{{ b.icon }}</div>
+          <span class="text-[10px] font-bold mt-1 leading-tight {% if b.earned %}text-gray-700 dark:text-gray-200{% else %}text-gray-400 dark:text-gray-500{% endif %}">{{ b.label }}</span>
+          {% if not b.earned %}<span class="text-[9px] text-gray-400 dark:text-gray-500 leading-none">{{ b.progress }}</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
   {% endif %}
 
   <!-- This Week -->
