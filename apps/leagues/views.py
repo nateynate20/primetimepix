@@ -381,8 +381,18 @@ def join_league_instant(request, league_id):
 
 @login_required
 def create_league(request):
-    """Create a new league (instant creation for verified users)"""
+    """Instant league creation — staff only.
+
+    Regular members go through the review/approval flow instead. The navbar and
+    dashboard already route non-staff to that request flow; this guard closes
+    the gap where someone could hit /leagues/create/ directly and bypass it, so
+    there's one consistent 'create a league' experience for everyone.
+    """
     from .forms import LeagueCreateForm
+
+    if not request.user.is_staff:
+        messages.info(request, "New leagues need a quick approval. Submit your request below and we'll get it set up.")
+        return redirect('league_create_request')
 
     if request.method == 'POST':
         form = LeagueCreateForm(request.POST)

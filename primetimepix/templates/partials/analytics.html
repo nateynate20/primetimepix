@@ -1,0 +1,17 @@
+{% comment %}
+Opt-in web analytics. Renders only when the matching env var is set, so dev,
+tests, and unconfigured deploys stay script-free. Set GA_MEASUREMENT_ID for
+Google Analytics 4 and/or PLAUSIBLE_DOMAIN for Plausible.
+{% endcomment %}
+{% if GA_MEASUREMENT_ID %}
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ GA_MEASUREMENT_ID }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ GA_MEASUREMENT_ID }}');
+</script>
+{% endif %}
+{% if PLAUSIBLE_DOMAIN %}
+<script defer data-domain="{{ PLAUSIBLE_DOMAIN }}" src="https://plausible.io/js/script.js"></script>
+{% endif %}

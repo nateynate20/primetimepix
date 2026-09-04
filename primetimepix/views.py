@@ -2,6 +2,9 @@
 from django.shortcuts import render
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core import signing
+from django.conf import settings
+from django.http import HttpResponse
+from django.urls import reverse
 from apps.games.models import Game
 from django.contrib.auth.models import User
 
@@ -12,6 +15,53 @@ def landing_page(request):
         'active_users': User.objects.filter(is_active=True).count(),
     }
     return render(request, 'nflpix/landing_page.html', context)
+
+
+def _site_base(request):
+    """Absolute site root for SEO files — prefers SITE_URL, falls back to the
+    request host so it's correct in every environment."""
+    base = (getattr(settings, 'SITE_URL', '') or '').rstrip('/')
+    return base or f"{request.scheme}://{request.get_host()}"
+
+
+def robots_txt(request):
+    """robots.txt — allow crawling of public pages, keep app/admin private, and
+    point crawlers at the sitemap."""
+    base = _site_base(request)
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /unsubscribe/",
+        "Disallow: /users/",
+        "Disallow: /picks/",
+        "",
+        f"Sitemap: {base}/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+def sitemap_xml(request):
+    """Minimal sitemap of the public, indexable pages."""
+    base = _site_base(request)
+    paths = ['/']
+    for name in ('signup', 'login', 'privacy', 'terms'):
+        try:
+            paths.append(reverse(name))
+        except Exception:
+            pass
+    # De-dupe while preserving order.
+    seen, urls = set(), []
+    for p in paths:
+        if p not in seen:
+            seen.add(p)
+            urls.append(f"<url><loc>{base}{p}</loc></url>")
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        + "".join(urls)
+        + '</urlset>'
+    )
+    return HttpResponse(xml, content_type="application/xml")
 
 
 def privacy_policy(request):

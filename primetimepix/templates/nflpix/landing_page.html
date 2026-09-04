@@ -1,15 +1,23 @@
 {% extends 'nflpix/base.html' %}
 {% load static %}
 
+{% block title %}PrimeTimePix — Free NFL Primetime Pick'em with Friends{% endblock %}
+{% block meta_description %}Free NFL primetime pick'em. Start a league with friends, pick every Thursday, Sunday, and Monday night game before kickoff, and climb your league standings.{% endblock %}
+{% block og_title %}PrimeTimePix — NFL Primetime Pick'em{% endblock %}
+{% block og_description %}Free NFL primetime pick'em with friends. Make your picks before kickoff and climb your league standings — 30 seconds a week.{% endblock %}
+
 {% block content %}
 <div class="min-h-[85vh] py-16 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto">
 
     <!-- Hero Section -->
     <div class="text-center mb-20">
-      <div class="inline-block mb-6">
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-6">
         <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-accent-100 text-accent-700 dark:bg-neon/10 dark:text-neon border border-accent-200 dark:border-neon/30">
           <i class="fas fa-football-ball mr-2"></i> NFL 2026 Season
+        </span>
+        <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+          <i class="fas fa-basketball mr-2"></i> NBA Playoffs — Coming Soon
         </span>
       </div>
 
@@ -22,7 +30,7 @@
       </h1>
 
       <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl font-semibold text-gray-600 dark:text-gray-300 leading-relaxed">
-        Make your picks for NFL and NBA primetime games.
+        Make your picks for NFL primetime games.
         Go head-to-head with friends, climb your league standings, and take the top spot.
       </p>
 
@@ -85,7 +93,7 @@
           Weekly Picks
         </h3>
         <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed mb-4">
-          Make picks for NFL and NBA primetime games before kickoff or tip-off.
+          Make picks for NFL primetime games before kickoff. NBA playoff pools coming soon.
         </p>
         <a href="{% url 'schedule' %}" class="inline-flex items-center text-sm font-bold text-accent-600 dark:text-neon group-hover:underline">
           Make Picks <i class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>

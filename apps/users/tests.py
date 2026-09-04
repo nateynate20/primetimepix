@@ -230,6 +230,52 @@ class TestVsCPU:
 
 
 @pytest.mark.django_db
+class TestSEO:
+    def test_robots_txt(self):
+        response = Client().get('/robots.txt')
+        assert response.status_code == 200
+        assert response['Content-Type'].startswith('text/plain')
+        body = response.content.decode()
+        assert 'User-agent: *' in body
+        assert 'Sitemap:' in body
+
+    def test_sitemap_xml(self):
+        response = Client().get('/sitemap.xml')
+        assert response.status_code == 200
+        assert 'xml' in response['Content-Type']
+        body = response.content.decode()
+        assert '<urlset' in body
+        assert reverse('privacy') in body
+        assert reverse('terms') in body
+
+    def test_canonical_tag_present(self):
+        body = Client().get('/').content.decode()
+        assert 'rel="canonical"' in body
+
+
+@pytest.mark.django_db
+class TestAnalyticsGating:
+    """Analytics scripts render only when configured via env — dev/tests stay
+    script-free."""
+
+    def test_no_analytics_by_default(self):
+        body = Client().get('/').content.decode()
+        assert 'googletagmanager.com' not in body
+        assert 'plausible.io' not in body
+
+    def test_ga_renders_when_configured(self, settings):
+        settings.GA_MEASUREMENT_ID = 'G-TEST123'
+        body = Client().get('/').content.decode()
+        assert 'googletagmanager.com/gtag/js?id=G-TEST123' in body
+
+    def test_plausible_renders_when_configured(self, settings):
+        settings.PLAUSIBLE_DOMAIN = 'primetimepixsports.com'
+        body = Client().get('/').content.decode()
+        assert 'plausible.io/js/script.js' in body
+        assert 'data-domain="primetimepixsports.com"' in body
+
+
+@pytest.mark.django_db
 class TestLandingCopy:
     """The landing page must not promise a global leaderboard (retired) or show
     a fabricated live count."""

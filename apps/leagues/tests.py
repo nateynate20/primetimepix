@@ -542,3 +542,36 @@ class TestSeasonStartLocksJoining:
         response = client.get(reverse('league_detail', args=[league.id]))
         assert response.status_code == 200
         assert league.join_code.encode() not in response.content
+
+
+@pytest.mark.django_db
+class TestLeagueCreateGate:
+    """Instant creation is staff-only; everyone else is routed through the
+    approval request flow — no matter how they reach /leagues/create/."""
+
+    def test_non_staff_get_redirects_to_request_flow(self):
+        member = make_user('gate_member', 'GateTeam')
+        client = Client()
+        client.force_login(member)
+        response = client.get(reverse('create_league'))
+        assert response.status_code == 302
+        assert reverse('league_create_request') in response.url
+
+    def test_non_staff_post_cannot_create_league(self):
+        member = make_user('gate_sneaky', 'SneakyTeam')
+        client = Client()
+        client.force_login(member)
+        response = client.post(reverse('create_league'), {
+            'name': 'Backdoor League', 'sport': 'NFL',
+        })
+        assert response.status_code == 302
+        assert not League.objects.filter(name='Backdoor League').exists()
+
+    def test_staff_can_reach_instant_create(self):
+        boss = make_user('gate_boss', 'BossTeam')
+        boss.is_staff = True
+        boss.save()
+        client = Client()
+        client.force_login(boss)
+        response = client.get(reverse('create_league'))
+        assert response.status_code == 200

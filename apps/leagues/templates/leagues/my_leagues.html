@@ -17,7 +17,7 @@
             <a href="{% url 'league_detail_no_id' %}" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
                 <i class="fas fa-user-plus mr-1"></i>Join League
             </a>
-            <a href="{% url 'create_league' %}" class="px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
+            <a href="{% if user.is_staff %}{% url 'create_league' %}{% else %}{% url 'league_create_request' %}{% endif %}" class="px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
                 <i class="fas fa-plus mr-1"></i>Create League
             </a>
         </div>
@@ -144,7 +144,7 @@
             <a href="{% url 'league_detail_no_id' %}" class="px-6 py-3 bg-accent-600 dark:bg-neon text-white dark:text-black font-bold rounded-lg hover:opacity-90 transition text-sm">
                 <i class="fas fa-search mr-2"></i>Browse Leagues
             </a>
-            <a href="{% url 'create_league' %}" class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition text-sm">
+            <a href="{% if user.is_staff %}{% url 'create_league' %}{% else %}{% url 'league_create_request' %}{% endif %}" class="px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition text-sm">
                 <i class="fas fa-plus mr-2"></i>Create One
             </a>
         </div>

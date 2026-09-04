@@ -28,6 +28,10 @@ urlpatterns = [
     # Short, shareable league invite links: /join/<code>/
     path('join/<str:code>/', league_views.join_via_invite, name='join_via_invite'),
 
+    # SEO
+    path('robots.txt', views.robots_txt, name='robots_txt'),
+    path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),
+
     # Legal + email compliance (root-level for clean links in footer/emails)
     path('privacy/', views.privacy_policy, name='privacy'),
     path('terms/', views.terms_of_service, name='terms'),

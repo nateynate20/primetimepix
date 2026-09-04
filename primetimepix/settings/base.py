@@ -55,6 +55,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.picks.context_processors.user_leagues',
+                'primetimepix.context_processors.site_context',
             ],
         },
     },
@@ -114,6 +115,11 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 SITE_ID = 1
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 SITE_NAME = 'PrimeTimePix'
+
+# Analytics — opt-in via env vars, renders nothing when unset (so local/dev and
+# tests stay clean). Supports GA4 and/or Plausible; set either or both.
+GA_MEASUREMENT_ID = os.getenv('GA_MEASUREMENT_ID', '')
+PLAUSIBLE_DOMAIN = os.getenv('PLAUSIBLE_DOMAIN', '')
 
 # Django Unfold Admin Theme
 UNFOLD = {
