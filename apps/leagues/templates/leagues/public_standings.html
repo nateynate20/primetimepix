@@ -1,0 +1,120 @@
+{% extends 'nflpix/base.html' %}
+{% load static %}
+
+{% block title %}{{ league.name }} Standings - PrimeTimePix{% endblock %}
+{% block meta_description %}Live standings for {{ league.name }} on PrimeTimePix — {{ total_members }} member{{ total_members|pluralize }} picking NFL primetime games.{% endblock %}
+{% block og_title %}{{ league.name }} — Live Standings{% endblock %}
+{% block og_description %}See who's on top in {{ league.name }} on PrimeTimePix. {{ total_members }} member{{ total_members|pluralize }} · NFL primetime pick'em.{% endblock %}
+{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/invite-og.png' %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="text-center mb-6">
+        <a href="{% url 'landing_page' %}" class="inline-block mb-4">
+            <img src="{% static 'images/logo-light.png' %}" alt="PrimeTimePix" class="h-9 w-auto mx-auto block dark:hidden">
+            <img src="{% static 'images/logo.png' %}" alt="PrimeTimePix" class="h-9 w-auto mx-auto hidden dark:block drop-shadow-[0_0_10px_rgba(57,255,20,0.4)]">
+        </a>
+        <p class="text-xs font-black uppercase tracking-widest text-accent-600 dark:text-neon mb-1">Live Standings</p>
+        <h1 class="text-3xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white flex items-center justify-center gap-2">
+            <i class="fas fa-trophy text-amber-500"></i>{{ league.name }}
+        </h1>
+        <div class="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-500 dark:text-gray-400 mt-2">
+            <span><i class="fas fa-football-ball mr-1"></i>{{ league.sport }}</span>
+            <span><i class="fas fa-users mr-1"></i>{{ total_members }} member{{ total_members|pluralize }}</span>
+            {% if current_week %}<span><i class="fas fa-calendar mr-1"></i>Week {{ current_week }}</span>{% endif %}
+        </div>
+    </div>
+
+    <!-- Join CTA -->
+    <div class="mb-6">
+        {% if is_member %}
+        <a href="{% url 'league_detail' league.id %}" class="block w-full text-center bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
+            <i class="fas fa-arrow-right mr-2"></i>Open in your dashboard
+        </a>
+        {% elif join_locked %}
+        <div class="bg-gray-50 dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
+            <p class="text-sm font-bold text-gray-700 dark:text-gray-300"><i class="fas fa-lock mr-1 text-amber-500"></i>Joining is closed for this season</p>
+            <a href="{% url 'signup' %}" class="inline-block mt-2 text-sm font-bold text-accent-600 dark:text-neon hover:underline">Sign up free and start your own league &rarr;</a>
+        </div>
+        {% else %}
+        <a href="{{ invite_url }}" class="block w-full text-center bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
+            <i class="fas fa-user-plus mr-2"></i>Join {{ league.name }}
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Standings Table -->
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-800/50">
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rank</th>
+                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Points</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" title="Wins">W</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider" title="Losses">L</th>
+                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Accuracy</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    {% for standing in standings %}
+                    <tr class="{% if standing.user == user %}bg-accent-50 dark:bg-neon/5 border-l-4 border-accent-500 dark:border-neon{% endif %} hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                        <td class="px-4 py-4 text-center">
+                            {% if standing.rank == 1 %}<span class="text-lg">&#127942;</span>
+                            {% elif standing.rank == 2 %}<span class="text-lg">&#129352;</span>
+                            {% elif standing.rank == 3 %}<span class="text-lg">&#129353;</span>
+                            {% else %}<span class="text-sm font-black text-gray-400 dark:text-gray-500">{{ standing.rank }}</span>{% endif %}
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-9 w-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                    <span class="text-sm font-black text-gray-600 dark:text-gray-300">{{ standing.user.username.0|upper }}</span>
+                                </div>
+                                <div class="text-sm font-bold text-gray-900 dark:text-white">{{ standing.user.username }}
+                                    {% if standing.user == league.commissioner %}
+                                    <span class="ml-1 text-xs font-bold bg-amber-100 dark:bg-yellow-400/10 text-amber-700 dark:text-yellow-300 px-1.5 py-0.5 rounded">Commissioner</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-center"><span class="text-lg font-black text-gray-900 dark:text-white">{{ standing.total_points }}</span></td>
+                        <td class="px-4 py-4 text-center"><span class="text-sm font-bold text-green-600 dark:text-green-400">{{ standing.wins }}</span></td>
+                        <td class="px-4 py-4 text-center"><span class="text-sm font-bold text-red-600 dark:text-red-400">{{ standing.losses }}</span></td>
+                        <td class="px-4 py-4 text-center">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold
+                                {% if standing.accuracy >= 70 %}bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400
+                                {% elif standing.accuracy >= 50 %}bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400
+                                {% else %}bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400{% endif %}">
+                                {{ standing.accuracy|default:"0" }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="text-4xl mb-3">&#128200;</div>
+                            <h3 class="font-bold text-gray-900 dark:text-white mb-1">No Picks Yet</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Standings appear once members start making picks.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-700/50 text-xs text-gray-500 dark:text-gray-400 text-center">
+            Ranked by total points, then accuracy · updates after each game finishes
+        </div>
+    </div>
+
+    <!-- Bottom CTA for non-members -->
+    {% if not is_member %}
+    <div class="mt-6 text-center">
+        <p class="text-sm text-gray-500 dark:text-gray-400">Free NFL primetime pick'em with friends — 30 seconds a week.</p>
+        <a href="{% url 'landing_page' %}" class="inline-block mt-2 text-sm font-bold text-accent-600 dark:text-neon hover:underline">What is PrimeTimePix? &rarr;</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

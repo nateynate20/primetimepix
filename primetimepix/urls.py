@@ -28,6 +28,9 @@ urlpatterns = [
     # Short, shareable league invite links: /join/<code>/
     path('join/<str:code>/', league_views.join_via_invite, name='join_via_invite'),
 
+    # Public, no-login read-only standings (shareable): /standings/<code>/
+    path('standings/<str:code>/', league_views.public_standings, name='public_standings'),
+
     # SEO
     path('robots.txt', views.robots_txt, name='robots_txt'),
     path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),

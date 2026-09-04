@@ -117,8 +117,42 @@ def league_detail(request, league_id):
         'co_commissioners': league.co_commissioners.all(),
         'join_locked': league.is_join_locked(),
         'invite_url': f"{settings.SITE_URL}{reverse('join_via_invite', args=[league.join_code])}",
+        'public_standings_url': f"{settings.SITE_URL}{reverse('public_standings', args=[league.join_code])}",
     }
     return render(request, 'league_detail.html', context)
+
+
+def public_standings(request, code):
+    """Public, read-only league standings — no login required.
+
+    Keyed by the league's invite code so the URL doubles as a shareable link
+    (only people the code is shared with can find it). Renders the leaderboard
+    plus a join / sign-up CTA, which closes the viral loop from the in-app
+    "Share Standings" button and gives shared links something rich to preview.
+    """
+    league = get_object_or_404(League, join_code=code.upper(), is_approved=True)
+
+    standings = league.get_standings()
+    for idx, row in enumerate(standings, start=1):
+        row['rank'] = idx
+
+    from apps.games.utils import get_current_nfl_week
+
+    is_member = (
+        request.user.is_authenticated
+        and league.members.filter(id=request.user.id).exists()
+    )
+
+    context = {
+        'league': league,
+        'standings': standings[:50],
+        'total_members': league.members.count(),
+        'current_week': get_current_nfl_week(),
+        'join_locked': league.is_join_locked(),
+        'is_member': is_member,
+        'invite_url': f"{settings.SITE_URL}{reverse('join_via_invite', args=[league.join_code])}",
+    }
+    return render(request, 'leagues/public_standings.html', context)
 
 
 @login_required

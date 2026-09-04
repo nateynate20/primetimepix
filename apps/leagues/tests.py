@@ -525,23 +525,24 @@ class TestSeasonStartLocksJoining:
         assert response.status_code == 200
         assert b'Joining Closed' in response.content
 
-    def test_share_includes_join_link_when_open(self, league):
-        # Before kickoff the sharable standings still carry the join link.
+    def test_share_uses_public_standings_link(self, league):
+        # The Share button now points at the public standings page (viewable
+        # even when joining is locked), so its code appears in the payload.
         self._future_game()
         client = Client()
         client.force_login(league.commissioner)  # commissioner is a member
         response = client.get(reverse('league_detail', args=[league.id]))
         assert response.status_code == 200
-        assert league.join_code.encode() in response.content
+        assert reverse('public_standings', args=[league.join_code]).encode() in response.content
 
-    def test_share_omits_join_link_when_locked(self, league):
-        # Once locked, the dead join link is dropped from the share payload.
+    def test_public_standings_hides_join_cta_when_locked(self, league):
+        # Once the season starts, the public page swaps the "Join" CTA for a
+        # closed message — but the standings stay viewable.
         self._past_game()
-        client = Client()
-        client.force_login(league.commissioner)
-        response = client.get(reverse('league_detail', args=[league.id]))
+        response = Client().get(reverse('public_standings', args=[league.join_code]))
         assert response.status_code == 200
-        assert league.join_code.encode() not in response.content
+        assert b'Joining is closed' in response.content
+        assert reverse('join_via_invite', args=[league.join_code]).encode() not in response.content
 
 
 @pytest.mark.django_db
@@ -637,3 +638,35 @@ class TestPrivateLeagueDiscovery:
         assert response.status_code == 200
         assert b'Hidden Squad' in response.content
         assert b'Request to Join' in response.content
+
+
+@pytest.mark.django_db
+class TestPublicStandings:
+    """No-login, read-only standings page keyed by the league's invite code."""
+
+    def test_anonymous_can_view(self, league):
+        response = Client().get(reverse('public_standings', args=[league.join_code]))
+        assert response.status_code == 200
+        assert league.name.encode() in response.content
+
+    def test_lowercase_code_resolves(self, league):
+        response = Client().get(reverse('public_standings', args=[league.join_code.lower()]))
+        assert response.status_code == 200
+
+    def test_invalid_code_is_404(self):
+        response = Client().get(reverse('public_standings', args=['NOSUCHCODE']))
+        assert response.status_code == 404
+
+    def test_non_member_sees_join_cta(self, league, outsider):
+        client = Client()
+        client.force_login(outsider)
+        response = client.get(reverse('public_standings', args=[league.join_code]))
+        assert response.status_code == 200
+        assert b'Join' in response.content
+
+    def test_member_sees_dashboard_cta(self, league):
+        client = Client()
+        client.force_login(league.commissioner)  # commissioner is a member
+        response = client.get(reverse('public_standings', args=[league.join_code]))
+        assert response.status_code == 200
+        assert b'Open in your dashboard' in response.content
