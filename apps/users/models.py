@@ -14,6 +14,34 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile"
 
 
+class PushSubscription(models.Model):
+    """A browser Web Push subscription (one per device/browser per user).
+
+    Created when a user opts into game-time alerts; `endpoint` is the unique
+    push service URL, `p256dh`/`auth` are the client's encryption keys. Dead
+    subscriptions (404/410 from the push service) are pruned on send.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='push_subscriptions')
+    endpoint = models.TextField(unique=True)
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+    user_agent = models.CharField(max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=['user'])]
+
+    def __str__(self):
+        return f"{self.user.username} push sub {self.pk}"
+
+    def subscription_info(self):
+        """Shape pywebpush expects."""
+        return {
+            'endpoint': self.endpoint,
+            'keys': {'p256dh': self.p256dh, 'auth': self.auth},
+        }
+
+
 class Notification(models.Model):
     """In-app notifications for users."""
     NOTIF_TYPES = [

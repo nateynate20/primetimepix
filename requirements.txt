@@ -45,6 +45,9 @@ celery==5.3.4
 # Email (Brevo HTTP API - bypasses SMTP port blocking)
 django-anymail[brevo]==12.0
 
+# Web push notifications (VAPID)
+pywebpush==2.0.0
+
 # Monitoring (optional but recommended for production)
 sentry-sdk==1.39.1
 

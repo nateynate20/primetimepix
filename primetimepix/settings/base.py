@@ -121,6 +121,13 @@ SITE_NAME = 'PrimeTimePix'
 GA_MEASUREMENT_ID = os.getenv('GA_MEASUREMENT_ID', '')
 PLAUSIBLE_DOMAIN = os.getenv('PLAUSIBLE_DOMAIN', '')
 
+# Web push (VAPID) — opt-in via env. When unset, push is disabled everywhere:
+# the opt-in UI hides itself and send_web_push() is a no-op, so dev/tests stay
+# clean. Generate a keypair once with:  python manage.py vapid_keys
+VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY', '')
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY', '')
+VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL', 'support@primetimepixsports.com')
+
 # Django Unfold Admin Theme
 UNFOLD = {
     "SITE_TITLE": "PrimeTimePix Admin",

@@ -43,4 +43,8 @@ urlpatterns = [
     path('dismiss-notifications/', views.dismiss_notifications, name='dismiss_notifications'),
     path('toggle-reminders/', views.toggle_reminders, name='toggle_reminders'),
     path('profile/', views.edit_profile, name='edit_profile'),
+
+    # Web push subscription management (called from the opt-in JS)
+    path('push/subscribe/', views.push_subscribe, name='push_subscribe'),
+    path('push/unsubscribe/', views.push_unsubscribe, name='push_unsubscribe'),
 ]

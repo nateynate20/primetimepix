@@ -134,6 +134,14 @@ class Command(BaseCommand):
                     f"  {user.username} has no email address on file — nothing to send."
                 ))
 
+            # Second channel: web push (no-op without a subscription / VAPID).
+            from apps.users.push import send_web_push
+            send_web_push(
+                user, subject,
+                f"Week {current_week} primetime games are open — make your picks!",
+                url='/picks/', tag=f"weekly-{current_week}",
+            )
+
             if not force:
                 Notification.objects.create(
                     user=user, notification_type='pick_reminder',

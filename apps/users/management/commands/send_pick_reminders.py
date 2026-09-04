@@ -220,6 +220,15 @@ class Command(BaseCommand):
                 f"  {user.username} has no email address on file — nothing to send."
             ))
 
+        # Second channel: web push (no-op unless the user has a subscription and
+        # VAPID is configured). Tagged per game so repeat nudges replace rather
+        # than stack in the notification tray.
+        from apps.users.push import send_web_push
+        send_web_push(
+            user, subject, self._body_text(rtype, game).capitalize(),
+            url='/picks/', tag=f"game-{game.id}",
+        )
+
         # A forced test send is a no-op on real scheduling: skip the in-app
         # notification and the ReminderLog so genuine reminders still fire later
         # (and the test can be repeated).

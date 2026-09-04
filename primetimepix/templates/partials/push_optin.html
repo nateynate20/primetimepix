@@ -1,0 +1,92 @@
+{% comment %}
+Web push opt-in. Renders only when VAPID is configured (VAPID_PUBLIC_KEY set)
+and the browser supports push. Lets the user enable/disable game-time alerts;
+subscription JSON is POSTed to /users/push/(un)subscribe/.
+{% endcomment %}
+{% if VAPID_PUBLIC_KEY %}
+<div id="push-optin" class="hidden mb-6">
+  <div class="flex items-center gap-3 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3">
+    <div class="h-10 w-10 rounded-lg bg-accent-100 dark:bg-neon/10 flex items-center justify-center flex-shrink-0">
+      <i class="fas fa-bell text-accent-600 dark:text-neon"></i>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-bold text-gray-900 dark:text-white">Game-time pick alerts</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400" id="push-optin-copy">Get a push notification before kickoff so you never miss a pick.</p>
+    </div>
+    <button id="push-enable-btn" class="px-4 py-2 text-xs font-bold bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg hover:opacity-90 transition whitespace-nowrap">
+      <i class="fas fa-bell mr-1"></i>Enable
+    </button>
+    <button id="push-disable-btn" class="hidden px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:opacity-90 transition whitespace-nowrap">
+      <i class="fas fa-bell-slash mr-1"></i>Turn off
+    </button>
+  </div>
+</div>
+<script>
+  (function () {
+    var PUBLIC_KEY = '{{ VAPID_PUBLIC_KEY }}';
+    var box = document.getElementById('push-optin');
+    var copy = document.getElementById('push-optin-copy');
+    var enableBtn = document.getElementById('push-enable-btn');
+    var disableBtn = document.getElementById('push-disable-btn');
+    if (!box || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+    function csrf() {
+      var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+      return m ? m[1] : '';
+    }
+    function urlB64ToUint8(base64) {
+      var pad = '='.repeat((4 - base64.length % 4) % 4);
+      var b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+      var raw = atob(b64), out = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+      return out;
+    }
+    function post(url, body) {
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf() },
+        body: JSON.stringify(body || {}),
+      });
+    }
+    function showEnabled(on) {
+      box.classList.remove('hidden');
+      enableBtn.classList.toggle('hidden', on);
+      disableBtn.classList.toggle('hidden', !on);
+      copy.textContent = on
+        ? "You're getting game-time pick alerts on this device."
+        : 'Get a push notification before kickoff so you never miss a pick.';
+    }
+
+    navigator.serviceWorker.ready.then(function (reg) {
+      reg.pushManager.getSubscription().then(function (sub) {
+        if (Notification.permission === 'denied') return; // can't prompt; stay hidden
+        showEnabled(!!sub);
+      });
+
+      enableBtn.addEventListener('click', function () {
+        Notification.requestPermission().then(function (perm) {
+          if (perm !== 'granted') return;
+          reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlB64ToUint8(PUBLIC_KEY),
+          }).then(function (sub) {
+            return post('{% url "push_subscribe" %}', sub.toJSON());
+          }).then(function () { showEnabled(true); })
+            .catch(function (e) { console.warn('Push subscribe failed', e); });
+        });
+      });
+
+      disableBtn.addEventListener('click', function () {
+        reg.pushManager.getSubscription().then(function (sub) {
+          if (!sub) { showEnabled(false); return; }
+          var endpoint = sub.endpoint;
+          sub.unsubscribe().finally(function () {
+            post('{% url "push_unsubscribe" %}', { endpoint: endpoint })
+              .finally(function () { showEnabled(false); });
+          });
+        });
+      });
+    });
+  })();
+</script>
+{% endif %}

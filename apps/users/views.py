@@ -410,6 +410,56 @@ def dismiss_notifications(request):
 
 
 @login_required
+@require_POST
+def push_subscribe(request):
+    """Store (or refresh) a browser's Web Push subscription for this user.
+
+    The opt-in JS POSTs the PushSubscription JSON here after the user grants
+    notification permission. Keyed on the unique endpoint so re-subscribing the
+    same device just updates its keys.
+    """
+    import json
+    from apps.users.models import PushSubscription
+    try:
+        data = json.loads((request.body or b'').decode() or '{}')
+    except ValueError:
+        return JsonResponse({'ok': False, 'error': 'invalid JSON'}, status=400)
+
+    endpoint = data.get('endpoint')
+    keys = data.get('keys') or {}
+    p256dh, auth = keys.get('p256dh'), keys.get('auth')
+    if not (endpoint and p256dh and auth):
+        return JsonResponse({'ok': False, 'error': 'missing subscription fields'}, status=400)
+
+    PushSubscription.objects.update_or_create(
+        endpoint=endpoint,
+        defaults={
+            'user': request.user,
+            'p256dh': p256dh,
+            'auth': auth,
+            'user_agent': request.META.get('HTTP_USER_AGENT', '')[:300],
+        },
+    )
+    return JsonResponse({'ok': True})
+
+
+@login_required
+@require_POST
+def push_unsubscribe(request):
+    """Remove a device's push subscription (user turned alerts off)."""
+    import json
+    from apps.users.models import PushSubscription
+    try:
+        data = json.loads((request.body or b'').decode() or '{}')
+    except ValueError:
+        data = {}
+    endpoint = data.get('endpoint')
+    if endpoint:
+        PushSubscription.objects.filter(user=request.user, endpoint=endpoint).delete()
+    return JsonResponse({'ok': True})
+
+
+@login_required
 def toggle_reminders(request):
     """Toggle email reminders on/off."""
     profile = request.user.profile
