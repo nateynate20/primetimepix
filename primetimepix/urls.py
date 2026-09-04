@@ -28,6 +28,12 @@ urlpatterns = [
     # Short, shareable league invite links: /join/<code>/
     path('join/<str:code>/', league_views.join_via_invite, name='join_via_invite'),
 
+    # Legal + email compliance (root-level for clean links in footer/emails)
+    path('privacy/', views.privacy_policy, name='privacy'),
+    path('terms/', views.terms_of_service, name='terms'),
+    path('unsubscribe/', views.unsubscribe, name='unsubscribe_self'),
+    path('unsubscribe/<str:token>/', views.unsubscribe, name='unsubscribe'),
+
     # Staff-only endpoint to verify Sentry captures 500s (see primetimepix/views.py)
     path('debug/sentry-test/', views.sentry_debug, name='sentry_debug'),
 

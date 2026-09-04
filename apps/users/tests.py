@@ -227,3 +227,99 @@ class TestVsCPU:
         assert response.status_code == 302
         user.profile.refresh_from_db()
         assert user.profile.cpu_challenge_active is False
+
+
+@pytest.mark.django_db
+class TestLegalPages:
+    """Privacy / Terms must be reachable and linked — required for trust and
+    for sending marketing email/ads."""
+
+    def test_privacy_page_loads(self):
+        response = Client().get(reverse('privacy'))
+        assert response.status_code == 200
+        assert b'Privacy Policy' in response.content
+
+    def test_terms_page_loads(self):
+        response = Client().get(reverse('terms'))
+        assert response.status_code == 200
+        assert b'Terms of Service' in response.content
+
+    def test_footer_links_to_legal_pages(self):
+        # The base template footer should point at the real pages, not '#'.
+        response = Client().get(reverse('privacy'))
+        assert reverse('privacy').encode() in response.content
+        assert reverse('terms').encode() in response.content
+
+
+@pytest.mark.django_db
+class TestUnsubscribe:
+    """Token-based, login-free unsubscribe wired to the profile email toggle."""
+
+    def test_token_round_trips(self, user):
+        from apps.users.unsubscribe import make_token, read_token
+        token = make_token(user)
+        assert read_token(token) == user.pk
+
+    def test_unsubscribe_url_points_at_route(self, user):
+        from apps.users.unsubscribe import unsubscribe_url
+        url = unsubscribe_url(user)
+        assert '/unsubscribe/' in url
+
+    def test_token_link_unsubscribes_without_login(self, user):
+        from apps.users.unsubscribe import make_token
+        assert user.profile.email_reminders_enabled is True
+        # No login — simulates clicking the link from an inbox.
+        response = Client().get(reverse('unsubscribe', args=[make_token(user)]))
+        assert response.status_code == 200
+        assert b'unsubscribed' in response.content.lower()
+        user.profile.refresh_from_db()
+        assert user.profile.email_reminders_enabled is False
+
+    def test_resubscribe_via_same_link(self, user):
+        from apps.users.unsubscribe import make_token
+        user.profile.email_reminders_enabled = False
+        user.profile.save()
+        token = make_token(user)
+        response = Client().get(
+            reverse('unsubscribe', args=[token]) + '?resubscribe=1'
+        )
+        assert response.status_code == 200
+        user.profile.refresh_from_db()
+        assert user.profile.email_reminders_enabled is True
+
+    def test_tampered_token_is_rejected(self, user):
+        response = Client().get(reverse('unsubscribe', args=['not-a-real-token']))
+        assert response.status_code == 200
+        assert b'invalid' in response.content.lower()
+        # Nobody's preferences were touched.
+        user.profile.refresh_from_db()
+        assert user.profile.email_reminders_enabled is True
+
+    def test_logged_in_fallback_without_token(self, user):
+        client = Client()
+        client.login(username='testplayer', password='testpass123')
+        response = client.get(reverse('unsubscribe_self'))
+        assert response.status_code == 200
+        user.profile.refresh_from_db()
+        assert user.profile.email_reminders_enabled is False
+
+    def test_reminder_email_includes_unsubscribe_link(self, user, monkeypatch):
+        # A sent pick reminder must carry a working unsubscribe link (CAN-SPAM).
+        from django.core import mail
+        from django.template.loader import render_to_string
+        from apps.users.unsubscribe import unsubscribe_url
+        html = render_to_string('emails/pick_reminder.html', {
+            'username': user.username,
+            'headline': 'Test',
+            'body_text': 'test',
+            'week': 1,
+            'matchup_away': 'A',
+            'matchup_home': 'B',
+            'primetime_label': 'SNF',
+            'game_day': 'Sunday',
+            'game_time': '8:20 PM ET',
+            'site_url': 'https://example.com',
+            'unsubscribe_url': unsubscribe_url(user),
+        })
+        assert '/unsubscribe/' in html
+        assert 'Unsubscribe' in html

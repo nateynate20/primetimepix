@@ -107,6 +107,7 @@ class Command(BaseCommand):
             email_sent = False
             if user.email:
                 try:
+                    from apps.users.unsubscribe import unsubscribe_url
                     html_message = render_to_string('emails/weekly_reminder.html', {
                         'user': user,
                         'week': current_week,
@@ -114,6 +115,7 @@ class Command(BaseCommand):
                         'site_name': settings.SITE_NAME,
                         'site_url': settings.SITE_URL,
                         'picks_url': f"{settings.SITE_URL}/picks/?week={current_week}",
+                        'unsubscribe_url': unsubscribe_url(user),
                     })
                     plain = (
                         f"Hey {user.username}, Week {current_week} primetime games are here. "

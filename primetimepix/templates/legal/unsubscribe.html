@@ -1,0 +1,61 @@
+{% extends 'nflpix/base.html' %}
+
+{% block title %}Email Preferences - PrimeTimePix{% endblock %}
+{% block meta_description %}Manage your PrimeTimePix email reminder preferences.{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center py-12 px-4">
+  <div class="max-w-md w-full">
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-card dark:shadow-card-dark overflow-hidden text-center">
+      <div class="px-6 pt-8 pb-6">
+
+        {% if success and resubscribed %}
+          <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <i class="fas fa-bell text-green-600 dark:text-green-400 text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">You're resubscribed</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            Reminder emails are back on{% if target_user %} for {{ target_user.email }}{% endif %}. We'll nudge you before your primetime picks lock.
+          </p>
+
+        {% elif success %}
+          <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+            <i class="fas fa-bell-slash text-gray-500 dark:text-gray-400 text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">You're unsubscribed</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            You won't receive pick-reminder emails{% if target_user %} at {{ target_user.email }}{% endif %} anymore.
+            Essential account emails (like password resets) will still be sent.
+          </p>
+          {% if token %}
+          <a href="{% url 'unsubscribe' token %}?resubscribe=1"
+             class="inline-flex items-center gap-2 mt-6 px-4 py-2.5 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
+            <i class="fas fa-rotate-left"></i> Changed your mind? Resubscribe
+          </a>
+          {% endif %}
+
+        {% else %}
+          <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <i class="fas fa-triangle-exclamation text-amber-600 dark:text-amber-400 text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">Link expired or invalid</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            We couldn't verify this unsubscribe link. You can manage reminder emails anytime from your
+            profile settings while signed in.
+          </p>
+          <a href="/users/profile/"
+             class="inline-flex items-center gap-2 mt-6 px-4 py-2.5 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
+            <i class="fas fa-sliders"></i> Manage email preferences
+          </a>
+        {% endif %}
+
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <a href="/" class="text-sm text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon font-semibold transition">
+          <i class="fas fa-arrow-left mr-1"></i> Back to PrimeTimePix
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

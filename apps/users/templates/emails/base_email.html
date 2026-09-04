@@ -29,6 +29,13 @@
                 You're receiving this because you have an account at PrimeTimePix.<br>
                 This is not affiliated with or endorsed by the NFL or ESPN.
               </p>
+              {% if unsubscribe_url %}
+              <p style="margin:8px 0 0; font-size:12px; color:#9ca3af; line-height:1.5;">
+                Don't want pick reminders?
+                <a href="{{ unsubscribe_url }}" style="color:#6b7280; text-decoration:underline;">Unsubscribe</a>
+                or update your <a href="{{ site_url }}/users/profile/" style="color:#6b7280; text-decoration:underline;">email preferences</a>.
+              </p>
+              {% endif %}
               <p style="margin:8px 0 0; font-size:12px; color:#9ca3af;">
                 &copy; 2026 PrimeTimePix | primetimepixsports.com
               </p>

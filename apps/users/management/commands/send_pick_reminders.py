@@ -191,6 +191,7 @@ class Command(BaseCommand):
         email_sent = False
         if user.email:
             try:
+                from apps.users.unsubscribe import unsubscribe_url
                 html_message = render_to_string('emails/pick_reminder.html', {
                     'username': user.username,
                     'headline': subject,
@@ -202,6 +203,7 @@ class Command(BaseCommand):
                     'game_day': self._fmt(game, '%A, %b %d'),
                     'game_time': self._fmt(game, '%I:%M %p ET'),
                     'site_url': settings.SITE_URL,
+                    'unsubscribe_url': unsubscribe_url(user),
                 })
                 send_mail(
                     subject, message, settings.DEFAULT_FROM_EMAIL, [user.email],
