@@ -121,10 +121,14 @@ export default defineRailway(() => {
     "python manage.py sync_nfl_schedule --season 2026",
   );
 
-  // 3) Send pick reminders — hourly on game-adjacent days.
+  // 3) Send per-game pick reminders — hourly on game-adjacent days. Tuesday (2)
+  //    is included so the day-before reminder for a Wednesday opener is visible
+  //    during Tuesday daytime ET (00:00 UTC Wed == 8pm ET Tue would otherwise be
+  //    the earliest run). Each specific primetime game gets its own
+  //    day-before / morning-of / hours-before nudge, deduped per game.
   const pickReminders = cron(
     "cron-pick-reminders",
-    "0 * * * 0,1,3,4,6",
+    "0 * * * 0,1,2,3,4,6",
     "python manage.py send_pick_reminders",
   );
 
@@ -135,7 +139,19 @@ export default defineRailway(() => {
     "python manage.py generate_cpu_picks",
   );
 
+  // 5) Weekly "make your picks" reminder — Tuesdays 12:00 UTC (8am ET), a
+  //    single overview of the week's whole primetime slate (deduped per week).
+  //    Deliberately earlier than the per-game day-before window can open, so
+  //    when both would land on the same Tuesday (Wednesday opener) the weekly
+  //    wins the once-per-day "awareness" frequency cap and the day-before is
+  //    held. Game-day urgency reminders are never capped.
+  const weeklyReminder = cron(
+    "cron-weekly-reminder",
+    "0 12 * * 2",
+    "python manage.py send_weekly_reminder",
+  );
+
   return project("primetimepix", {
-    resources: [db, web, updateScores, syncSchedule, pickReminders, cpuPicks],
+    resources: [db, web, updateScores, syncSchedule, pickReminders, cpuPicks, weeklyReminder],
   });
 });

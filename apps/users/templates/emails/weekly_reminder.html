@@ -1,35 +1,46 @@
-{% extends "emails/base.html" %}
-
-{% block title %}Week {{ week }} Picks Reminder{% endblock %}
-
+{% extends "emails/base_email.html" %}
+{% block title %}Week {{ week }} Primetime Picks{% endblock %}
 {% block content %}
-<h2>Hey {{ user.username }}, Week {{ week }} Primetime Games Are Here! 🏈</h2>
+<h2 style="margin:0 0 16px; font-size:22px; font-weight:700; color:#1f2937;">Week {{ week }} primetime games are here 🏈</h2>
 
-<p>Don't forget to make your picks for this week's primetime matchups!</p>
+<p style="margin:0 0 20px; font-size:15px; color:#374151; line-height:1.6;">
+  Hey {{ user.username }}, here's this week's primetime slate. Get your picks in before each game kicks off — you can change them anytime until kickoff.
+</p>
 
-{% if games %}
-<h3>This Week's Primetime Games:</h3>
-{% for game in games %}
-<div class="game-card">
-    <div class="team-vs">
-        {{ game.away_team }} @ {{ game.home_team }}
-        {% if game.is_primetime %}
-        <span class="primetime-badge">{{ game.primetime_type }}</span>
-        {% endif %}
-    </div>
-    <div class="game-time">
-        {{ game.display_time_et|date:"l, F j - g:i A ET" }}
-    </div>
-</div>
-{% endfor %}
-{% endif %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+  {% for game in games %}
+  <tr>
+    <td style="padding:12px 16px; background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:8px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="font-size:16px; font-weight:700; color:#1a1a2e;">
+            {{ game.away_team }} <span style="color:#9ca3af;">@</span> {{ game.home_team }}
+          </td>
+          <td align="right" style="font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#7c3aed;">
+            {{ game.primetime_type }}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" style="font-size:13px; color:#6b7280; padding-top:4px;">
+            {{ game.display_time_et|date:"l, F j — g:i A ET" }}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr><td style="height:8px; line-height:8px;">&nbsp;</td></tr>
+  {% endfor %}
+</table>
 
-<center>
-    <a href="{{ picks_url }}" class="button">Make Your Picks Now</a>
-</center>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" style="padding:0 0 24px;">
+      <a href="{{ picks_url }}" style="display:inline-block; padding:14px 32px; background-color:#1a1a2e; color:#39ff14; font-size:15px; font-weight:700; text-decoration:none; border-radius:8px; text-transform:uppercase; letter-spacing:1px;">Make Your Picks</a>
+    </td>
+  </tr>
+</table>
 
-<p><strong>Remember:</strong> Picks lock when games start, so don't wait too long!</p>
-
-<p>Good luck!<br>
-The {{ site_name }} Team</p>
+<p style="margin:0; font-size:13px; color:#9ca3af; line-height:1.5;">
+  Each pick locks when that game starts. We'll also send you a reminder before any game you haven't picked.
+</p>
 {% endblock %}

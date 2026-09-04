@@ -1,4 +1,6 @@
 from datetime import timedelta
+
+import pytz
 from django.core.management.base import BaseCommand
 from django.core.mail import send_mail
 from django.conf import settings
@@ -9,26 +11,34 @@ from django.template.loader import render_to_string
 from apps.games.models import Game
 from apps.games.utils import get_current_nfl_week
 from apps.picks.models import Pick
-from apps.users.models import Profile, Notification, ReminderLog
+from apps.users.models import Notification, ReminderLog
+from apps.users.reminders import awareness_email_sent_today
 
 User = get_user_model()
 
+EASTERN = pytz.timezone('US/Eastern')
+
 
 class Command(BaseCommand):
-    help = 'Send pick reminders to users who have not made their picks'
+    help = (
+        'Send pick reminders for each specific upcoming primetime game. Every '
+        'game gets its own day-before / morning-of / hours-before nudge, and '
+        'each is deduped independently so users only hear about games they '
+        "haven't picked yet."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--type', type=str, choices=['day_before', 'morning_of', 'hours_before'],
-            help='Specific reminder type to send (default: auto-detect based on time)',
+            help='Only send this reminder type (default: auto-detect per game).',
         )
         parser.add_argument(
             '--dry-run', action='store_true',
-            help='Show what would be sent without actually sending',
+            help='Show what would be sent without actually sending.',
         )
         parser.add_argument(
             '--week', type=int,
-            help='Override week number (default: current week)',
+            help='Override week number (default: current week).',
         )
         parser.add_argument(
             '--user', type=str,
@@ -37,15 +47,16 @@ class Command(BaseCommand):
         parser.add_argument(
             '--force', action='store_true',
             help=(
-                'Send even if the user already made all picks or was already '
-                'reminded, and do NOT record a ReminderLog (so the real '
-                'scheduled reminder is unaffected). Intended for test sends.'
+                'Send even if the user already picked the game or was already '
+                'reminded, and do NOT record a ReminderLog (so real scheduled '
+                'reminders are unaffected). Targets the next upcoming game only. '
+                'Intended for test sends.'
             ),
         )
 
     def handle(self, *args, **options):
         dry_run = options.get('dry_run')
-        reminder_type = options.get('type')
+        forced_type = options.get('type')
         week_override = options.get('week')
         target_user = options.get('user')
         force = options.get('force')
@@ -56,46 +67,51 @@ class Command(BaseCommand):
         now = timezone.now()
         current_week = week_override or get_current_nfl_week()
 
-        # Get primetime games for the current week
-        week_games = list(Game.objects.filter(
-            game_type='regular', week=current_week, status='scheduled'
-        ).order_by('start_time'))
-        primetime_games = [g for g in week_games if g.is_primetime]
-
+        primetime_games = [
+            g for g in Game.objects.filter(
+                game_type='regular', week=current_week, status='scheduled'
+            ).order_by('start_time')
+            if g.is_primetime
+        ]
         if not primetime_games:
             self.stdout.write("No upcoming primetime games this week.")
             return
 
-        first_game = primetime_games[0]
-        first_kickoff = first_game.start_time
-        if timezone.is_naive(first_kickoff):
-            import pytz
-            first_kickoff = pytz.UTC.localize(first_kickoff)
+        recipients = self._recipients(target_user)
+        if recipients is None:
+            return
 
-        # Auto-detect reminder type based on current time if not specified
-        if not reminder_type:
-            time_until = first_kickoff - now
-            if time_until <= timedelta(hours=4) and time_until > timedelta(hours=0):
-                reminder_type = 'hours_before'
-            elif time_until <= timedelta(hours=12) and time_until > timedelta(hours=4):
-                reminder_type = 'morning_of'
-            elif time_until <= timedelta(days=1, hours=12) and time_until > timedelta(hours=12):
-                reminder_type = 'day_before'
-            else:
-                self.stdout.write(f"No reminder needed right now. First kickoff: {first_kickoff}")
-                return
+        work = self._work_items(primetime_games, now, forced_type, force)
+        if not work:
+            self.stdout.write(
+                f"No primetime game is in a reminder window right now (Week {current_week})."
+            )
+            return
 
-        self.stdout.write(f"Sending '{reminder_type}' reminders for Week {current_week}")
-        self.stdout.write(f"First kickoff: {first_kickoff}")
+        sent_count = 0
+        skipped_count = 0
+        for game, rtype in work:
+            self.stdout.write(
+                f"'{rtype}' reminder for {game.away_team} @ {game.home_team} "
+                f"(kickoff {self._fmt(game, '%a %b %d %I:%M %p ET')})"
+            )
+            for user in recipients:
+                result = self._remind(
+                    user, game, rtype, current_week, now, dry_run, force, test_mode
+                )
+                if result == 'sent':
+                    sent_count += 1
+                elif result == 'skipped':
+                    skipped_count += 1
 
-        # Determine the current season from games
-        season = first_game.season
+        self.stdout.write(self.style.SUCCESS(
+            f"Done. Sent: {sent_count}, Skipped: {skipped_count}"
+        ))
 
-        # Get users who have NOT picked all primetime games this week.
+    # ------------------------------------------------------------------ helpers
+    def _recipients(self, target_user):
         users = User.objects.filter(is_active=True).select_related('profile')
         if target_user:
-            # Targeted test send: match by username or email, and don't require
-            # the reminders-enabled preference so the test always goes through.
             from django.db.models import Q
             users = users.filter(
                 Q(username__iexact=target_user) | Q(email__iexact=target_user)
@@ -104,185 +120,159 @@ class Command(BaseCommand):
                 self.stderr.write(self.style.ERROR(
                     f"No active user matches --user '{target_user}'."
                 ))
-                return
+                return None
         else:
             users = users.filter(profile__email_reminders_enabled=True)
+        return list(users)
 
-        sent_count = 0
-        skipped_count = 0
+    def _kickoff(self, game):
+        dt = game.start_time
+        if timezone.is_naive(dt):
+            dt = pytz.UTC.localize(dt)
+        return dt
 
-        for user in users:
-            # Check if reminder already sent
-            already_sent = ReminderLog.objects.filter(
-                user=user,
-                reminder_type=reminder_type,
-                week=current_week,
-                season=season
-            ).exists()
+    def _bucket_for(self, time_until):
+        """Map time-until-kickoff to a reminder bucket (or None)."""
+        if timedelta(0) < time_until <= timedelta(hours=4):
+            return 'hours_before'
+        if timedelta(hours=4) < time_until <= timedelta(hours=12):
+            return 'morning_of'
+        if timedelta(hours=12) < time_until <= timedelta(days=1, hours=12):
+            return 'day_before'
+        return None
 
-            if already_sent and not force:
-                skipped_count += 1
+    def _work_items(self, games, now, forced_type, force):
+        """Return a list of (game, reminder_type) to act on."""
+        # Force/test send: one representative email for the next upcoming game.
+        if force:
+            rtype = forced_type or 'day_before'
+            upcoming = [g for g in games if self._kickoff(g) > now]
+            game = upcoming[0] if upcoming else games[0]
+            return [(game, rtype)]
+
+        work = []
+        for game in games:
+            time_until = self._kickoff(game) - now
+            if time_until <= timedelta(0):
+                continue  # already kicked off
+            bucket = self._bucket_for(time_until)
+            if bucket is None:
                 continue
-
-            # Check how many picks user has made for this week's primetime games
-            user_picks = Pick.objects.filter(
-                user=user,
-                game__in=primetime_games
-            ).count()
-
-            unpicked_count = len(primetime_games) - user_picks
-
-            if unpicked_count <= 0 and not force:
-                skipped_count += 1
+            if forced_type and bucket != forced_type:
                 continue
+            work.append((game, bucket))
+        return work
 
-            # For a forced test send where the user is already all picked, show
-            # the full slate so the email renders representatively.
-            if unpicked_count <= 0:
-                unpicked_count = len(primetime_games)
+    def _remind(self, user, game, rtype, week, now, dry_run, force, test_mode):
+        # Already picked this specific game?
+        if not force and Pick.objects.filter(user=user, game=game).exists():
+            return 'skipped'
 
-            # Build reminder content
-            subject, message = self._build_reminder_content(
-                reminder_type, user, current_week, unpicked_count, len(primetime_games), first_game
+        # Already reminded for this game + type?
+        already = ReminderLog.objects.filter(
+            user=user, game=game, reminder_type=rtype
+        ).exists()
+        if already and not force:
+            return 'skipped'
+
+        # Frequency cap: day-before is an "awareness" nudge, so hold it if the
+        # user already got a weekly/day-before email today (e.g. the Wednesday
+        # opener, where the weekly slate already covers this game). Game-day
+        # urgency (morning_of / hours_before) is exempt and never capped.
+        if rtype == 'day_before' and not force and awareness_email_sent_today(user, now):
+            return 'skipped'
+
+        subject, message = self._content(rtype, user, game, week)
+
+        if dry_run:
+            self.stdout.write(f"  Would send to {user.username} ({user.email}): {subject}")
+            return 'sent'
+
+        email_sent = False
+        if user.email:
+            try:
+                html_message = render_to_string('emails/pick_reminder.html', {
+                    'username': user.username,
+                    'headline': subject,
+                    'body_text': self._body_text(rtype, game),
+                    'week': week,
+                    'matchup_away': game.away_team,
+                    'matchup_home': game.home_team,
+                    'primetime_label': game.primetime_type,
+                    'game_day': self._fmt(game, '%A, %b %d'),
+                    'game_time': self._fmt(game, '%I:%M %p ET'),
+                    'site_url': settings.SITE_URL,
+                })
+                send_mail(
+                    subject, message, settings.DEFAULT_FROM_EMAIL, [user.email],
+                    html_message=html_message,
+                    # In a test send, let delivery errors raise so you can see
+                    # exactly why Brevo rejected/failed.
+                    fail_silently=not test_mode,
+                )
+                email_sent = True
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f"  Email failed for {user.username}: {e}"))
+        elif test_mode:
+            self.stdout.write(self.style.WARNING(
+                f"  {user.username} has no email address on file — nothing to send."
+            ))
+
+        # A forced test send is a no-op on real scheduling: skip the in-app
+        # notification and the ReminderLog so genuine reminders still fire later
+        # (and the test can be repeated).
+        if not force:
+            Notification.objects.create(
+                user=user, notification_type='pick_reminder',
+                title=subject, message=message, link='/picks/',
+            )
+            ReminderLog.objects.create(
+                user=user, reminder_type=rtype, game=game,
+                week=week, season=game.season,
+                sent_via_email=email_sent, sent_via_app=True,
             )
 
-            if dry_run:
-                self.stdout.write(f"  Would send to {user.username} ({user.email}): {subject}")
-                sent_count += 1
-                continue
+        self.stdout.write(f"  Sent to {user.username} (email: {email_sent})")
+        return 'sent'
 
-            # Send email
-            email_sent = False
-            if user.email:
-                try:
-                    html_message = render_to_string('emails/pick_reminder.html', {
-                        'username': user.username,
-                        'headline': subject,
-                        'body_text': self._get_body_text(reminder_type, unpicked_count, current_week),
-                        'week': current_week,
-                        'unpicked': unpicked_count,
-                        'total': len(primetime_games),
-                        'game_day': self._get_game_day(first_game),
-                        'game_time': self._get_game_time(first_game),
-                        'site_url': settings.SITE_URL,
-                    })
-                    send_mail(
-                        subject,
-                        message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [user.email],
-                        html_message=html_message,
-                        # In a test send, let delivery errors raise so you can
-                        # see exactly why Brevo rejected/failed.
-                        fail_silently=not test_mode,
-                    )
-                    email_sent = True
-                except Exception as e:
-                    self.stdout.write(self.style.ERROR(f"  Email failed for {user.username}: {e}"))
-            elif test_mode:
-                self.stdout.write(self.style.WARNING(
-                    f"  {user.username} has no email address on file — nothing to send."
-                ))
+    def _fmt(self, game, fmt):
+        return self._kickoff(game).astimezone(EASTERN).strftime(fmt)
 
-            # A forced test send is a no-op on real scheduling: skip the in-app
-            # notification and the ReminderLog so the user still gets their
-            # genuine reminder later (and the test can be repeated).
-            if not force:
-                # Create in-app notification
-                Notification.objects.create(
-                    user=user,
-                    notification_type='pick_reminder',
-                    title=subject,
-                    message=message,
-                    link='/picks/',
-                )
+    def _content(self, rtype, user, game, week):
+        matchup = f"{game.away_team} @ {game.home_team}"
+        when = f"{self._fmt(game, '%A')} at {self._fmt(game, '%I:%M %p ET')}"
+        url = f"{settings.SITE_URL}/picks/?week={week}"
 
-                # Log the reminder
-                ReminderLog.objects.create(
-                    user=user,
-                    reminder_type=reminder_type,
-                    week=current_week,
-                    season=season,
-                    sent_via_email=email_sent,
-                    sent_via_app=True,
-                )
-
-            sent_count += 1
-            self.stdout.write(f"  Sent to {user.username} (email: {email_sent})")
-
-        self.stdout.write(self.style.SUCCESS(
-            f"Done. Sent: {sent_count}, Skipped: {skipped_count}"
-        ))
-
-    def _build_reminder_content(self, reminder_type, user, week, unpicked, total, first_game):
-        """Build subject and message for the reminder."""
-        import pytz
-        eastern = pytz.timezone('US/Eastern')
-
-        kickoff_et = first_game.start_time
-        if timezone.is_naive(kickoff_et):
-            kickoff_et = pytz.UTC.localize(kickoff_et)
-        kickoff_et = kickoff_et.astimezone(eastern)
-
-        game_day = kickoff_et.strftime('%A')
-        game_time = kickoff_et.strftime('%I:%M %p ET')
-
-        if reminder_type == 'day_before':
-            subject = f"PrimeTimePix: Week {week} picks lock tomorrow!"
+        if rtype == 'day_before':
+            subject = f"PrimeTimePix: Pick {matchup} — locks tomorrow"
             message = (
                 f"Hey {user.username},\n\n"
-                f"You have {unpicked} of {total} primetime picks still to make for Week {week}.\n\n"
-                f"First game kicks off {game_day} at {game_time} — "
-                f"make sure you get your picks in before lockout!\n\n"
-                f"Make picks: {settings.SITE_URL}/picks/?week={week}\n\n"
-                f"Good luck!\nPrimeTimePix"
+                f"Don't forget to pick {matchup}.\n"
+                f"Kickoff is {when} — your pick locks at kickoff.\n\n"
+                f"Make your pick: {url}\n\nGood luck!\nPrimeTimePix"
             )
-        elif reminder_type == 'morning_of':
-            subject = f"PrimeTimePix: Game day! {unpicked} pick(s) still open"
+        elif rtype == 'morning_of':
+            subject = f"PrimeTimePix: Game day — pick {matchup}"
             message = (
                 f"Hey {user.username},\n\n"
-                f"It's game day! You still have {unpicked} primetime pick(s) to make for Week {week}.\n\n"
-                f"Kickoff at {game_time} — don't miss out!\n\n"
-                f"Make picks: {settings.SITE_URL}/picks/?week={week}\n\n"
-                f"Good luck!\nPrimeTimePix"
+                f"It's game day! You haven't picked {matchup} yet.\n"
+                f"Kickoff is {when}. Don't miss out!\n\n"
+                f"Make your pick: {url}\n\nGood luck!\nPrimeTimePix"
             )
         else:  # hours_before
-            subject = f"PrimeTimePix: Picks lock in a few hours!"
+            subject = f"PrimeTimePix: Last call — {matchup} locks soon"
             message = (
                 f"Hey {user.username},\n\n"
-                f"Last chance! You have {unpicked} pick(s) that lock soon for Week {week}.\n\n"
-                f"Kickoff at {game_time} — make your picks NOW!\n\n"
-                f"Make picks: {settings.SITE_URL}/picks/?week={week}\n\n"
-                f"PrimeTimePix"
+                f"Last chance to pick {matchup}!\n"
+                f"Kickoff is {when} — pick now before it locks.\n\n"
+                f"Make your pick: {url}\n\nPrimeTimePix"
             )
-
         return subject, message
 
-    def _get_body_text(self, reminder_type, unpicked_count, week):
-        """Get the body text snippet for the HTML template."""
-        if reminder_type == 'day_before':
-            return f"you have {unpicked_count} primetime pick(s) still open for Week {week}. First game kicks off tomorrow — make sure you're locked in before kickoff!"
-        elif reminder_type == 'morning_of':
-            return f"it's game day! You still have {unpicked_count} primetime pick(s) to make for Week {week}. Don't miss out."
-        else:
-            return f"last chance! You have {unpicked_count} pick(s) that lock in a few hours for Week {week}. Get them in now!"
-
-    def _get_game_day(self, game):
-        """Get the formatted game day string."""
-        import pytz
-        eastern = pytz.timezone('US/Eastern')
-        kickoff_et = game.start_time
-        if timezone.is_naive(kickoff_et):
-            kickoff_et = pytz.UTC.localize(kickoff_et)
-        kickoff_et = kickoff_et.astimezone(eastern)
-        return kickoff_et.strftime('%A, %b %d')
-
-    def _get_game_time(self, game):
-        """Get the formatted game time string."""
-        import pytz
-        eastern = pytz.timezone('US/Eastern')
-        kickoff_et = game.start_time
-        if timezone.is_naive(kickoff_et):
-            kickoff_et = pytz.UTC.localize(kickoff_et)
-        kickoff_et = kickoff_et.astimezone(eastern)
-        return kickoff_et.strftime('%I:%M %p ET')
+    def _body_text(self, rtype, game):
+        matchup = f"{game.away_team} @ {game.home_team}"
+        if rtype == 'day_before':
+            return f"don't forget to lock in your pick for {matchup} — it kicks off tomorrow."
+        if rtype == 'morning_of':
+            return f"it's game day and you haven't picked {matchup} yet. Get your pick in before kickoff!"
+        return f"last chance — your pick for {matchup} locks in a few hours."

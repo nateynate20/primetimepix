@@ -41,8 +41,14 @@ class Notification(models.Model):
 
 
 class ReminderLog(models.Model):
-    """Track sent reminders to prevent duplicates."""
+    """Track sent reminders to prevent duplicates.
+
+    Per-game reminders (day_before / morning_of / hours_before) set `game`, so
+    each specific primetime game is deduped independently. The weekly
+    "make your picks" reminder is week-level and leaves `game` null.
+    """
     REMINDER_TYPES = [
+        ('weekly', 'Weekly Slate'),
         ('day_before', 'Day Before'),
         ('morning_of', 'Morning Of'),
         ('hours_before', 'Hours Before Kickoff'),
@@ -50,6 +56,11 @@ class ReminderLog(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reminder_logs')
     reminder_type = models.CharField(max_length=20, choices=REMINDER_TYPES)
+    game = models.ForeignKey(
+        'games.Game', on_delete=models.CASCADE, null=True, blank=True,
+        related_name='reminder_logs',
+        help_text='The specific game this reminder was for (null for weekly).',
+    )
     week = models.IntegerField()
     season = models.IntegerField()
     sent_at = models.DateTimeField(auto_now_add=True)
@@ -57,8 +68,9 @@ class ReminderLog(models.Model):
     sent_via_app = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ['user', 'reminder_type', 'week', 'season']
+        unique_together = ['user', 'reminder_type', 'week', 'season', 'game']
         ordering = ['-sent_at']
 
     def __str__(self):
-        return f"{self.user.username} - {self.reminder_type} - Week {self.week}"
+        scope = f"game {self.game_id}" if self.game_id else f"Week {self.week}"
+        return f"{self.user.username} - {self.reminder_type} - {scope}"
