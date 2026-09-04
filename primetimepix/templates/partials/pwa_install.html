@@ -1,8 +1,9 @@
 {% comment %}
 Dismissible "install the app" banner. Shows the native install prompt on
-Android/desktop (beforeinstallprompt) and manual Add-to-Home-Screen steps on
-iOS Safari (which has no prompt API). Hidden when already installed or recently
-dismissed (7-day snooze).
+Android/desktop (beforeinstallprompt), context-specific Add-to-Home-Screen steps
+on iOS Safari, and an "Open in Safari/Chrome" hint inside in-app browsers
+(Instagram, Facebook, Gmail, etc.) where install isn't possible. Hidden when
+already installed or recently dismissed (7-day snooze).
 {% endcomment %}
 <div id="pwa-install-banner" class="hidden mb-6">
   <div class="flex items-center gap-3 bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 shadow-card dark:shadow-card-dark">
@@ -65,13 +66,45 @@ dismissed (7-day snooze).
       try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
     });
 
-    // iOS Safari: no beforeinstallprompt, so guide the manual gesture instead.
+    // No beforeinstallprompt on iOS (and none inside in-app browsers), so guide
+    // the manual gesture — and, crucially, detect the in-app-browser case where
+    // "Add to Home Screen" isn't available at all until you open in Safari.
     var ua = window.navigator.userAgent;
-    var isIOS = /iphone|ipad|ipod/i.test(ua);
-    var isSafari = /safari/i.test(ua) && !/crios|fxios|chrome|android/i.test(ua);
-    if (isIOS && isSafari) {
-      copy.innerHTML = 'Tap the Share icon, then <strong>Add to Home Screen</strong> for one-tap access and alerts.';
+    var isIOS = /iphone|ipad|ipod/i.test(ua)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS
+    // Embedded webviews (Instagram, Facebook, Gmail/Google app, etc.) can't install.
+    var inApp = /FBAN|FBAV|FBIOS|Instagram|Line\/|Twitter|LinkedIn|Snapchat|Pinterest|WhatsApp|MicroMessenger|GSA/i.test(ua);
+    var isCriOS = /CriOS/i.test(ua);   // Chrome on iOS
+    var isFxiOS = /FxiOS/i.test(ua);   // Firefox on iOS
+    var isRealSafari = isIOS && /Safari/i.test(ua) && /Version\//i.test(ua)
+      && !isCriOS && !isFxiOS && !inApp;
+
+    // Share glyph (matches the iOS toolbar icon) via FontAwesome, already loaded.
+    var SHARE = '<i class="fas fa-arrow-up-from-bracket"></i>';
+
+    function guide(html) {
+      // Manual-install path: no native button, just clear steps.
+      btn.classList.add('hidden');
+      copy.innerHTML = html;
       show();
     }
+
+    if (isIOS && inApp) {
+      guide('Tap the <strong>&#8942;</strong> / <strong>&#8230;</strong> menu above and choose '
+        + '<strong>Open in Safari</strong>, then Share ' + SHARE + ' &rarr; <strong>Add to Home Screen</strong>.');
+    } else if (isIOS && (isCriOS || isFxiOS)) {
+      guide('Open this page in <strong>Safari</strong> to install &mdash; then tap Share '
+        + SHARE + ' &rarr; <strong>Add to Home Screen</strong>.');
+    } else if (isRealSafari) {
+      guide('Tap Share ' + SHARE + ' at the bottom of Safari, then <strong>Add to Home Screen</strong>.');
+    } else if (isIOS) {
+      // Some other iOS webview we couldn't classify — safest advice is Safari.
+      guide('Open in <strong>Safari</strong>, tap Share ' + SHARE + ' &rarr; <strong>Add to Home Screen</strong>.');
+    } else if (inApp) {
+      // Android in-app browser: native prompt won't fire here either.
+      guide('Open this page in <strong>Chrome</strong> (menu &rarr; Open in browser) to install the app.');
+    }
+    // Otherwise: Android/desktop Chrome — the beforeinstallprompt handler above
+    // reveals the one-tap Install button.
   })();
 </script>
