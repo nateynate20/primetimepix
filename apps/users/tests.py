@@ -230,6 +230,27 @@ class TestVsCPU:
 
 
 @pytest.mark.django_db
+class TestLandingCopy:
+    """The landing page must not promise a global leaderboard (retired) or show
+    a fabricated live count."""
+
+    def test_landing_loads(self):
+        response = Client().get('/')
+        assert response.status_code == 200
+
+    def test_no_fabricated_stat_or_global_leaderboard(self):
+        body = Client().get('/').content.decode()
+        assert '284' not in body
+        assert 'global rankings' not in body.lower()
+        assert 'global leaderboard' not in body.lower()
+
+    def test_footer_standings_link_wired(self):
+        # Footer "Standings" link points at the real standings route, not '#'.
+        body = Client().get('/').content.decode()
+        assert reverse('standings') in body
+
+
+@pytest.mark.django_db
 class TestLegalPages:
     """Privacy / Terms must be reachable and linked — required for trust and
     for sending marketing email/ads."""
