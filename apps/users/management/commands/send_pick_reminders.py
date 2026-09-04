@@ -30,11 +30,28 @@ class Command(BaseCommand):
             '--week', type=int,
             help='Override week number (default: current week)',
         )
+        parser.add_argument(
+            '--user', type=str,
+            help='Only send to this username or email (for testing in production).',
+        )
+        parser.add_argument(
+            '--force', action='store_true',
+            help=(
+                'Send even if the user already made all picks or was already '
+                'reminded, and do NOT record a ReminderLog (so the real '
+                'scheduled reminder is unaffected). Intended for test sends.'
+            ),
+        )
 
     def handle(self, *args, **options):
         dry_run = options.get('dry_run')
         reminder_type = options.get('type')
         week_override = options.get('week')
+        target_user = options.get('user')
+        force = options.get('force')
+        # A "test send" surfaces email errors instead of silently swallowing
+        # them, so you can confirm Brevo delivery in production.
+        test_mode = bool(target_user or force)
 
         now = timezone.now()
         current_week = week_override or get_current_nfl_week()
@@ -74,11 +91,22 @@ class Command(BaseCommand):
         # Determine the current season from games
         season = first_game.season
 
-        # Get users who have NOT picked all primetime games this week
-        users = User.objects.filter(
-            is_active=True,
-            profile__email_reminders_enabled=True
-        ).select_related('profile')
+        # Get users who have NOT picked all primetime games this week.
+        users = User.objects.filter(is_active=True).select_related('profile')
+        if target_user:
+            # Targeted test send: match by username or email, and don't require
+            # the reminders-enabled preference so the test always goes through.
+            from django.db.models import Q
+            users = users.filter(
+                Q(username__iexact=target_user) | Q(email__iexact=target_user)
+            )
+            if not users.exists():
+                self.stderr.write(self.style.ERROR(
+                    f"No active user matches --user '{target_user}'."
+                ))
+                return
+        else:
+            users = users.filter(profile__email_reminders_enabled=True)
 
         sent_count = 0
         skipped_count = 0
@@ -92,7 +120,7 @@ class Command(BaseCommand):
                 season=season
             ).exists()
 
-            if already_sent:
+            if already_sent and not force:
                 skipped_count += 1
                 continue
 
@@ -104,9 +132,14 @@ class Command(BaseCommand):
 
             unpicked_count = len(primetime_games) - user_picks
 
-            if unpicked_count <= 0:
+            if unpicked_count <= 0 and not force:
                 skipped_count += 1
                 continue
+
+            # For a forced test send where the user is already all picked, show
+            # the full slate so the email renders representatively.
+            if unpicked_count <= 0:
+                unpicked_count = len(primetime_games)
 
             # Build reminder content
             subject, message = self._build_reminder_content(
@@ -139,30 +172,40 @@ class Command(BaseCommand):
                         settings.DEFAULT_FROM_EMAIL,
                         [user.email],
                         html_message=html_message,
-                        fail_silently=True,
+                        # In a test send, let delivery errors raise so you can
+                        # see exactly why Brevo rejected/failed.
+                        fail_silently=not test_mode,
                     )
                     email_sent = True
                 except Exception as e:
-                    self.stdout.write(self.style.WARNING(f"  Email failed for {user.username}: {e}"))
+                    self.stdout.write(self.style.ERROR(f"  Email failed for {user.username}: {e}"))
+            elif test_mode:
+                self.stdout.write(self.style.WARNING(
+                    f"  {user.username} has no email address on file — nothing to send."
+                ))
 
-            # Create in-app notification
-            Notification.objects.create(
-                user=user,
-                notification_type='pick_reminder',
-                title=subject,
-                message=message,
-                link='/picks/',
-            )
+            # A forced test send is a no-op on real scheduling: skip the in-app
+            # notification and the ReminderLog so the user still gets their
+            # genuine reminder later (and the test can be repeated).
+            if not force:
+                # Create in-app notification
+                Notification.objects.create(
+                    user=user,
+                    notification_type='pick_reminder',
+                    title=subject,
+                    message=message,
+                    link='/picks/',
+                )
 
-            # Log the reminder
-            ReminderLog.objects.create(
-                user=user,
-                reminder_type=reminder_type,
-                week=current_week,
-                season=season,
-                sent_via_email=email_sent,
-                sent_via_app=True,
-            )
+                # Log the reminder
+                ReminderLog.objects.create(
+                    user=user,
+                    reminder_type=reminder_type,
+                    week=current_week,
+                    season=season,
+                    sent_via_email=email_sent,
+                    sent_via_app=True,
+                )
 
             sent_count += 1
             self.stdout.write(f"  Sent to {user.username} (email: {email_sent})")
