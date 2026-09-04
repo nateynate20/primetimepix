@@ -1,0 +1,97 @@
+{% extends 'nflpix/base.html' %}
+{% load static %}
+
+{% block title %}{{ league.name }} - PrimeTimePix{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center py-12 px-4">
+    <div class="max-w-md w-full">
+        <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-card dark:shadow-card-dark overflow-hidden">
+
+            <!-- Banner -->
+            <div class="px-6 pt-8 pb-4 text-center border-b border-gray-100 dark:border-gray-700">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent-100 dark:bg-neon/10 mb-4">
+                    <i class="fas {% if league.is_private %}fa-lock{% else %}fa-trophy{% endif %} text-3xl text-amber-500 dark:text-neon"></i>
+                </div>
+                <p class="text-xs font-black uppercase tracking-widest text-accent-600 dark:text-neon mb-1">
+                    {% if league.is_private %}Private League{% else %}Public League{% endif %}
+                </p>
+                <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">{{ league.name }}</h1>
+                {% if league.description %}
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ league.description }}</p>
+                {% endif %}
+            </div>
+
+            <!-- League facts -->
+            <div class="grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-700 text-center py-4">
+                <div>
+                    <div class="text-lg font-black font-display text-gray-900 dark:text-white">{{ league.sport }}</div>
+                    <div class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">Sport</div>
+                </div>
+                <div>
+                    <div class="text-lg font-black font-display text-gray-900 dark:text-white">{{ member_count }}</div>
+                    <div class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">Member{{ member_count|pluralize }}</div>
+                </div>
+                <div>
+                    <div class="text-lg font-black font-display text-gray-900 dark:text-white">{{ league.commissioner.username }}</div>
+                    <div class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">Commissioner</div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="px-6 pt-3">
+                {% for message in messages %}
+                <div class="mb-2 p-3 rounded-lg text-sm font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>{{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Action -->
+            <div class="px-6 pb-6 pt-3">
+                {% if join_locked %}
+                <div class="w-full text-center bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 font-bold py-3 px-4 rounded-lg text-sm cursor-not-allowed">
+                    <i class="fas fa-lock mr-2"></i>Joining Closed — Season Has Started
+                </div>
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
+                    This league locked new entries once the season kicked off.
+                </p>
+                {% elif has_pending_request %}
+                <div class="w-full text-center bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 font-bold py-3 px-4 rounded-lg text-sm cursor-not-allowed">
+                    <i class="fas fa-clock mr-2"></i>Request Pending
+                </div>
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
+                    The commissioner will review your request. You'll be notified when it's approved.
+                </p>
+                {% else %}
+                <form method="post" action="{% url 'join_league_instant' league.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
+                        {% if league.is_private %}
+                        <i class="fas fa-paper-plane mr-2"></i>Request to Join
+                        {% else %}
+                        <i class="fas fa-user-plus mr-2"></i>Join League
+                        {% endif %}
+                    </button>
+                </form>
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
+                    {% if league.is_private %}
+                    This is a private league — the commissioner approves new members.
+                    {% else %}
+                    Public league — you'll be in as soon as you join.
+                    {% endif %}
+                </p>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <a href="{% url 'league_detail_no_id' %}" class="text-sm text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-neon font-semibold transition">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to my leagues
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

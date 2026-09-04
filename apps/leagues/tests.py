@@ -575,3 +575,65 @@ class TestLeagueCreateGate:
         client.force_login(boss)
         response = client.get(reverse('create_league'))
         assert response.status_code == 200
+
+
+@pytest.mark.django_db
+class TestLeaguePreviewForNonMembers:
+    """Non-members get a real preview + join/request CTA instead of a blank
+    redirect — the fix for 'when the league is private you can't see anything'."""
+
+    def test_non_member_sees_public_league_preview(self, league, outsider):
+        client = Client()
+        client.force_login(outsider)
+        response = client.get(reverse('league_detail', args=[league.id]))
+        assert response.status_code == 200
+        assert league.name.encode() in response.content
+        assert b'Join League' in response.content
+
+    def test_non_member_sees_private_league_preview_with_request_cta(self, outsider, user):
+        private = League.objects.create(
+            name='Secret League', commissioner=user, sport='NFL',
+            is_private=True, is_approved=True,
+        )
+        client = Client()
+        client.force_login(outsider)
+        response = client.get(reverse('league_detail', args=[private.id]))
+        assert response.status_code == 200
+        assert b'Request to Join' in response.content
+
+    def test_pending_request_shows_pending_state(self, outsider, user):
+        private = League.objects.create(
+            name='Pending League', commissioner=user, sport='NFL',
+            is_private=True, is_approved=True,
+        )
+        LeagueJoinRequest.objects.create(user=outsider, league=private, approved=False)
+        client = Client()
+        client.force_login(outsider)
+        response = client.get(reverse('league_detail', args=[private.id]))
+        assert response.status_code == 200
+        assert b'Request Pending' in response.content
+
+    def test_member_still_sees_standings_not_preview(self, league):
+        client = Client()
+        client.force_login(league.commissioner)  # commissioner is a member
+        response = client.get(reverse('league_detail', args=[league.id]))
+        assert response.status_code == 200
+        assert b'Request to Join' not in response.content
+
+
+@pytest.mark.django_db
+class TestPrivateLeagueDiscovery:
+    """Private leagues are now visible (as 'request to join') on the join page,
+    where they used to be filtered out entirely."""
+
+    def test_join_page_lists_private_leagues(self, outsider, user):
+        private = League.objects.create(
+            name='Hidden Squad', commissioner=user, sport='NFL',
+            is_private=True, is_approved=True,
+        )
+        client = Client()
+        client.force_login(outsider)
+        response = client.get(reverse('league_detail_no_id'))
+        assert response.status_code == 200
+        assert b'Hidden Squad' in response.content
+        assert b'Request to Join' in response.content

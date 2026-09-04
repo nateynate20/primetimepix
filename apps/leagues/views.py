@@ -43,7 +43,7 @@ def select_league(request):
 
     total_members = sum(l.member_count for l in leagues)
 
-    # Show available public leagues for users who aren't in any yet
+    # Public leagues the user can join instantly.
     available_leagues = League.objects.filter(
         is_approved=True,
         is_private=False
@@ -51,10 +51,28 @@ def select_league(request):
         member_count=Count('members')
     ).order_by('name')
 
+    # Private leagues the user can request to join. Previously these were hidden
+    # entirely, so private leagues looked invisible on the join page — surface
+    # them with a "request to join" action, flagging any already-pending ones.
+    available_private = League.objects.filter(
+        is_approved=True,
+        is_private=True
+    ).exclude(members=request.user).annotate(
+        member_count=Count('members')
+    ).order_by('name')
+    pending_ids = set(
+        LeagueJoinRequest.objects.filter(
+            user=request.user, approved=False
+        ).values_list('league_id', flat=True)
+    )
+    for lg in available_private:
+        lg.has_pending_request = lg.id in pending_ids
+
     context = {
         'leagues': leagues,
         'total_members': total_members,
         'available_leagues': available_leagues,
+        'available_private': available_private,
     }
     return render(request, 'select_league.html', context)
 
@@ -63,11 +81,21 @@ def select_league(request):
 def league_detail(request, league_id):
     """Show league details and standings"""
     league = get_object_or_404(League, id=league_id, is_approved=True)
-    
-    # Check if user is a member
+
+    # Non-members get a preview with a way to join/request — not a blank
+    # redirect. This is what people land on when they open a shared or private
+    # league link they aren't in yet, so "you can't see anything" is fixed for
+    # both public and private leagues.
     if not league.members.filter(id=request.user.id).exists():
-        messages.error(request, "You are not a member of this league.")
-        return redirect('league_detail_no_id')
+        has_pending_request = LeagueJoinRequest.objects.filter(
+            user=request.user, league=league, approved=False
+        ).exists()
+        return render(request, 'league_preview.html', {
+            'league': league,
+            'member_count': league.members.count(),
+            'join_locked': league.is_join_locked(),
+            'has_pending_request': has_pending_request,
+        })
     
     # Get league standings using the model method
     standings = league.get_standings()

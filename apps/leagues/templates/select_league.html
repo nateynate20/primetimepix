@@ -88,8 +88,9 @@
         <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Join a league below to compete with friends!</p>
     </div>
 
+    {% if available_leagues or available_private %}
     {% if available_leagues %}
-    <h2 class="text-sm font-black uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Available Public Leagues</h2>
+    <h2 class="text-sm font-black uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3"><i class="fas fa-globe text-green-500 mr-1"></i>Public Leagues — Join Instantly</h2>
     <div class="space-y-3 mb-6">
         {% for league in available_leagues %}
         <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center justify-between hover:border-accent-500 dark:hover:border-neon transition-all">
@@ -111,6 +112,38 @@
         </div>
         {% endfor %}
     </div>
+    {% endif %}
+
+    {% if available_private %}
+    <h2 class="text-sm font-black uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3"><i class="fas fa-lock text-amber-500 mr-1"></i>Private Leagues — Request to Join</h2>
+    <div class="space-y-3 mb-6">
+        {% for league in available_private %}
+        <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex items-center justify-between hover:border-amber-400 dark:hover:border-yellow-300 transition-all">
+            <div>
+                <h3 class="font-bold text-gray-900 dark:text-white">{{ league.name }}</h3>
+                <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <span><i class="fas fa-football-ball mr-1"></i>{{ league.sport }}</span>
+                    <span><i class="fas fa-users mr-1"></i>{{ league.member_count }} member{{ league.member_count|pluralize }}</span>
+                    <span><i class="fas fa-lock mr-1"></i>Private</span>
+                </div>
+            </div>
+            {% if league.has_pending_request %}
+            <button disabled class="px-4 py-2 text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-lg cursor-not-allowed">
+                <i class="fas fa-clock mr-1"></i>Pending
+            </button>
+            {% else %}
+            <form method="post" action="{% url 'request_join_league' %}">
+                {% csrf_token %}
+                <input type="hidden" name="league" value="{{ league.id }}">
+                <button type="submit" class="px-4 py-2 text-xs font-bold bg-amber-500 dark:bg-yellow-400 text-white dark:text-black rounded-lg hover:opacity-90 transition">
+                    <i class="fas fa-paper-plane mr-1"></i>Request to Join
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% else %}
     <div class="flex justify-center gap-3">
         <a href="{% url 'request_join_league' %}" class="px-6 py-3 bg-accent-600 dark:bg-neon text-white dark:text-black font-bold rounded-lg hover:opacity-90 transition text-sm">

@@ -1,89 +1,76 @@
 {% extends 'nflpix/base.html' %}
 
+{% block title %}Create New League - PrimeTimePix{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-neon">Create New League</h1>
-        <a href="{% url 'league_list' %}" class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
-            Back to Leagues
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+        <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">Create New League</h1>
+        <a href="{% url 'league_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition self-start">
+            <i class="fas fa-arrow-left"></i> Back to Leagues
         </a>
     </div>
 
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <form method="post" class="space-y-6">
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-card dark:shadow-card-dark p-6">
+        <form method="post" class="space-y-5">
             {% csrf_token %}
-            
+
             <div>
-                <label for="{{ form.name.id_for_label }}" class="block text-sm font-bold text-gray-300 mb-2">
-                    League Name *
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    League Name <span class="text-red-500">*</span>
                 </label>
                 {{ form.name }}
                 {% if form.name.errors %}
-                    <div class="text-red-400 text-sm mt-1">
-                        {% for error in form.name.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
+                    <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.name.errors.0 }}</p>
                 {% endif %}
             </div>
 
             <div>
-                <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-gray-300 mb-2">
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                     Description
                 </label>
                 {{ form.description }}
                 {% if form.description.errors %}
-                    <div class="text-red-400 text-sm mt-1">
-                        {% for error in form.description.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
+                    <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.description.errors.0 }}</p>
                 {% endif %}
             </div>
 
             <div>
-                <label for="{{ form.sport.id_for_label }}" class="block text-sm font-bold text-gray-300 mb-2">
-                    Sport *
+                <label for="{{ form.sport.id_for_label }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    Sport <span class="text-red-500">*</span>
                 </label>
                 {{ form.sport }}
                 {% if form.sport.errors %}
-                    <div class="text-red-400 text-sm mt-1">
-                        {% for error in form.sport.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
+                    <p class="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{{ form.sport.errors.0 }}</p>
                 {% endif %}
             </div>
 
             <div class="flex items-center">
                 {{ form.is_private }}
-                <label for="{{ form.is_private.id_for_label }}" class="ml-2 text-sm text-gray-300">
+                <label for="{{ form.is_private.id_for_label }}" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                     Make this a private league (users must request to join)
                 </label>
-                {% if form.is_private.errors %}
-                    <div class="text-red-400 text-sm mt-1">
-                        {% for error in form.is_private.errors %}
-                            <p>{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                {% endif %}
             </div>
+            {% if form.is_private.errors %}
+                <p class="text-xs font-medium text-red-600 dark:text-red-400">{{ form.is_private.errors.0 }}</p>
+            {% endif %}
 
-            <div class="bg-gray-700 p-4 rounded-lg">
-                <h3 class="text-sm font-bold text-gray-300 mb-2">League Settings Info:</h3>
-                <ul class="text-sm text-gray-400 space-y-1">
-                    <li>• <strong>Public leagues:</strong> Anyone can join immediately</li>
-                    <li>• <strong>Private leagues:</strong> Users must request to join and wait for approval</li>
-                    <li>• You'll be the commissioner and can manage members</li>
-                    <li>• All leagues focus on NFL primetime games only</li>
+            <div class="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 class="text-xs font-black uppercase tracking-wide text-gray-900 dark:text-white mb-2">League Settings Info</h3>
+                <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1.5">
+                    <li><i class="fas fa-globe text-green-500 mr-2"></i><strong class="text-gray-700 dark:text-gray-300">Public leagues:</strong> Anyone can join immediately</li>
+                    <li><i class="fas fa-lock text-amber-500 mr-2"></i><strong class="text-gray-700 dark:text-gray-300">Private leagues:</strong> Users must request to join and wait for approval</li>
+                    <li><i class="fas fa-crown text-accent-600 dark:text-neon mr-2"></i>You'll be the commissioner and can manage members</li>
+                    <li><i class="fas fa-football-ball text-gray-400 mr-2"></i>All leagues focus on NFL primetime games only</li>
                 </ul>
             </div>
 
-            <div class="flex space-x-4">
-                <button type="submit" class="bg-neon text-black px-6 py-3 rounded-lg font-bold hover:bg-green-400 transition flex-1">
-                    Create League
+            <div class="flex gap-3 pt-1">
+                <button type="submit" class="flex-1 bg-accent-600 dark:bg-neon text-white dark:text-black px-6 py-3 rounded-lg font-bold text-sm hover:opacity-90 transition">
+                    <i class="fas fa-plus mr-2"></i>Create League
                 </button>
-                <a href="{% url 'league_list' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-500 transition text-center">
+                <a href="{% url 'league_list' %}" class="px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition text-center">
                     Cancel
                 </a>
             </div>

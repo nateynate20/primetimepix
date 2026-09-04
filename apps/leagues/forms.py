@@ -9,21 +9,28 @@ class LeagueCreateForm(forms.ModelForm):
     class Meta:
         model = League
         fields = ['name', 'description', 'sport', 'is_private']
+        _input_class = (
+            'w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 '
+            'dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 '
+            'dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none '
+            'focus:border-accent-500 dark:focus:border-neon focus:ring-2 '
+            'focus:ring-accent-500/20 dark:focus:ring-neon/20'
+        )
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white',
+                'class': _input_class,
                 'placeholder': 'Enter league name',
             }),
             'description': forms.Textarea(attrs={
-                'class': 'w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white',
+                'class': _input_class,
                 'placeholder': 'Optional description for your league',
                 'rows': 3,
             }),
             'sport': forms.Select(attrs={
-                'class': 'w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white',
+                'class': _input_class,
             }),
             'is_private': forms.CheckboxInput(attrs={
-                'class': 'w-5 h-5 rounded bg-gray-700 border-gray-600',
+                'class': 'w-5 h-5 rounded text-accent-600 dark:text-neon border-gray-300 dark:border-gray-600 focus:ring-accent-500 dark:focus:ring-neon',
             }),
         }
 
