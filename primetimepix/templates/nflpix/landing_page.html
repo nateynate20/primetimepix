@@ -10,7 +10,65 @@
 <div class="min-h-[85vh] py-16 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto">
 
-    <!-- Hero Section -->
+    {% if user.is_authenticated and user_leagues %}
+    <!-- ============================================================= -->
+    <!-- Returning member: personalized "welcome back" home            -->
+    <!-- (no acquisition / create-join noise for people already in)    -->
+    <!-- ============================================================= -->
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-10">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
+          Welcome back, {{ user.username }}
+        </h1>
+        <p class="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+          NFL Week {{ current_week }} — lock in your primetime picks before kickoff.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+          <a href="{% url 'schedule' %}" class="btn-neon-fill text-lg px-10 py-4">
+            <i class="fas fa-hand-pointer mr-2"></i> Make Week {{ current_week }} Picks
+          </a>
+          <a href="{% url 'dashboard' %}" class="btn-neon text-lg px-10 py-4">
+            <i class="fas fa-tachometer-alt mr-2"></i> My Dashboard
+          </a>
+        </div>
+      </div>
+
+      <!-- Your leagues -->
+      <div class="mb-12">
+        <h2 class="text-xs font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4 text-center">Your Leagues</h2>
+        <div class="flex flex-wrap justify-center gap-3">
+          {% for league in user_leagues %}
+          <a href="{% url 'league_detail' league.id %}" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white dark:bg-surface-800 border-2 border-gray-200 dark:border-gray-700 font-bold text-sm text-gray-800 dark:text-gray-200 hover:border-accent-500 dark:hover:border-neon hover:-translate-y-0.5 transition-all">
+            <i class="fas fa-trophy text-amber-500"></i>{{ league.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <a href="{% url 'schedule' %}" class="feature-card group block">
+          <div class="feature-icon"><i class="fas fa-football-ball text-2xl"></i></div>
+          <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">Make Picks</h3>
+          <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">Pick this week's primetime games before they lock at kickoff.</p>
+        </a>
+        <a href="{% url 'dashboard' %}" class="feature-card group block">
+          <div class="feature-icon"><i class="fas fa-chart-line text-2xl"></i></div>
+          <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">Standings &amp; Stats</h3>
+          <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">See your rank, record, and streak across every league you're in.</p>
+        </a>
+        <a href="{% url 'league_detail_no_id' %}" class="feature-card group block">
+          <div class="feature-icon"><i class="fas fa-users text-2xl"></i></div>
+          <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">My Leagues</h3>
+          <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">Jump into any of your leagues or join another with an invite.</p>
+        </a>
+      </div>
+    </div>
+
+    {% else %}
+    <!-- ============================================================= -->
+    <!-- First-time visitor (logged out) OR signed-in with no league   -->
+    <!-- ============================================================= -->
     <div class="text-center mb-20">
       <div class="flex flex-wrap items-center justify-center gap-2 mb-6">
         <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-accent-100 text-accent-700 dark:bg-neon/10 dark:text-neon border border-accent-200 dark:border-neon/30">
@@ -29,60 +87,48 @@
         <span class="sr-only">PrimeTimePix Sports</span>
       </h1>
 
+      {% if user.is_authenticated %}
+      <!-- Signed in, but not in a league yet — this is where Create/Join belongs -->
       <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl font-semibold text-gray-600 dark:text-gray-300 leading-relaxed">
-        Make your picks for NFL primetime games.
-        Go head-to-head with friends, climb your league standings, and take the top spot.
+        You're all set — now get into a league. Join one with an invite from a friend, or start your own.
       </p>
-
       <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-        {% if not user.is_authenticated %}
-          <a href="{% url 'signup' %}" class="btn-neon-fill text-lg px-10 py-4">
-            <i class="fas fa-rocket mr-2"></i> Sign Up Free
-          </a>
-          <a href="{% url 'login' %}" class="btn-neon text-lg px-10 py-4">
-            Log In
-          </a>
-        {% else %}
-          <a href="{% url 'dashboard' %}" class="btn-neon-fill text-lg px-10 py-4">
-            <i class="fas fa-tachometer-alt mr-2"></i> My Dashboard
-          </a>
-        {% endif %}
-        <a href="{% url 'league_detail_no_id' %}" class="inline-flex items-center justify-center text-lg font-bold px-10 py-4 rounded-md border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-accent-500 dark:hover:border-neon hover:text-accent-600 dark:hover:text-neon transition-all">
-          Explore Leagues
+        <a href="{% url 'league_detail_no_id' %}" class="btn-neon-fill text-lg px-10 py-4">
+          <i class="fas fa-user-plus mr-2"></i> Join a League
+        </a>
+        <a href="{% if user.is_staff %}{% url 'create_league' %}{% else %}{% url 'league_create_request' %}{% endif %}" class="btn-neon text-lg px-10 py-4">
+          <i class="fas fa-plus mr-2"></i> Create a League
         </a>
       </div>
+      {% else %}
+      <!-- Logged-out marketing pitch -->
+      <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl font-semibold text-gray-600 dark:text-gray-300 leading-relaxed">
+        Free NFL primetime pick'em with friends. Pick every Thursday, Sunday, and Monday
+        night game before kickoff and climb your league standings — 30 seconds a week.
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+        <a href="{% url 'signup' %}" class="btn-neon-fill text-lg px-10 py-4">
+          <i class="fas fa-rocket mr-2"></i> Sign Up Free
+        </a>
+        <a href="{% url 'login' %}" class="btn-neon text-lg px-10 py-4">
+          Log In
+        </a>
+      </div>
+      {% endif %}
     </div>
 
-    <!-- Feature Cards - ESPN Bracket Style -->
+    <!-- How it works -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
       <div class="feature-card group">
         <div class="feature-icon">
-          <i class="fas fa-trophy text-2xl"></i>
+          <i class="fas fa-user-plus text-2xl"></i>
         </div>
         <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">
-          Create or Join Leagues
+          1. Get in a League
         </h3>
-        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed mb-4">
-          Form private leagues with friends or join public ones to test your skills against others.
+        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">
+          Join your friends' league with an invite link, or start your own and invite the group.
         </p>
-        <a href="{% url 'league_detail_no_id' %}" class="inline-flex items-center text-sm font-bold text-accent-600 dark:text-neon group-hover:underline">
-          Find a League <i class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
-        </a>
-      </div>
-
-      <div class="feature-card group">
-        <div class="feature-icon">
-          <i class="fas fa-chart-line text-2xl"></i>
-        </div>
-        <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">
-          Track Standings
-        </h3>
-        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed mb-4">
-          Follow live standings for every league you're in, updated after each primetime game.
-        </p>
-        <a href="{% url 'general_standings' %}" class="inline-flex items-center text-sm font-bold text-accent-600 dark:text-neon group-hover:underline">
-          View Standings <i class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
-        </a>
       </div>
 
       <div class="feature-card group">
@@ -90,14 +136,23 @@
           <i class="fas fa-football-ball text-2xl"></i>
         </div>
         <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">
-          Weekly Picks
+          2. Make Your Picks
         </h3>
-        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed mb-4">
-          Make picks for NFL primetime games before kickoff. NBA playoff pools coming soon.
+        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">
+          Pick the winner of each NFL primetime game before kickoff. Takes about 30 seconds a week.
         </p>
-        <a href="{% url 'schedule' %}" class="inline-flex items-center text-sm font-bold text-accent-600 dark:text-neon group-hover:underline">
-          Make Picks <i class="fas fa-arrow-right ml-2 text-xs transition-transform group-hover:translate-x-1"></i>
-        </a>
+      </div>
+
+      <div class="feature-card group">
+        <div class="feature-icon">
+          <i class="fas fa-chart-line text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-black font-display uppercase tracking-tight text-gray-900 dark:text-white mb-2">
+          3. Climb the Standings
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400 font-medium text-sm leading-relaxed">
+          Standings update live after each game. Chase the top spot and bragging rights all season.
+        </p>
       </div>
     </div>
 
@@ -118,6 +173,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
   </div>
 </div>

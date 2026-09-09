@@ -9,10 +9,12 @@ from apps.games.models import Game
 from django.contrib.auth.models import User
 
 def landing_page(request):
+    from apps.games.utils import get_current_nfl_week
     context = {
         'total_games': Game.objects.count(),
         'primetime_games': sum(1 for g in Game.objects.all() if g.is_primetime),
         'active_users': User.objects.filter(is_active=True).count(),
+        'current_week': get_current_nfl_week(),
     }
     return render(request, 'nflpix/landing_page.html', context)
 

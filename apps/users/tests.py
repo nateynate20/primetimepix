@@ -383,6 +383,36 @@ class TestLandingCopy:
 
 
 @pytest.mark.django_db
+class TestLandingPersonalization:
+    """The home page adapts to who's viewing: acquisition pitch for visitors,
+    a 'welcome back' for members, and create/join only for signed-in users who
+    aren't in a league yet (so returning members aren't shown first-timer CTAs)."""
+
+    def test_anonymous_sees_marketing(self):
+        body = Client().get('/').content.decode()
+        assert 'Sign Up Free' in body
+        assert 'Welcome back' not in body
+
+    def test_member_sees_welcome_back_not_acquisition(self, league):
+        client = Client()
+        client.force_login(league.commissioner)  # commissioner is auto-added member
+        body = client.get('/').content.decode()
+        assert 'Welcome back' in body
+        assert 'Make Week' in body
+        # No first-timer noise for someone already in a league.
+        assert 'Sign Up Free' not in body
+        assert 'Create a League' not in body
+
+    def test_signed_in_without_league_sees_join_create(self, user):
+        client = Client()
+        client.force_login(user)  # no league membership
+        body = client.get('/').content.decode()
+        assert 'Join a League' in body
+        assert 'Create a League' in body
+        assert 'Welcome back' not in body
+
+
+@pytest.mark.django_db
 class TestLegalPages:
     """Privacy / Terms must be reachable and linked — required for trust and
     for sending marketing email/ads."""
