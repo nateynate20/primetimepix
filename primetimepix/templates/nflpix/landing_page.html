@@ -17,11 +17,16 @@
     <!-- ============================================================= -->
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-10">
+        {% if picks_due %}
+        <!-- Action needed: picks are open and unmade this week -->
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full text-xs font-black uppercase tracking-widest bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-400 border border-red-200 dark:border-red-500/30 animate-pulse">
+          <i class="fas fa-clock"></i> Picks Due · Week {{ current_week }}
+        </span>
         <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
           Welcome back, {{ user.username }}
         </h1>
         <p class="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
-          NFL Week {{ current_week }} — lock in your primetime picks before kickoff.
+          You have <span class="text-red-600 dark:text-red-400 font-black">{{ picks_due_count }}</span> primetime pick{{ picks_due_count|pluralize }} to make{% if next_deadline %} before <span class="font-bold text-gray-900 dark:text-white">{{ next_deadline|date:"D g:i A" }} ET</span>{% endif %}.
         </p>
         <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
           <a href="{% url 'schedule' %}" class="btn-neon-fill text-lg px-10 py-4">
@@ -31,6 +36,26 @@
             <i class="fas fa-tachometer-alt mr-2"></i> My Dashboard
           </a>
         </div>
+        {% else %}
+        <!-- All caught up: picks are in (or nothing open) — pivot to standings -->
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full text-xs font-black uppercase tracking-widest bg-green-100 text-green-700 dark:bg-neon/10 dark:text-neon border border-green-200 dark:border-neon/30">
+          <i class="fas fa-circle-check"></i> You're all set · Week {{ current_week }}
+        </span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white">
+          Welcome back, {{ user.username }}
+        </h1>
+        <p class="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+          Your Week {{ current_week }} picks are in. Track how they're playing out and watch the standings.
+        </p>
+        <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
+          <a href="{% url 'dashboard' %}" class="btn-neon-fill text-lg px-10 py-4">
+            <i class="fas fa-tachometer-alt mr-2"></i> My Dashboard
+          </a>
+          <a href="{% url 'schedule' %}" class="btn-neon text-lg px-10 py-4">
+            <i class="fas fa-hand-pointer mr-2"></i> Review My Picks
+          </a>
+        </div>
+        {% endif %}
       </div>
 
       <!-- Your leagues -->

@@ -10,12 +10,49 @@ from django.contrib.auth.models import User
 
 def landing_page(request):
     from apps.games.utils import get_current_nfl_week
+    current_week = get_current_nfl_week()
     context = {
         'total_games': Game.objects.count(),
         'primetime_games': sum(1 for g in Game.objects.all() if g.is_primetime),
         'active_users': User.objects.filter(is_active=True).count(),
-        'current_week': get_current_nfl_week(),
+        'current_week': current_week,
     }
+
+    # State-aware "picks due" signal for the returning-member hero, mirroring how
+    # ESPN/Yahoo/Sleeper surface a pick nudge only when action is needed. Scoped
+    # to the user's primary (first alphabetical) league — the same default the
+    # picks page and dashboard use — so it lines up with where "Make Picks" lands.
+    if request.user.is_authenticated:
+        from django.utils import timezone
+        from apps.leagues.models import League
+        from apps.picks.models import Pick
+
+        primary_league = (
+            League.objects.filter(members=request.user, is_approved=True)
+            .order_by('name').first()
+        )
+        if primary_league:
+            primetime_games = [
+                g for g in Game.objects.filter(game_type='regular', week=current_week)
+                if g.is_primetime
+            ]
+            picked_ids = set(
+                Pick.objects.filter(
+                    user=request.user, league=primary_league, game__in=primetime_games
+                ).values_list('game_id', flat=True)
+            )
+            now = timezone.now()
+            open_unpicked, next_game = 0, None
+            for g in primetime_games:
+                is_open = g.status == 'scheduled' and g.start_time > now
+                if is_open and g.id not in picked_ids:
+                    open_unpicked += 1
+                    if next_game is None or g.start_time < next_game.start_time:
+                        next_game = g
+            context['picks_due'] = open_unpicked > 0
+            context['picks_due_count'] = open_unpicked
+            context['next_deadline'] = next_game.display_time_et if next_game else None
+
     return render(request, 'nflpix/landing_page.html', context)
 
 
