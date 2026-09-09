@@ -162,6 +162,107 @@ def public_standings(request, code):
 
 
 @login_required
+def league_picks(request, league_id):
+    """Group pick sheet: every member's picks for a week's primetime games.
+
+    People in a league want to see who's picking what — it's the social heart of
+    a pick'em pool — so picks are visible to fellow members (not hidden until
+    kickoff). Correct/incorrect coloring fills in as games finish.
+    """
+    from apps.games.models import Game
+    from apps.games.utils import get_current_nfl_week
+    from apps.picks.models import Pick
+
+    league = get_object_or_404(League, id=league_id, is_approved=True)
+
+    # Non-members don't get the pick sheet — bounce them to the join/preview page.
+    if not league.members.filter(id=request.user.id).exists():
+        return redirect('league_detail', league_id=league.id)
+
+    # Which week? ?week=<n> or "playoffs"; default to the current NFL week.
+    week_param = request.GET.get('week')
+    if week_param == 'playoffs':
+        week_number = 'playoffs'
+        week_games = list(Game.objects.filter(game_type='playoff').order_by('start_time'))
+    else:
+        try:
+            week_number = int(week_param) if week_param else get_current_nfl_week()
+        except (ValueError, TypeError):
+            week_number = get_current_nfl_week()
+        week_games = list(
+            Game.objects.filter(game_type='regular', week=week_number).order_by('start_time')
+        )
+
+    games = [g for g in week_games if g.is_primetime]
+
+    for g in games:
+        g.away_nick = g.away_team.split()[-1] if g.away_team else g.away_team
+        g.home_nick = g.home_team.split()[-1] if g.home_team else g.home_team
+        g.is_final = g.status == 'final'
+        g.winner_nick = g.winner.split()[-1] if g.is_final and g.winner and g.winner != 'tie' else None
+        # Midnight kickoff = ESPN hasn't set the real time yet.
+        et = g.display_time_et
+        g.time_is_tbd = (not et) or (et.hour == 0 and et.minute == 0)
+
+    members = list(league.members.all().order_by('username'))
+
+    # One query for every pick on the board, keyed by (member, game).
+    picks = Pick.objects.filter(league=league, game__in=games).select_related('user')
+    pick_map = {(p.user_id, p.game_id): p for p in picks}
+
+    rows = []
+    for member in members:
+        cells, week_correct, week_graded = [], 0, 0
+        for g in games:
+            pick = pick_map.get((member.id, g.id))
+            cell = {'has_pick': bool(pick)}
+            if pick:
+                cell['team'] = pick.picked_team.split()[-1] if pick.picked_team else pick.picked_team
+                cell['full'] = pick.picked_team
+                if pick.is_correct is True:
+                    cell['state'] = 'correct'
+                    week_correct += 1
+                    week_graded += 1
+                elif pick.is_correct is False:
+                    cell['state'] = 'incorrect'
+                    week_graded += 1
+                elif g.is_final and g.winner == 'tie':
+                    cell['state'] = 'push'
+                else:
+                    cell['state'] = 'pending'
+            cells.append(cell)
+        rows.append({
+            'member': member,
+            'cells': cells,
+            'week_correct': week_correct,
+            'week_wrong': week_graded - week_correct,
+            'week_graded': week_graded,
+        })
+    # Best weekly record floats to the top; ties keep alphabetical order.
+    rows.sort(key=lambda r: (-r['week_correct'], r['member'].username.lower()))
+
+    # Simple prev/next week nav (regular weeks only; None disables the arrow).
+    prev_week = next_week = None
+    if isinstance(week_number, int):
+        if week_number > 1:
+            prev_week = week_number - 1
+        if week_number < 18:
+            next_week = week_number + 1
+
+    context = {
+        'league': league,
+        'games': games,
+        'rows': rows,
+        'current_week': week_number,
+        'total_members': len(members),
+        'prev_week': prev_week,
+        'next_week': next_week,
+        'is_manager': league.is_commissioner(request.user),
+    }
+    return render(request, 'leagues/league_picks.html', context)
+
+
+@login_required
 def request_create_league(request):
     """Submit a request to create a new league"""
     if request.method == 'POST':

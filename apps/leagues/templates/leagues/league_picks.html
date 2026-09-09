@@ -1,0 +1,127 @@
+{% extends 'nflpix/base.html' %}
+
+{% block title %}{{ league.name }} - Group Picks{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-black font-display uppercase tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+                <i class="fas fa-people-group text-accent-600 dark:text-neon"></i>{{ league.name }} — Group Picks
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                See what everyone in the league picked{% if current_week != 'playoffs' %} for Week {{ current_week }}{% else %} in the playoffs{% endif %}.
+            </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'league_detail' league.id %}" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
+                <i class="fas fa-list-ol mr-1"></i>Standings
+            </a>
+            <a href="{% url 'schedule' %}?league={{ league.id }}" class="px-4 py-2 bg-accent-600 dark:bg-neon text-white dark:text-black rounded-lg font-bold text-sm hover:opacity-90 transition">
+                <i class="fas fa-hand-pointer mr-1"></i>Make Picks
+            </a>
+        </div>
+    </div>
+
+    <!-- Week nav -->
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            {% if prev_week %}
+            <a href="?week={{ prev_week }}" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-200 hover:border-accent-500 dark:hover:border-neon transition">
+                <i class="fas fa-chevron-left text-xs"></i>Week {{ prev_week }}
+            </a>
+            {% endif %}
+        </div>
+        <div class="text-sm font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">
+            {% if current_week == 'playoffs' %}Playoffs{% else %}Week {{ current_week }}{% endif %}
+        </div>
+        <div>
+            {% if next_week %}
+            <a href="?week={{ next_week }}" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-200 hover:border-accent-500 dark:hover:border-neon transition">
+                Week {{ next_week }}<i class="fas fa-chevron-right text-xs"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if games %}
+    <!-- Legend -->
+    <div class="flex flex-wrap items-center gap-4 text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3">
+        <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded bg-green-100 dark:bg-green-500/20 border border-green-400"></span>Correct</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded bg-red-100 dark:bg-red-500/20 border border-red-400"></span>Incorrect</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded bg-blue-50 dark:bg-blue-500/10 border border-blue-300"></span>Pending</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"></span>No pick</span>
+    </div>
+
+    <!-- Grid -->
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-800/50">
+                        <th class="sticky left-0 z-10 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Player</th>
+                        {% for g in games %}
+                        <th class="px-3 py-3 text-center text-xs font-bold text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                            <div class="font-black">{{ g.away_nick }} <span class="text-gray-400 font-normal">@</span> {{ g.home_nick }}</div>
+                            <div class="text-[10px] font-medium text-gray-400 mt-0.5">
+                                {% if g.time_is_tbd %}TBD{% else %}{{ g.display_time_et|date:"D g:i A" }}{% endif %}
+                            </div>
+                            {% if g.winner_nick %}
+                            <div class="text-[10px] font-bold text-green-600 dark:text-green-400 mt-0.5"><i class="fas fa-check mr-0.5"></i>{{ g.winner_nick }}</div>
+                            {% elif g.is_final %}
+                            <div class="text-[10px] font-bold text-gray-400 mt-0.5">Tie</div>
+                            {% endif %}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    {% for row in rows %}
+                    <tr class="{% if row.member == user %}bg-accent-50 dark:bg-neon/5{% endif %} hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+                        <td class="sticky left-0 z-10 px-4 py-3 whitespace-nowrap {% if row.member == user %}bg-accent-50 dark:bg-[#14261a]{% else %}bg-white dark:bg-surface-800{% endif %}">
+                            <div class="font-bold text-gray-900 dark:text-white">
+                                {{ row.member.username }}{% if row.member == user %} <span class="text-[10px] text-accent-600 dark:text-neon">(you)</span>{% endif %}
+                            </div>
+                            {% if row.week_graded %}
+                            <div class="text-[11px] text-gray-400 font-semibold">{{ row.week_correct }}-{{ row.week_wrong }} this wk</div>
+                            {% endif %}
+                        </td>
+                        {% for cell in row.cells %}
+                        <td class="px-3 py-3 text-center whitespace-nowrap
+                            {% if cell.state == 'correct' %}bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 font-bold
+                            {% elif cell.state == 'incorrect' %}bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400
+                            {% elif cell.state == 'pending' %}bg-blue-50/60 dark:bg-blue-500/5 text-gray-700 dark:text-gray-200 font-semibold
+                            {% elif cell.state == 'push' %}text-gray-500 dark:text-gray-400
+                            {% else %}text-gray-300 dark:text-gray-600{% endif %}">
+                            {% if cell.has_pick %}
+                                {{ cell.team }}
+                                {% if cell.state == 'correct' %}<i class="fas fa-check text-[10px] ml-0.5"></i>
+                                {% elif cell.state == 'incorrect' %}<i class="fas fa-xmark text-[10px] ml-0.5"></i>{% endif %}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="text-xs text-gray-400 dark:text-gray-500 mt-3">
+        <i class="fas fa-circle-info mr-1"></i>Everyone in the league can see these picks. Results fill in as each game finishes.
+    </p>
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-12 text-center">
+        <i class="fas fa-calendar-xmark text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
+        <p class="text-gray-600 dark:text-gray-300 font-semibold">No primetime games {% if current_week != 'playoffs' %}for Week {{ current_week }}{% else %}in the playoffs{% endif %} yet.</p>
+        <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Check back once the schedule is set.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

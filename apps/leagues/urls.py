@@ -13,6 +13,7 @@ urlpatterns = [
     path('my-leagues/', views.my_leagues, name='my_leagues'),
     path('league/', views.select_league, name='league_detail_no_id'),  # Keep for compatibility
     path('league/<int:league_id>/', views.league_detail, name='league_detail'),
+    path('league/<int:league_id>/picks/', views.league_picks, name='league_picks'),
     
     # Request management
     path('my-requests/', views.my_league_requests, name='my_league_requests'),

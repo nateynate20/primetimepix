@@ -722,3 +722,66 @@ class TestMemberCountAccuracy:
         response = client.get(reverse('my_leagues'))
         row = next(l for l in response.context['commissioner_leagues'] if l.id == league.id)
         assert row.member_count == 4
+
+
+@pytest.mark.django_db
+class TestLeagueGroupPicks:
+    """The group pick sheet shows every member's picks to fellow members (picks
+    are intentionally not hidden), with results filling in as games finish."""
+
+    @pytest.fixture(autouse=True)
+    def _all_primetime(self, monkeypatch):
+        # Make the fixture game count as primetime regardless of exact kickoff.
+        monkeypatch.setattr(Game, 'is_primetime', property(lambda self: True))
+
+    def _board(self, league):
+        game = Game.objects.create(
+            game_id='grp_1', season=2026, week=3, game_type='regular',
+            start_time=timezone.now() + timedelta(days=2),
+            home_team='Philadelphia Eagles', away_team='Dallas Cowboys',
+            status='scheduled',
+        )
+        from apps.picks.models import Pick
+        # Commissioner is auto-added, but be explicit so the row always renders.
+        LeagueMembership.objects.get_or_create(user=league.commissioner, league=league)
+        Pick.objects.create(user=league.commissioner, game=game, league=league, picked_team='Dallas Cowboys')
+        member = make_user('grpmember', 'GrpTeam')
+        LeagueMembership.objects.get_or_create(user=member, league=league)
+        Pick.objects.create(user=member, game=game, league=league, picked_team='Philadelphia Eagles')
+        return game, member
+
+    def test_member_sees_every_other_pick(self, league):
+        game, member = self._board(league)
+        client = Client()
+        client.force_login(member)
+        body = client.get(reverse('league_picks', args=[league.id]) + '?week=3').content.decode()
+        # Both members' picks are visible to this member.
+        assert 'Cowboys' in body   # commissioner's pick
+        assert 'Eagles' in body    # own pick
+        assert league.commissioner.username in body
+
+    def test_results_color_after_final(self, league):
+        game, member = self._board(league)
+        # Eagles win → the member who took Eagles is correct, commissioner wrong.
+        game.home_score, game.away_score, game.status = 24, 20, 'final'
+        game.save()
+        from apps.picks.models import Pick
+        for p in Pick.objects.filter(game=game):
+            p.calculate_result()
+        client = Client()
+        client.force_login(member)
+        resp = client.get(reverse('league_picks', args=[league.id]) + '?week=3')
+        row_by_user = {r['member'].id: r for r in resp.context['rows']}
+        assert row_by_user[member.id]['cells'][0]['state'] == 'correct'
+        assert row_by_user[league.commissioner.id]['cells'][0]['state'] == 'incorrect'
+
+    def test_non_member_is_redirected(self, league, outsider):
+        self._board(league)
+        client = Client()
+        client.force_login(outsider)
+        resp = client.get(reverse('league_picks', args=[league.id]))
+        assert resp.status_code == 302
+
+    def test_login_required(self, league):
+        resp = Client().get(reverse('league_picks', args=[league.id]))
+        assert resp.status_code == 302
