@@ -366,3 +366,18 @@ class TestBadges:
         regular = next(b for b in compute_badges(self._stats(total_picks=4)) if b['key'] == 'regular')
         assert regular['earned'] is False
         assert regular['progress'] == '4/10'
+        # Unit-labelled progress + bar fill for the redesigned card.
+        assert regular['progress_label'] == '4/10 picks'
+        assert regular['progress_pct'] == 40
+
+    def test_sharpshooter_progress_is_not_misleading(self):
+        """A perfect record on too few picks must show the limiting factor
+        (sample size), never a bare '100%' next to a locked badge."""
+        from apps.picks.badges import compute_badges
+        sharp = next(
+            b for b in compute_badges(self._stats(total_picks=3, win_percentage=100.0))
+            if b['key'] == 'sharpshooter'
+        )
+        assert sharp['earned'] is False
+        assert 'picks' in sharp['progress_label']   # points at the 10-pick gate
+        assert sharp['progress_label'] == '3/10 picks (then 65%+)'
