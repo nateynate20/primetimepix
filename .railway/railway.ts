@@ -106,11 +106,15 @@ export default defineRailway(() => {
   // Schedules are UTC. Minimum granularity on Railway is every 5 minutes; a run
   // is skipped if the previous one is still going, so keep each command idempotent.
 
-  // 1) Update NFL scores — every 15 min on game days. CRITICAL: resolves picks.
-  //    Cron day field: 0=Sun, 1=Mon, 4=Thu, 6=Sat.
+  // 1) Update NFL scores — every 15 min, EVERY day. CRITICAL: resolves picks.
+  //    Runs in UTC, but ET primetime kickoffs (8:15/8:20 PM ET) roll into the
+  //    next UTC day and finals land even later, so a day-of-week filter kept
+  //    missing games (MNF finals spill to Tue UTC, TNF to Fri UTC, and the Wed
+  //    ET opener to Thu UTC). Every 15 min is cheap and removes that whole class
+  //    of skew bugs; update_scores no-ops when nothing changed.
   const updateScores = cron(
     "cron-update-scores",
-    "*/15 * * * 0,1,4,6",
+    "*/15 * * * *",
     "python manage.py update_scores",
   );
 

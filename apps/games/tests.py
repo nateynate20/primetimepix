@@ -6,6 +6,32 @@ import pytz
 
 
 @pytest.mark.django_db
+class TestUpdateScoresEspnDate:
+    """The score updater must query ESPN by the game's EASTERN date. A primetime
+    kickoff (e.g. Wed 8:15 PM ET) is stored as the next day in UTC, so using the
+    UTC date silently misses the game and picks never grade."""
+
+    def _wed_opener(self):
+        eastern = pytz.timezone('US/Eastern')
+        kickoff = eastern.localize(datetime(2026, 9, 9, 20, 15))  # Wed 8:15 PM ET
+        return Game.objects.create(
+            game_id='opener_2026', season=2026, week=1, game_type='regular',
+            start_time=kickoff, home_team='Kansas City Chiefs',
+            away_team='Los Angeles Chargers', status='scheduled',
+        )
+
+    def test_candidate_dates_prefer_eastern_date(self):
+        from apps.games.management.commands.update_scores import Command
+        game = self._wed_opener()
+        game.refresh_from_db()  # start_time now comes back as UTC (the real skew)
+        dates = Command()._candidate_dates(game)
+        # ET date (Sep 9) must be tried first; the UTC date (Sep 10) is a fallback.
+        assert dates[0] == '20260909'
+        assert '20260910' in dates
+        assert game.start_time.strftime('%Y%m%d') == '20260910'  # the old buggy value
+
+
+@pytest.mark.django_db
 class TestGameWinner:
     def test_home_team_wins(self, finished_game):
         assert finished_game.winner == 'Kansas City Chiefs'

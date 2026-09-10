@@ -78,31 +78,43 @@ class Command(BaseCommand):
             )
         )
     
+    def _candidate_dates(self, game):
+        """ESPN scoreboard dates to try for this game, most-likely first.
+
+        ESPN lists a game under its EASTERN calendar date, but start_time is
+        stored in UTC. For 8:15/8:20 PM ET primetime kickoffs the UTC date rolls
+        to the next day, so querying the UTC date silently misses the game (it
+        never goes final and picks never grade). Query the ET date first, then
+        fall back to the UTC date to stay robust across any edge cases.
+        """
+        dates, seen = [], set()
+        for dt in (game.display_time_et, game.start_time):
+            if not dt:
+                continue
+            key = dt.strftime('%Y%m%d')
+            if key not in seen:
+                seen.add(key)
+                dates.append(key)
+        return dates
+
     def _update_game_score(self, game):
-        """Fetch and update score for a single game"""
-        # Format date for ESPN API
-        game_date = game.start_time.strftime('%Y%m%d')
-        
-        url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates={game_date}"
-        
-        try:
-            response = requests.get(url, timeout=10)
-            if response.status_code != 200:
-                return False
-            
-            data = response.json()
-            events = data.get('events', [])
-            
-            # Find our game in the ESPN data
-            for event in events:
-                if self._match_game(game, event):
-                    return self._update_from_event(game, event)
-            
-            return False
-            
-        except Exception as e:
-            self.stdout.write(f"API error: {e}")
-            return False
+        """Fetch and update score for a single game."""
+        for game_date in self._candidate_dates(game):
+            url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates={game_date}"
+            try:
+                response = requests.get(url, timeout=10)
+                if response.status_code != 200:
+                    continue
+
+                events = response.json().get('events', [])
+                for event in events:
+                    if self._match_game(game, event):
+                        return self._update_from_event(game, event)
+            except Exception as e:
+                self.stdout.write(f"API error: {e}")
+                continue
+
+        return False
     
     def _match_game(self, game, event):
         """Check if ESPN event matches our game"""
@@ -148,11 +160,15 @@ class Command(BaseCommand):
         status_detail = competition.get('status', {}).get('type', {})
         status_name = status_detail.get('name', '').lower()
         
+        # ESPN status type names look like STATUS_FINAL / STATUS_IN_PROGRESS /
+        # STATUS_HALFTIME / STATUS_SCHEDULED — match on substrings, not exact
+        # strings (the old exact-match list never matched, so games never flipped
+        # to in_progress).
         if 'final' in status_name:
             game.status = 'final'
-        elif status_name in ['in', 'in progress', 'halftime']:
+        elif 'progress' in status_name or 'halftime' in status_name:
             game.status = 'in_progress'
-        elif status_name in ['scheduled', 'pre']:
+        elif 'scheduled' in status_name or 'pre' in status_name:
             game.status = 'scheduled'
         
         # Check if anything changed
