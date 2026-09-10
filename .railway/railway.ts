@@ -42,7 +42,9 @@ export default defineRailway(() => {
     healthcheck: "/",
     healthcheckTimeout: 300,
     deploy: { restartPolicyType: "ON_FAILURE" },
-    // Keep the 15 live variables exactly as they are in Railway today.
+    // Keep the live variables exactly as they are in Railway today. The VAPID_*
+    // keys were added in the dashboard for web push; they MUST be preserved or a
+    // config apply would delete them and break push notifications.
     env: {
       BREVO_API_KEY: preserve(),
       DATABASE_URL: preserve(),
@@ -58,6 +60,9 @@ export default defineRailway(() => {
       SERVER_EMAIL: preserve(),
       SITE_NAME: preserve(),
       SITE_URL: preserve(),
+      VAPID_ADMIN_EMAIL: preserve(),
+      VAPID_PRIVATE_KEY: preserve(),
+      VAPID_PUBLIC_KEY: preserve(),
       WEB_CONCURRENCY: preserve(),
     },
   });
@@ -81,6 +86,10 @@ export default defineRailway(() => {
     SENTRY_DSN: web.env.SENTRY_DSN,
     SENTRY_ENVIRONMENT: web.env.SENTRY_ENVIRONMENT,
     SENTRY_TRACES_SAMPLE_RATE: web.env.SENTRY_TRACES_SAMPLE_RATE,
+    // So the reminder crons can send web push as a second channel.
+    VAPID_PUBLIC_KEY: web.env.VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY: web.env.VAPID_PRIVATE_KEY,
+    VAPID_ADMIN_EMAIL: web.env.VAPID_ADMIN_EMAIL,
   } as const;
 
   // Helper: a cron job = a `fn` running one management command on a schedule,
