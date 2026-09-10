@@ -95,9 +95,12 @@
                 <i class="fas fa-list-ol text-accent-600 dark:text-neon mr-2"></i>League Standings
             </h2>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Ranked by total points, then accuracy &middot; updates after each game concludes</p>
+            <p class="sm:hidden text-[11px] font-semibold text-gray-400 dark:text-gray-500 mt-2">
+                <i class="fas fa-arrows-left-right mr-1"></i>Swipe the table to see W / L / Pending / Accuracy
+            </p>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto overscroll-x-contain" style="-webkit-overflow-scrolling: touch;">
             <table class="min-w-full">
                 <thead>
                     <tr class="bg-gray-50 dark:bg-gray-800/50">

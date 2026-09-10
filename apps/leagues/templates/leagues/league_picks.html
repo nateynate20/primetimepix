@@ -62,9 +62,15 @@
         <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600"></span>No pick</span>
     </div>
 
+    {% if games|length > 1 %}
+    <p class="sm:hidden text-[11px] font-semibold text-gray-400 dark:text-gray-500 mb-2 text-center">
+        <i class="fas fa-arrows-left-right mr-1"></i>Swipe to see all games
+    </p>
+    {% endif %}
+
     <!-- Grid -->
     <div class="bg-white dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto overscroll-x-contain" style="-webkit-overflow-scrolling: touch;">
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50 dark:bg-gray-800/50">
