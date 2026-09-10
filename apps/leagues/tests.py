@@ -725,6 +725,33 @@ class TestMemberCountAccuracy:
 
 
 @pytest.mark.django_db
+class TestOgStandingsImage:
+    """The dynamic OG share image renders a PNG for anyone (no login), so link
+    crawlers can fetch it, and the public standings page points its card at it."""
+
+    def test_returns_png_for_valid_league(self, league):
+        resp = Client().get(reverse('og_standings_image', args=[league.join_code]))
+        assert resp.status_code == 200
+        assert resp['Content-Type'] == 'image/png'
+        assert resp.content[:8] == b'\x89PNG\r\n\x1a\n'
+        assert 'max-age' in resp.get('Cache-Control', '')
+
+    def test_lowercase_code_resolves(self, league):
+        resp = Client().get(reverse('og_standings_image', args=[league.join_code.lower()]))
+        assert resp.status_code == 200
+        assert resp['Content-Type'] == 'image/png'
+
+    def test_invalid_code_is_404(self):
+        resp = Client().get('/og/standings/NOPE12.png')
+        assert resp.status_code == 404
+
+    def test_public_standings_card_points_at_dynamic_image(self, league):
+        body = Client().get(reverse('public_standings', args=[league.join_code])).content.decode()
+        img_path = reverse('og_standings_image', args=[league.join_code])
+        assert img_path in body  # og:image + twitter:image reference the card
+
+
+@pytest.mark.django_db
 class TestAutomaticLossForMissedPicks:
     """Missing the pick deadline is an automatic loss: a locked primetime game a
     member didn't pick counts against them — but only for games that locked

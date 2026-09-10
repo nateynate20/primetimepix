@@ -31,6 +31,9 @@ urlpatterns = [
     # Public, no-login read-only standings (shareable): /standings/<code>/
     path('standings/<str:code>/', league_views.public_standings, name='public_standings'),
 
+    # Dynamic Open Graph share image for a league's standings.
+    path('og/standings/<str:code>.png', league_views.og_standings_image, name='og_standings_image'),
+
     # SEO
     path('robots.txt', views.robots_txt, name='robots_txt'),
     path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),

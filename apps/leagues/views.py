@@ -161,6 +161,34 @@ def public_standings(request, code):
     return render(request, 'leagues/public_standings.html', context)
 
 
+def og_standings_image(request, code):
+    """Dynamic Open Graph share image (PNG) for a league's standings.
+
+    Rendered on the fly so a shared link unfurls into a branded card showing the
+    league name and top of the leaderboard (ESPN/Sleeper style). Public + cached
+    so link crawlers (which don't send cookies) can always fetch it.
+    """
+    from django.http import HttpResponse, HttpResponseRedirect
+    from django.templatetags.static import static as static_url
+    from apps.games.utils import get_current_nfl_week
+    from apps.leagues.og_cards import render_standings_card
+
+    league = get_object_or_404(League, join_code=code.upper(), is_approved=True)
+    try:
+        standings = league.get_standings()
+        for idx, row in enumerate(standings, start=1):
+            row['rank'] = idx
+        png = render_standings_card(league, standings, current_week=get_current_nfl_week())
+    except Exception:
+        # Never fail a link preview — fall back to the static brand card.
+        return HttpResponseRedirect(static_url('images/og-default.png'))
+
+    resp = HttpResponse(png, content_type='image/png')
+    # Refreshes a few times an hour as standings change; friendly to crawlers/CDNs.
+    resp['Cache-Control'] = 'public, max-age=600'
+    return resp
+
+
 @login_required
 def league_picks(request, league_id):
     """Group pick sheet: every member's picks for a week's primetime games.

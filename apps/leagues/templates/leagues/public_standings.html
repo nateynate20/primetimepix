@@ -5,7 +5,8 @@
 {% block meta_description %}Live standings for {{ league.name }} on PrimeTimePix — {{ total_members }} member{{ total_members|pluralize }} picking NFL primetime games.{% endblock %}
 {% block og_title %}🏈 {{ league.name }} — Live Standings{% endblock %}
 {% block og_description %}See the live standings and who's on top in {{ league.name }} — free NFL primetime pick'em on PrimeTimePix. {{ total_members }} player{{ total_members|pluralize }}{% if current_week %} · Week {{ current_week }}{% endif %}.{% endblock %}
-{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.png' %}{% endblock %}
+{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% url 'og_standings_image' code=league.join_code %}{% endblock %}
+{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% url 'og_standings_image' code=league.join_code %}{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 py-8">
@@ -30,9 +31,14 @@
     <!-- Join CTA -->
     <div class="mb-6">
         {% if is_member %}
-        <a href="{% url 'league_detail' league.id %}" class="block w-full text-center bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
-            <i class="fas fa-arrow-right mr-2"></i>Open in your dashboard
-        </a>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <a href="{% url 'league_detail' league.id %}" class="block w-full text-center bg-accent-600 dark:bg-neon text-white dark:text-black font-bold py-3 px-4 rounded-lg text-sm hover:opacity-90 transition">
+                <i class="fas fa-arrow-right mr-2"></i>Open in your dashboard
+            </a>
+            <a href="{% url 'league_picks' league.id %}" class="block w-full text-center bg-white dark:bg-surface-800 text-gray-700 dark:text-gray-200 font-bold py-3 px-4 rounded-lg text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
+                <i class="fas fa-people-group mr-2"></i>See group picks
+            </a>
+        </div>
         {% elif join_locked %}
         <div class="bg-gray-50 dark:bg-surface-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
             <p class="text-sm font-bold text-gray-700 dark:text-gray-300"><i class="fas fa-lock mr-1 text-amber-500"></i>Joining is closed for this season</p>

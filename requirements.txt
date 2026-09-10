@@ -48,6 +48,9 @@ django-anymail[brevo]==12.0
 # Web push notifications (VAPID)
 pywebpush==2.0.0
 
+# Image generation (dynamic Open Graph share cards)
+Pillow==11.3.0
+
 # Monitoring (optional but recommended for production)
 sentry-sdk==1.39.1
 
