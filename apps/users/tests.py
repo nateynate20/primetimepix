@@ -440,6 +440,58 @@ class TestLandingPersonalization:
         assert resp.context['picks_due'] is False
         assert "You're all set" in resp.content.decode()
 
+    def _second_league_for(self, user, name='Zeta League'):
+        from apps.leagues.models import League, LeagueMembership
+        lg = League.objects.create(name=name, commissioner=user, sport='NFL', is_approved=True)
+        LeagueMembership.objects.get_or_create(user=user, league=lg)
+        return lg
+
+    def test_multi_league_picks_due_when_a_secondary_league_is_unpicked(self, league, monkeypatch):
+        """Regression: picked in the primary league but not a second one must
+        still read 'picks due' (previously it said 'all set')."""
+        from datetime import timedelta
+        from django.utils import timezone as tz
+        from apps.games.models import Game
+        from apps.games.utils import get_current_nfl_week
+        from apps.picks.models import Pick
+        monkeypatch.setattr(Game, 'is_primetime', property(lambda self: True))
+        user = league.commissioner
+        self._second_league_for(user)  # user now belongs to two leagues
+        game = Game.objects.create(
+            game_id='multi_1', season=2026, week=get_current_nfl_week(), game_type='regular',
+            start_time=tz.now() + timedelta(days=1),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills', status='scheduled',
+        )
+        # Picked in the primary league only — the second league still needs a pick.
+        Pick.objects.create(user=user, game=game, league=league, picked_team='Kansas City Chiefs')
+        client = Client()
+        client.force_login(user)
+        resp = client.get('/')
+        assert resp.context['picks_due'] is True
+        assert resp.context['picks_due_count'] == 1
+        assert 'Picks Due' in resp.content.decode()
+
+    def test_multi_league_copy_mentions_league_count(self, league, monkeypatch):
+        from datetime import timedelta
+        from django.utils import timezone as tz
+        from apps.games.models import Game
+        from apps.games.utils import get_current_nfl_week
+        monkeypatch.setattr(Game, 'is_primetime', property(lambda self: True))
+        user = league.commissioner
+        self._second_league_for(user)  # two leagues, nothing picked in either
+        Game.objects.create(
+            game_id='multi_2', season=2026, week=get_current_nfl_week(), game_type='regular',
+            start_time=tz.now() + timedelta(days=1),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills', status='scheduled',
+        )
+        client = Client()
+        client.force_login(user)
+        resp = client.get('/')
+        # One game × two leagues = two outstanding picks across two leagues.
+        assert resp.context['picks_due_count'] == 2
+        assert resp.context['picks_due_league_count'] == 2
+        assert 'across' in resp.content.decode() and '2 leagues' in resp.content.decode()
+
     def test_signed_in_without_league_sees_join_create(self, user):
         client = Client()
         client.force_login(user)  # no league membership

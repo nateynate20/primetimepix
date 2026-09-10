@@ -19,38 +19,44 @@ def landing_page(request):
     }
 
     # State-aware "picks due" signal for the returning-member hero, mirroring how
-    # ESPN/Yahoo/Sleeper surface a pick nudge only when action is needed. Scoped
-    # to the user's primary (first alphabetical) league — the same default the
-    # picks page and dashboard use — so it lines up with where "Make Picks" lands.
+    # ESPN/Yahoo/Sleeper surface a pick nudge only when action is needed. Picks
+    # are per-league, so we check EVERY league the user is in: the hero says
+    # "picks due" whenever any league still needs a pick this week, and counts
+    # the outstanding (league, game) picks so multi-league members aren't told
+    # they're "all set" while a secondary league still needs attention.
     if request.user.is_authenticated:
         from django.utils import timezone
         from apps.leagues.models import League
         from apps.picks.models import Pick
 
-        primary_league = (
+        user_leagues = list(
             League.objects.filter(members=request.user, is_approved=True)
-            .order_by('name').first()
         )
-        if primary_league:
-            primetime_games = [
-                g for g in Game.objects.filter(game_type='regular', week=current_week)
-                if g.is_primetime
-            ]
-            picked_ids = set(
-                Pick.objects.filter(
-                    user=request.user, league=primary_league, game__in=primetime_games
-                ).values_list('game_id', flat=True)
-            )
+        if user_leagues:
             now = timezone.now()
-            open_unpicked, next_game = 0, None
-            for g in primetime_games:
-                is_open = g.status == 'scheduled' and g.start_time > now
-                if is_open and g.id not in picked_ids:
-                    open_unpicked += 1
-                    if next_game is None or g.start_time < next_game.start_time:
-                        next_game = g
-            context['picks_due'] = open_unpicked > 0
-            context['picks_due_count'] = open_unpicked
+            open_games = [
+                g for g in Game.objects.filter(game_type='regular', week=current_week)
+                if g.is_primetime and g.status == 'scheduled' and g.start_time > now
+            ]
+            # Every (league, game) pick the user has already made this week.
+            made = set(
+                Pick.objects.filter(
+                    user=request.user,
+                    league__in=user_leagues,
+                    game__in=open_games,
+                ).values_list('league_id', 'game_id')
+            )
+            outstanding, leagues_needing, next_game = 0, set(), None
+            for g in open_games:
+                for lg in user_leagues:
+                    if (lg.id, g.id) not in made:
+                        outstanding += 1
+                        leagues_needing.add(lg.id)
+                        if next_game is None or g.start_time < next_game.start_time:
+                            next_game = g
+            context['picks_due'] = outstanding > 0
+            context['picks_due_count'] = outstanding
+            context['picks_due_league_count'] = len(leagues_needing)
             context['next_deadline'] = next_game.display_time_et if next_game else None
 
     return render(request, 'nflpix/landing_page.html', context)

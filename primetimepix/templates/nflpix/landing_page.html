@@ -26,7 +26,7 @@
           Welcome back, {{ user.username }}
         </h1>
         <p class="mt-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
-          You have <span class="text-red-600 dark:text-red-400 font-black">{{ picks_due_count }}</span> primetime pick{{ picks_due_count|pluralize }} to make{% if next_deadline %} before <span class="font-bold text-gray-900 dark:text-white">{{ next_deadline|date:"D g:i A" }} ET</span>{% endif %}.
+          You have <span class="text-red-600 dark:text-red-400 font-black">{{ picks_due_count }}</span> primetime pick{{ picks_due_count|pluralize }} to make{% if picks_due_league_count > 1 %} across <span class="font-bold text-gray-900 dark:text-white">{{ picks_due_league_count }} leagues</span>{% endif %}{% if next_deadline %} before <span class="font-bold text-gray-900 dark:text-white">{{ next_deadline|date:"D g:i A" }} ET</span>{% endif %}.
         </p>
         <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4">
           <a href="{% url 'schedule' %}" class="btn-neon-fill text-lg px-10 py-4">
