@@ -329,6 +329,56 @@ class TestPickLockingServerSide:
 
 
 @pytest.mark.django_db
+class TestUserStatsPerGame:
+    """Global user stats are counted per distinct GAME, so a member in several
+    leagues (who picks the same matchup in each) can't inflate their totals or
+    streaks — one finished game is at most a 1-game streak."""
+
+    def _final_game(self, gid='dupe_1'):
+        return Game.objects.create(
+            game_id=gid, season=2026, week=1, game_type='regular',
+            start_time=timezone.now() - timedelta(hours=3),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills',
+            home_score=27, away_score=24, status='final',
+        )
+
+    def test_multi_league_picks_do_not_inflate_streak(self, user):
+        from apps.leagues.models import League, LeagueMembership
+        from apps.picks.models import Pick, UserStats
+        game = self._final_game()
+        for name in ('Fish Alums', 'Heatabockas', 'Troll Sports Central'):
+            lg = League.objects.create(name=name, commissioner=user, sport='NFL', is_approved=True)
+            LeagueMembership.objects.get_or_create(user=user, league=lg)
+            p = Pick.objects.create(user=user, game=game, league=lg, picked_team='Kansas City Chiefs')
+            p.calculate_result()
+
+        stats = UserStats.get_or_create_for_user(user)
+        stats.update_stats()
+        stats.refresh_from_db()
+        # One game finished across three leagues -> still a single game.
+        assert stats.total_picks == 1
+        assert stats.correct_picks == 1
+        assert stats.best_streak == 1      # NOT 3
+        assert stats.current_streak == 1
+
+    def test_best_streak_corrects_down_from_stale_value(self, user):
+        from apps.leagues.models import League, LeagueMembership
+        from apps.picks.models import Pick, UserStats
+        game = self._final_game('dupe_2')
+        lg = League.objects.create(name='Solo', commissioner=user, sport='NFL', is_approved=True)
+        LeagueMembership.objects.get_or_create(user=user, league=lg)
+        p = Pick.objects.create(user=user, game=game, league=lg, picked_team='Kansas City Chiefs')
+        p.calculate_result()
+
+        stats = UserStats.get_or_create_for_user(user)
+        stats.best_streak = 9  # previously inflated / stale
+        stats.save()
+        stats.update_stats()
+        stats.refresh_from_db()
+        assert stats.best_streak == 1  # recompute corrects it downward
+
+
+@pytest.mark.django_db
 class TestNavbarLeaguesContext:
     """The navbar switcher flags leagues that still need picks this week."""
 

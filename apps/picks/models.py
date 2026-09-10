@@ -121,101 +121,95 @@ class UserStats(models.Model):
         return f"{self.user.username} - {self.win_percentage:.1f}% ({self.total_picks} picks)"
     
     def update_stats(self):
-        """Update user statistics based on their picks"""
-        user_picks = Pick.objects.filter(user=self.user, is_correct__isnull=False)
-        self.total_picks = user_picks.count()
-        
-        # Count correct picks
-        correct_picks_qs = user_picks.filter(is_correct=True)
-        self.correct_picks = correct_picks_qs.count()
-        
-        # Calculate win percentage
-        if self.total_picks > 0:
-            self.win_percentage = (self.correct_picks / self.total_picks) * 100
-        else:
-            self.win_percentage = 0.0
-        
-        # Calculate total points from resolved, correct picks only.
-        # Unresolved picks keep the default points=1, so summing all picks
-        # would inflate the total before games finish.
-        self.total_points = correct_picks_qs.aggregate(
-            total=Sum('points')
-        )['total'] or 0
-        
-        # Update primetime stats - is_primetime is a Python property, not a DB field
-        try:
-            all_user_picks = list(user_picks.select_related('game'))
-            primetime_pick_list = [p for p in all_user_picks if p.game.is_primetime]
-            self.primetime_picks = len(primetime_pick_list)
-            self.primetime_correct = sum(1 for p in primetime_pick_list if p.is_correct)
-            
-            if self.primetime_picks > 0:
-                self.primetime_win_percentage = (self.primetime_correct / self.primetime_picks) * 100
-            else:
-                self.primetime_win_percentage = 0.0
-        except Exception:
-            self.primetime_picks = 0
-            self.primetime_correct = 0
-            self.primetime_win_percentage = 0.0
-        
-        # Calculate current streak
-        self.current_streak = self._calculate_current_streak()
-        
-        # Update best streak
-        current_best = self._calculate_best_streak()
-        if current_best > self.best_streak:
-            self.best_streak = current_best
-        
+        """Update user statistics, counted per distinct GAME (not per pick row).
+
+        Picks live per-league, so a member in several leagues picks the same
+        matchup multiple times. Counting raw pick rows double/triple-counts one
+        game — which, before this fix, could show a 3-game win streak after a
+        single game finished. We collapse to one result per game first.
+        """
+        results = self._game_results()  # chronological, one entry per game
+
+        self.total_picks = len(results)
+        self.correct_picks = sum(1 for r in results if r['correct'])
+        self.win_percentage = (
+            (self.correct_picks / self.total_picks) * 100 if self.total_picks else 0.0
+        )
+        # Points from resolved, correct games only.
+        self.total_points = sum(r['points'] for r in results if r['correct'])
+
+        primetime = [r for r in results if r['primetime']]
+        self.primetime_picks = len(primetime)
+        self.primetime_correct = sum(1 for r in primetime if r['correct'])
+        self.primetime_win_percentage = (
+            (self.primetime_correct / self.primetime_picks) * 100
+            if self.primetime_picks else 0.0
+        )
+
+        outcomes = [r['correct'] for r in results]
+        self.current_streak = self._current_streak(outcomes)
+        # Best is the true all-time max over full history, so set it directly —
+        # a previously stored (inflated) value must be allowed to correct down.
+        self.best_streak = self._best_streak(outcomes)
+
         self.save()
-    
-    def _calculate_current_streak(self):
-        """Calculate current winning/losing streak"""
-        recent_picks = Pick.objects.filter(
-            user=self.user,
-            is_correct__isnull=False
-        ).order_by('-created_at')[:20]  # Check last 20 picks
-        
-        if not recent_picks:
-            return 0
-        
+
+    def _game_results(self):
+        """One result per distinct game the user has a graded pick for,
+        ordered chronologically by kickoff.
+
+        Multi-league members pick the same matchup in each league; we keep a
+        single representative per game (they normally agree since it's the same
+        game) so stats/streaks reflect games, not league memberships.
+        """
+        picks = Pick.objects.filter(
+            user=self.user, is_correct__isnull=False
+        ).select_related('game')
+
+        by_game = {}
+        for p in picks:
+            if p.game_id not in by_game:
+                by_game[p.game_id] = p
+
+        reps = sorted(
+            by_game.values(),
+            key=lambda p: (p.game.start_time or p.created_at),
+        )
+        return [
+            {
+                'correct': bool(p.is_correct),
+                'points': p.points or 0,
+                'primetime': p.game.is_primetime,
+            }
+            for p in reps
+        ]
+
+    @staticmethod
+    def _best_streak(outcomes):
+        """Longest run of consecutive wins over an ordered list of booleans."""
+        best = cur = 0
+        for won in outcomes:
+            if won:
+                cur += 1
+                best = max(best, cur)
+            else:
+                cur = 0
+        return best
+
+    @staticmethod
+    def _current_streak(outcomes):
+        """Signed current streak: +N wins / -N losses from the most recent game."""
         streak = 0
-        last_result = None
-        
-        for pick in recent_picks:
-            if last_result is None:
-                last_result = pick.is_correct
-                streak = 1 if pick.is_correct else -1
-            elif pick.is_correct == last_result:
-                if pick.is_correct:
-                    streak += 1
-                else:
-                    streak -= 1
+        last = None
+        for won in reversed(outcomes):
+            if last is None:
+                last = won
+                streak = 1 if won else -1
+            elif won == last:
+                streak += 1 if won else -1
             else:
                 break
-        
         return streak
-    
-    def _calculate_best_streak(self):
-        """Calculate the best winning streak ever"""
-        picks = Pick.objects.filter(
-            user=self.user,
-            is_correct__isnull=False
-        ).order_by('created_at')
-        
-        if not picks:
-            return 0
-        
-        current_streak = 0
-        best_streak = 0
-        
-        for pick in picks:
-            if pick.is_correct:
-                current_streak += 1
-                best_streak = max(best_streak, current_streak)
-            else:
-                current_streak = 0
-        
-        return best_streak
     
     @classmethod
     def get_or_create_for_user(cls, user):

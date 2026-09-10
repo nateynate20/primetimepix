@@ -194,19 +194,14 @@
     try { payload = JSON.parse(dataEl.textContent); } catch (e) { payload = null; }
     if (!payload) return;
 
-    function buildText() {
-        var lines = ['\uD83C\uDFC8 ' + payload.title, ''];
-        if (payload.rows && payload.rows.length) {
-            lines = lines.concat(payload.rows);
-        } else {
-            lines.push('No picks yet.');
+        function buildText() {
+            // Clean, industry-standard share: one line + the link (which unfurls
+            // into the brand card). No roster dump.
+            var lines = ['\uD83C\uDFC8 ' + payload.title];
+            lines.push('See everyone\u2019s picks and the live standings:');
+            if (payload.url) lines.push(payload.url);
+            return lines.join('\n');
         }
-        if (payload.url) {
-            lines.push('');
-            lines.push('League standings: ' + payload.url);
-        }
-        return lines.join('\n');
-    }
 
     function flash(label) {
         var el = document.getElementById('share-picks-label');

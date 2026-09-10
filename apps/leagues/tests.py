@@ -845,17 +845,19 @@ class TestLeagueGroupPicks:
         assert row_by_user[member.id]['cells'][0]['state'] == 'correct'
         assert row_by_user[league.commissioner.id]['cells'][0]['state'] == 'incorrect'
 
-    def test_share_payload_lists_who_picked_what(self, league):
+    def test_share_is_a_clean_link_not_a_roster_dump(self, league):
         game, member = self._board(league)
         client = Client()
         client.force_login(member)
         resp = client.get(reverse('league_picks', args=[league.id]) + '?week=3')
         payload = resp.context['share_payload']
         assert 'Group Picks' in payload['title']
-        joined = "\n".join(payload['rows'])
-        assert 'Cowboys @ Eagles' in joined          # matchup header
-        assert member.username in joined              # who took each side
-        assert league.commissioner.username in joined
+        # Share is now just a link to the public standings page — no per-game
+        # roster of who-picked-what.
+        assert 'rows' not in payload
+        assert payload['url'].endswith(
+            reverse('public_standings', args=[league.join_code])
+        )
         body = resp.content.decode()
         assert 'share-picks-btn' in body             # Share button rendered
         assert 'share-picks-data' in body            # embedded JSON payload

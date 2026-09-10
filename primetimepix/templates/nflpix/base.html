@@ -26,8 +26,13 @@
   <meta property="og:title" content="{% block og_title %}PrimeTimePix{% endblock %}">
   <meta property="og:description" content="{% block og_description %}Make your picks for NFL primetime games. Compete with friends and climb your league standings.{% endblock %}">
   <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.png' %}{% endblock %}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="PrimeTimePix — NFL primetime pick'em">
   <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
+  {# Twitter reads og:title / og:description as fallback, so we only set the card + image. #}
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.png' %}{% endblock %}">
   {% endblock %}
 
   <!-- Fonts: Orbitron for headlines, Inter for body -->
