@@ -860,6 +860,21 @@ class TestLeagueGroupPicks:
         assert 'share-picks-btn' in body             # Share button rendered
         assert 'share-picks-data' in body            # embedded JSON payload
 
+    def test_consensus_and_open_summary(self, league):
+        game, member = self._board(league)  # 2 members, 1 upcoming game, split pick
+        client = Client()
+        client.force_login(member)
+        resp = client.get(reverse('league_picks', args=[league.id]) + '?week=3')
+        g = resp.context['games'][0]
+        # Consensus reflects the room split (Cowboys 1, Eagles 1).
+        assert g.total_picks == 2
+        assert dict(g.pick_counts) == {'Cowboys': 1, 'Eagles': 1}
+        # Game hasn't kicked off, so the open-week summary shows everyone locked in.
+        assert resp.context['open_count'] == 1
+        assert resp.context['picks_in'] == 2
+        assert resp.context['picks_out'] == 0
+        assert 'Consensus' in resp.content.decode()
+
     def test_non_member_is_redirected(self, league, outsider):
         self._board(league)
         client = Client()

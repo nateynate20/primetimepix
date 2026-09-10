@@ -199,6 +199,8 @@ def league_picks(request, league_id):
         g.away_nick = g.away_team.split()[-1] if g.away_team else g.away_team
         g.home_nick = g.home_team.split()[-1] if g.home_team else g.home_team
         g.is_final = g.status == 'final'
+        g.is_live = g.status == 'in_progress'
+        g.show_score = g.status in ('in_progress', 'final')
         g.winner_nick = g.winner.split()[-1] if g.is_final and g.winner and g.winner != 'tie' else None
         # Midnight kickoff = ESPN hasn't set the real time yet.
         et = g.display_time_et
@@ -209,6 +211,29 @@ def league_picks(request, league_id):
     # One query for every pick on the board, keyed by (member, game).
     picks = Pick.objects.filter(league=league, game__in=games).select_related('user')
     pick_map = {(p.user_id, p.game_id): p for p in picks}
+
+    # League consensus per game: how the room split, leader first. This is the
+    # headline value of a group board — you can see who's with/against the crowd.
+    for g in games:
+        counts = {}
+        for member in members:
+            pick = pick_map.get((member.id, g.id))
+            if pick and pick.picked_team:
+                nick = pick.picked_team.split()[-1]
+                counts[nick] = counts.get(nick, 0) + 1
+        g.pick_counts = sorted(counts.items(), key=lambda kv: -kv[1])
+        g.total_picks = sum(counts.values())
+
+    # "Who's still out" for the open week: only games that haven't kicked off are
+    # still pickable, so count members who are fully locked in vs still missing one.
+    open_games = [g for g in games if not g.has_started]
+    open_count = len(open_games)
+    picks_in = 0
+    if open_games:
+        for member in members:
+            if all(pick_map.get((member.id, g.id)) for g in open_games):
+                picks_in += 1
+    picks_out = len(members) - picks_in
 
     rows = []
     for member in members:
@@ -282,6 +307,9 @@ def league_picks(request, league_id):
         'rows': rows,
         'current_week': week_number,
         'total_members': len(members),
+        'open_count': open_count,
+        'picks_in': picks_in,
+        'picks_out': picks_out,
         'prev_week': prev_week,
         'next_week': next_week,
         'is_manager': league.is_commissioner(request.user),
