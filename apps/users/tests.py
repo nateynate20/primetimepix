@@ -401,6 +401,10 @@ class TestLandingPersonalization:
         # No first-timer noise for someone already in a league.
         assert 'Sign Up Free' not in body
         assert 'Create a League' not in body
+        # The My Leagues navbar switcher must not push create/join to members
+        # either (matches the dashboard: those CTAs are for the no-league state).
+        assert 'Create League' not in body
+        assert 'Join League' not in body
 
     def test_member_with_unpicked_games_sees_picks_due(self, league, monkeypatch):
         from datetime import timedelta

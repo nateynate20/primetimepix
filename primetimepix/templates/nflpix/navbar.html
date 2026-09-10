@@ -17,29 +17,28 @@
             <div class="relative" id="leagues-dropdown-wrapper">
               <button id="leagues-dropdown-btn" class="nav-link-btn flex items-center">
                 My Leagues ({{ user_leagues|length }})
+                {% if leagues_needing_picks %}<span class="ml-1.5 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-red-500 text-white text-[10px] font-black leading-none" title="{{ leagues_needing_picks }} league{{ leagues_needing_picks|pluralize }} need picks">{{ leagues_needing_picks }}</span>{% endif %}
                 <i class="fas fa-chevron-down ml-1.5 text-[10px] transition-transform" id="leagues-chevron"></i>
               </button>
-              <div id="leagues-dropdown-menu" class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-card dark:shadow-card-dark z-50 hidden">
+              <div id="leagues-dropdown-menu" class="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-card dark:shadow-card-dark z-50 hidden">
                 <div class="py-2">
                   <a href="{% url 'league_detail_no_id' %}" class="block px-4 py-2 text-accent-600 dark:text-neon font-semibold hover:bg-gray-50 dark:hover:bg-gray-700">
                     <i class="fas fa-list mr-2"></i>View All My Leagues
                   </a>
                   <div class="border-t border-gray-100 dark:border-gray-600 my-1"></div>
+                  <div class="px-4 pt-1 pb-1 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Your Leagues</div>
                   {% for league in user_leagues %}
-                    <a href="{% url 'league_detail' league.id %}" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-accent-600 dark:hover:text-neon font-medium">
-                      <i class="fas fa-users mr-2 text-gray-400"></i>{{ league.name }}
-                      {% if league.sport %}
-                        <span class="text-xs text-gray-400">({{ league.sport }})</span>
+                    <a href="{% url 'league_detail' league.id %}" class="flex items-center justify-between gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-accent-600 dark:hover:text-neon font-medium">
+                      <span class="flex items-center min-w-0">
+                        <i class="fas fa-users mr-2 text-gray-400 flex-shrink-0"></i>
+                        <span class="truncate">{{ league.name }}</span>
+                        {% if league.sport %}<span class="text-xs text-gray-400 ml-1 flex-shrink-0">({{ league.sport }})</span>{% endif %}
+                      </span>
+                      {% if league.picks_due %}
+                        <span class="flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400 text-[10px] font-black whitespace-nowrap"><i class="fas fa-clock text-[8px]"></i>{{ league.picks_due }} due</span>
                       {% endif %}
                     </a>
                   {% endfor %}
-                  <div class="border-t border-gray-100 dark:border-gray-600 my-1"></div>
-                  <a href="{% if user.is_staff %}{% url 'create_league' %}{% else %}{% url 'league_create_request' %}{% endif %}" class="block px-4 py-2 text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold">
-                    <i class="fas fa-plus mr-2"></i>Create League
-                  </a>
-                  <a href="{% url 'request_join_league' %}" class="block px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold">
-                    <i class="fas fa-user-plus mr-2"></i>Join League
-                  </a>
                 </div>
               </div>
             </div>
@@ -93,8 +92,11 @@
           <div class="border-t border-gray-100 dark:border-gray-700 my-2"></div>
           <span class="text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-widest px-2">My Leagues</span>
           {% for league in user_leagues %}
-            <a href="{% url 'league_detail' league.id %}" class="nav-link-mobile pl-4">
-              {{ league.name }}
+            <a href="{% url 'league_detail' league.id %}" class="nav-link-mobile pl-4 flex items-center justify-between gap-2">
+              <span class="truncate">{{ league.name }}</span>
+              {% if league.picks_due %}
+                <span class="flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400 text-[10px] font-black whitespace-nowrap"><i class="fas fa-clock text-[8px]"></i>{{ league.picks_due }} due</span>
+              {% endif %}
             </a>
           {% endfor %}
           <a href="{% url 'league_detail_no_id' %}" class="nav-link-mobile pl-4 text-accent-600 dark:text-neon">View All</a>

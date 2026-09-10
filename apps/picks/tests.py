@@ -328,6 +328,49 @@ class TestPickLockingServerSide:
         assert not Pick.objects.filter(user=user, game=started).exists()
 
 
+@pytest.mark.django_db
+class TestNavbarLeaguesContext:
+    """The navbar switcher flags leagues that still need picks this week."""
+
+    def _request(self, user):
+        from django.test import RequestFactory
+        req = RequestFactory().get('/')
+        req.user = user
+        return req
+
+    def _open_primetime_game(self, monkeypatch, week=5):
+        monkeypatch.setattr(Game, 'is_primetime', property(lambda self: True))
+        monkeypatch.setattr('apps.games.utils.get_current_nfl_week', lambda: week)
+        return Game.objects.create(
+            game_id='nav_due', season=2026, week=week, game_type='regular',
+            start_time=timezone.now() + timedelta(days=1),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills', status='scheduled',
+        )
+
+    def test_league_flagged_when_a_pick_is_due(self, user, league, monkeypatch):
+        from apps.leagues.models import LeagueMembership
+        from apps.picks import context_processors as cp
+        LeagueMembership.objects.get_or_create(user=user, league=league)
+        self._open_primetime_game(monkeypatch)
+
+        ctx = cp.user_leagues(self._request(user))
+        assert ctx['leagues_needing_picks'] == 1
+        lg = next(l for l in ctx['user_leagues'] if l.id == league.id)
+        assert lg.picks_due == 1
+
+    def test_no_flag_once_the_pick_is_made(self, user, league, monkeypatch):
+        from apps.leagues.models import LeagueMembership
+        from apps.picks import context_processors as cp
+        LeagueMembership.objects.get_or_create(user=user, league=league)
+        game = self._open_primetime_game(monkeypatch)
+        Pick.objects.create(user=user, game=game, league=league, picked_team='Kansas City Chiefs')
+
+        ctx = cp.user_leagues(self._request(user))
+        assert ctx['leagues_needing_picks'] == 0
+        lg = next(l for l in ctx['user_leagues'] if l.id == league.id)
+        assert lg.picks_due == 0
+
+
 class TestBadges:
     """compute_badges is pure (no DB) — it derives achievements from stats."""
 
