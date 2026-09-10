@@ -114,9 +114,36 @@ class League(models.Model):
         win, a wrong pick shows a loss, and the still-to-play Sunday/Monday
         games are surfaced as "pending" rather than counted). Tie games are
         recorded as pushes and don't help or hurt the record.
+
+        Missing the deadline is an automatic loss: any primetime game that has
+        kicked off (pick window closed) which a member did NOT pick counts
+        against them, so no-shows can't dodge losses by simply not picking.
+        Members aren't penalised for games that locked before they joined.
         """
         from apps.picks.models import Pick
-        from django.db.models import Sum
+        from apps.games.models import Game
+        from django.db.models import Sum, Max
+        from django.utils import timezone
+
+        now = timezone.now()
+
+        # Universe of games every member was expected to pick: current-season
+        # primetime games whose kickoff has passed and that weren't cancelled.
+        current_season = Game.objects.aggregate(m=Max('season'))['m']
+        locked_primetime = []
+        if current_season is not None:
+            locked_primetime = [
+                g for g in Game.objects.filter(
+                    season=current_season, start_time__lte=now
+                ).exclude(status='cancelled')
+                if g.is_primetime
+            ]
+
+        # When each member joined — no penalty for games that locked before then.
+        joined_at = {
+            m.user_id: m.joined_at
+            for m in LeagueMembership.objects.filter(league=self)
+        }
 
         standings = []
 
@@ -124,7 +151,7 @@ class League(models.Model):
             picks = Pick.objects.filter(user=member, league=self)
 
             wins = picks.filter(is_correct=True).count()
-            losses = picks.filter(is_correct=False).count()
+            graded_losses = picks.filter(is_correct=False).count()
             # Push: the game finished with no winner, so is_correct stays null.
             pushes = picks.filter(
                 is_correct__isnull=True, game__status='final'
@@ -134,6 +161,19 @@ class League(models.Model):
                 game__status__in=['final', 'cancelled']
             ).count()
 
+            # Automatic losses: locked primetime games this member was on the
+            # hook for (joined before kickoff) but never picked.
+            picked_ids = set(picks.values_list('game_id', flat=True))
+            member_join = joined_at.get(member.id)
+            missed = 0
+            for g in locked_primetime:
+                if g.id in picked_ids:
+                    continue
+                if member_join is not None and g.start_time < member_join:
+                    continue  # locked before they joined — not their responsibility
+                missed += 1
+
+            losses = graded_losses + missed
             decided = wins + losses
             total_points = picks.filter(is_correct=True).aggregate(
                 total=Sum('points')
@@ -149,6 +189,7 @@ class League(models.Model):
                 'user': member,
                 'wins': wins,
                 'losses': losses,
+                'missed': missed,
                 'pushes': pushes,
                 'pending': pending,
                 'record': record,

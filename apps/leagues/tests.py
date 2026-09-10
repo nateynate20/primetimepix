@@ -725,6 +725,76 @@ class TestMemberCountAccuracy:
 
 
 @pytest.mark.django_db
+class TestAutomaticLossForMissedPicks:
+    """Missing the pick deadline is an automatic loss: a locked primetime game a
+    member didn't pick counts against them — but only for games that locked
+    after they joined the league."""
+
+    @pytest.fixture(autouse=True)
+    def _all_primetime(self, monkeypatch):
+        monkeypatch.setattr(Game, 'is_primetime', property(lambda self: True))
+
+    def _join_at(self, user, league, when):
+        m, _ = LeagueMembership.objects.get_or_create(user=user, league=league)
+        LeagueMembership.objects.filter(pk=m.pk).update(joined_at=when)
+        return m
+
+    def test_missed_locked_game_counts_as_loss(self, league):
+        from apps.picks.models import Pick
+        picker = league.commissioner
+        skipper = make_user('skipper', 'SkipTeam')
+        # Skipper was in the league a week before kickoff.
+        self._join_at(skipper, league, timezone.now() - timedelta(days=7))
+
+        game = Game.objects.create(
+            game_id='miss_1', season=2026, week=1, game_type='regular',
+            start_time=timezone.now() - timedelta(hours=3),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills',
+            home_score=27, away_score=24, status='final',
+        )
+        p = Pick.objects.create(user=picker, game=game, league=league, picked_team='Kansas City Chiefs')
+        p.calculate_result()
+
+        rows = {r['user'].id: r for r in league.get_standings()}
+        # Skipper never picked a game that already kicked off -> automatic loss.
+        assert rows[skipper.id]['missed'] == 1
+        assert rows[skipper.id]['losses'] == 1
+        assert rows[skipper.id]['record'] == '0-1'
+        assert rows[skipper.id]['accuracy'] == 0
+        # Picker picked correctly and has no misses.
+        assert rows[picker.id]['wins'] == 1
+        assert rows[picker.id]['missed'] == 0
+
+    def test_open_game_not_yet_locked_is_not_a_loss(self, league):
+        skipper = make_user('skipper2', 'Skip2')
+        self._join_at(skipper, league, timezone.now() - timedelta(days=7))
+        Game.objects.create(
+            game_id='future_1', season=2026, week=2, game_type='regular',
+            start_time=timezone.now() + timedelta(days=1),  # hasn't locked
+            home_team='Philadelphia Eagles', away_team='Dallas Cowboys',
+            status='scheduled',
+        )
+        rows = {r['user'].id: r for r in league.get_standings()}
+        assert rows[skipper.id]['missed'] == 0
+        assert rows[skipper.id]['losses'] == 0
+
+    def test_no_penalty_for_games_that_locked_before_joining(self, league):
+        # Game already kicked off two days ago...
+        Game.objects.create(
+            game_id='pre_join', season=2026, week=1, game_type='regular',
+            start_time=timezone.now() - timedelta(days=2),
+            home_team='Kansas City Chiefs', away_team='Buffalo Bills',
+            home_score=27, away_score=24, status='final',
+        )
+        # ...but this member only joins now (after it locked).
+        latecomer = make_user('latecomer', 'LateTeam')
+        self._join_at(latecomer, league, timezone.now())
+        rows = {r['user'].id: r for r in league.get_standings()}
+        assert rows[latecomer.id]['missed'] == 0
+        assert rows[latecomer.id]['losses'] == 0
+
+
+@pytest.mark.django_db
 class TestLeagueGroupPicks:
     """The group pick sheet shows every member's picks to fellow members (picks
     are intentionally not hidden), with results filling in as games finish."""

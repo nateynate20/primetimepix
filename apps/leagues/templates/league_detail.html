@@ -236,7 +236,7 @@
                 <h4 class="font-bold text-gray-900 dark:text-blue-200 text-sm">{{ league.name }} Info</h4>
                 <p class="text-gray-600 dark:text-blue-100/70 text-sm mt-1">
                     This league focuses on {{ league.sport }} games.
-                    Each member's record updates automatically as games finish &mdash; a correct pick counts as a win, a wrong pick as a loss, and picks for games still to be played show as pending.
+                    Each member's record updates automatically as games finish &mdash; a correct pick counts as a win, a wrong pick as a loss, and picks for games still to be played show as pending. Missing a pick before kickoff counts as an automatic loss.
                     {% if league.commissioner == user %}
                     You are the commissioner of this league.
                     {% else %}
