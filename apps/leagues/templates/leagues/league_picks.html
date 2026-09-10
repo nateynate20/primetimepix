@@ -16,6 +16,11 @@
             </p>
         </div>
         <div class="flex flex-wrap gap-2">
+            {% if games %}
+            <button type="button" id="share-picks-btn" class="px-4 py-2 bg-white dark:bg-surface-800 text-gray-700 dark:text-gray-200 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
+                <i class="fas fa-share-nodes mr-1"></i><span id="share-picks-label">Share Picks</span>
+            </button>
+            {% endif %}
             <a href="{% url 'league_detail' league.id %}" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-bold text-sm border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-neon transition">
                 <i class="fas fa-list-ol mr-1"></i>Standings
             </a>
@@ -24,6 +29,8 @@
             </a>
         </div>
     </div>
+
+    {{ share_payload|json_script:"share-picks-data" }}
 
     <!-- Week nav -->
     <div class="flex items-center justify-between mb-4">
@@ -124,4 +131,65 @@
     {% endif %}
 
 </div>
+
+<script>
+(function () {
+    var btn = document.getElementById('share-picks-btn');
+    var dataEl = document.getElementById('share-picks-data');
+    if (!btn || !dataEl) return;
+
+    var payload;
+    try { payload = JSON.parse(dataEl.textContent); } catch (e) { payload = null; }
+    if (!payload) return;
+
+    function buildText() {
+        var lines = ['\uD83C\uDFC8 ' + payload.title, ''];
+        if (payload.rows && payload.rows.length) {
+            lines = lines.concat(payload.rows);
+        } else {
+            lines.push('No picks yet.');
+        }
+        if (payload.url) {
+            lines.push('');
+            lines.push('See the full board: ' + payload.url);
+        }
+        return lines.join('\n');
+    }
+
+    function flash(label) {
+        var el = document.getElementById('share-picks-label');
+        if (!el) return;
+        var prev = el.textContent;
+        el.textContent = label;
+        setTimeout(function () { el.textContent = prev; }, 2000);
+    }
+
+    btn.addEventListener('click', function () {
+        var text = buildText();
+        if (window.ptpTrack) ptpTrack('share_group_picks');
+        // Native share sheet on mobile / supported browsers.
+        if (navigator.share) {
+            navigator.share({ title: payload.title, text: text }).catch(function () {});
+            return;
+        }
+        // Desktop fallback: copy to clipboard.
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(
+                function () { flash('Copied!'); },
+                function () { flash('Copy failed'); }
+            );
+        } else {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); flash('Copied!'); }
+            catch (e) { flash('Copy failed'); }
+            document.body.removeChild(ta);
+        }
+    });
+})();
+</script>
 {% endblock %}

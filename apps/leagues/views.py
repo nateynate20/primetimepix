@@ -249,6 +249,32 @@ def league_picks(request, league_id):
         if week_number < 18:
             next_week = week_number + 1
 
+    # Shareable "who-picked-what" summary — one block per game listing which
+    # members took each side, so the Share button drops a readable board into a
+    # group chat (the social payoff of an open pool).
+    week_label = 'Playoffs' if week_number == 'playoffs' else f"Week {week_number}"
+    share_rows = []
+    for g in games:
+        share_rows.append(f"{g.away_nick} @ {g.home_nick}")
+        by_team = {}
+        for member in members:
+            pick = pick_map.get((member.id, g.id))
+            if pick:
+                nick = pick.picked_team.split()[-1] if pick.picked_team else pick.picked_team
+                by_team.setdefault(nick, []).append(member.username)
+        if by_team:
+            for team, users in by_team.items():
+                share_rows.append(f"  {team}: {', '.join(users)}")
+        else:
+            share_rows.append("  No picks yet")
+        share_rows.append("")
+    if share_rows and share_rows[-1] == "":
+        share_rows.pop()  # trim trailing spacer
+
+    share_url = f"{settings.SITE_URL}{reverse('league_picks', args=[league.id])}"
+    if week_number != 'playoffs':
+        share_url += f"?week={week_number}"
+
     context = {
         'league': league,
         'games': games,
@@ -258,6 +284,11 @@ def league_picks(request, league_id):
         'prev_week': prev_week,
         'next_week': next_week,
         'is_manager': league.is_commissioner(request.user),
+        'share_payload': {
+            'title': f"{league.name} — Group Picks ({week_label})",
+            'rows': share_rows,
+            'url': share_url,
+        },
     }
     return render(request, 'leagues/league_picks.html', context)
 
