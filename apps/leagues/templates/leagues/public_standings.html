@@ -5,7 +5,7 @@
 {% block meta_description %}Live standings for {{ league.name }} on PrimeTimePix — {{ total_members }} member{{ total_members|pluralize }} picking NFL primetime games.{% endblock %}
 {% block og_title %}{{ league.name }} — Live Standings{% endblock %}
 {% block og_description %}See who's on top in {{ league.name }} on PrimeTimePix. {{ total_members }} member{{ total_members|pluralize }} · NFL primetime pick'em.{% endblock %}
-{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/invite-og.png' %}{% endblock %}
+{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-default.png' %}{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 py-8">

@@ -271,9 +271,10 @@ def league_picks(request, league_id):
     if share_rows and share_rows[-1] == "":
         share_rows.pop()  # trim trailing spacer
 
-    share_url = f"{settings.SITE_URL}{reverse('league_picks', args=[league.id])}"
-    if week_number != 'playoffs':
-        share_url += f"?week={week_number}"
+    # Link to the PUBLIC standings page (not the members-only picks board): it's
+    # login-free and carries proper brand OG tags, so shared links open for
+    # anyone and unfurl as PrimeTimePix rather than redirecting to the invite.
+    share_url = f"{settings.SITE_URL}{reverse('public_standings', args=[league.join_code])}"
 
     context = {
         'league': league,
